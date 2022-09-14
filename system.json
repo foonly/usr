@@ -2,10 +2,14 @@
   "name": "usr",
   "title": "Universal System for Role-Playing",
   "description": "The Universal System for Role-Playing for FoundryVTT!",
-  "version": "1.0.0",
-  "minimumCoreVersion": "0.8.6",
-  "compatibleCoreVersion": "9",
-  "author": "Niklas Schönberg",
+  "version": "0.1.0",
+  "minimumCoreVersion": "0.10.0",
+  "compatibleCoreVersion": "10",
+  "authors": [{
+    "name": "Niklas Schönberg",
+    "url": "https://niklas.uplink.fi",
+    "email": "niklas@uplink.fi"
+  }],
   "esmodules": ["module/usr.mjs"],
   "styles": ["css/usr.css"],
   "scripts": [],
@@ -21,8 +25,8 @@
   "gridUnits": "m",
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
-  "url": "",
-  "manifest": "",
+  "url": "https://gitlab.com/foonly/usr",
+  "manifest": "https://gitlab.com/foonly/usr/-/blob/main/system.json",
   "download": "",
   "license": "LICENSE.txt"
 }

@@ -1,6 +1,6 @@
 {
   "name": "usr",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "CSS compiler for the Universal System for Role-Playing",
   "scripts": {
     "build": "gulp build",

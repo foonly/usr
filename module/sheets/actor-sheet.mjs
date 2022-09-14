@@ -12,8 +12,8 @@ export class usrActorSheet extends ActorSheet {
       classes: ["usr", "sheet", "actor"],
       template: "systems/usr/templates/actor/actor-sheet.html",
       width: 600,
-      height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "features" }]
+      height: 800,
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "traits" }]
     });
   }
 

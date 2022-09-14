@@ -3,15 +3,15 @@
     "types": ["character", "npc"],
     "templates": {
       "base": {
+        "position": {
+          "value": 3,
+          "min": 0,
+          "max": 5
+        },
         "health": {
           "value": 10,
           "min": 0,
           "max": 10
-        },
-        "power": {
-          "value": 5,
-          "min": 0,
-          "max": 5
         },
         "biography": ""
       }
@@ -19,9 +19,22 @@
     "character": {
       "templates": ["base"],
       "attributes": {
-        "level": {
-          "value": 1
-        }
+        "fortitude": 1,
+        "intelligence": 1,
+        "initiative": 1,
+        "willpower": 1,
+        "mobility": 1,
+        "awareness": 1,
+        "melee": 1,
+        "medicine": 1,
+        "ranged": 1,
+        "engineering": 1,
+        "charisma": 1,
+        "survival": 1,
+        "subterfuge": 1,
+        "animals": 1,
+        "craftsmanship": 1,
+        "naval": 1
       }
     },
     "npc": {
