@@ -1,0 +1,10 @@
+<section class="traits">
+    {{#each traits as |trait key|}}
+        <div class="trait">
+            <label for="traits.{{ key }}">
+                {{ capitalize key }}
+            </label>
+            <input class="attribute-value" type="number" id="traits.{{ key }}" name="system.traits.{{ key }}.value" value="{{trait.value}}"/>
+        </div>
+    {{/each}}
+</section>

@@ -1,32 +1,29 @@
-// Import document classes.
-import { usrActor } from "./documents/actor.mjs";
-import { usrItem } from "./documents/item.mjs";
-// Import sheet classes.
-import { usrActorSheet } from "./sheets/actor-sheet.mjs";
-import { usrItemSheet } from "./sheets/item-sheet.mjs";
-// Import helper/utility classes and constants.
-import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
-import { USR } from "./helpers/config.mjs";
+/**
+ * A simple and flexible system for world-building using an arbitrary collection of character and item attributes
+ * Author: Atropos
+ */
+
+// Import Modules
+import { UsrActor } from "./actor.mjs";
+import { UsrItem } from "./item.mjs";
+import { UsrItemSheet } from "./item-sheet.mjs";
+import { UsrActorSheet } from "./actor-sheet.mjs";
+import { preloadHandlebarsTemplates } from "./templates.mjs";
+import { createusrMacro } from "./macro.mjs";
+import { UsrToken, UsrTokenDocument } from "./token.mjs";
 
 /* -------------------------------------------- */
-/*  Init Hook                                   */
+/*  Foundry VTT Initialization                  */
 /* -------------------------------------------- */
 
-Hooks.once('init', async function() {
-
-  // Add utility classes to the global game object so that they're more easily
-  // accessible in global contexts.
-  game.usr = {
-    usrActor,
-    usrItem,
-    rollItemMacro
-  };
-
-  // Add custom constants for configuration.
-  CONFIG.USR = USR;
+/**
+ * Init hook.
+ */
+Hooks.once("init", async function() {
+  console.log(`Initializing Simple usr System`);
 
   /**
-   * Set an initiative formula for the system
+   * Set an initiative formula for the system. This will be updated later.
    * @type {String}
    */
   CONFIG.Combat.initiative = {
@@ -34,94 +31,150 @@ Hooks.once('init', async function() {
     decimals: 2
   };
 
+  game.usr = {
+    UsrActor,
+    createusrMacro
+  };
+
   // Define custom Document classes
-  CONFIG.Actor.documentClass = usrActor;
-  CONFIG.Item.documentClass = usrItem;
+  CONFIG.Actor.documentClass = UsrActor;
+  CONFIG.Item.documentClass = UsrItem;
+  CONFIG.Token.documentClass = UsrTokenDocument;
+  CONFIG.Token.objectClass = UsrToken;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("usr", usrActorSheet, { makeDefault: true });
+  Actors.registerSheet("usr", UsrActorSheet, { makeDefault: true });
   Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("usr", usrItemSheet, { makeDefault: true });
+  Items.registerSheet("usr", UsrItemSheet, { makeDefault: true });
 
-  // Preload Handlebars templates.
-  return preloadHandlebarsTemplates();
-});
+  // Register system settings
+  game.settings.register("usr", "macroShorthand", {
+    name: "SETTINGS.SimpleMacroShorthandN",
+    hint: "SETTINGS.SimpleMacroShorthandL",
+    scope: "world",
+    type: Boolean,
+    default: true,
+    config: true
+  });
 
-/* -------------------------------------------- */
-/*  Handlebars Helpers                          */
-/* -------------------------------------------- */
+  // Register initiative setting.
+  game.settings.register("usr", "initFormula", {
+    name: "SETTINGS.SimpleInitFormulaN",
+    hint: "SETTINGS.SimpleInitFormulaL",
+    scope: "world",
+    type: String,
+    default: "1d20",
+    config: true,
+    onChange: formula => _simpleUpdateInit(formula, true)
+  });
 
-// If you need to add Handlebars helpers, here are a few useful examples:
-Handlebars.registerHelper('concat', function() {
-  var outStr = '';
-  for (var arg in arguments) {
-    if (typeof arguments[arg] != 'object') {
-      outStr += arguments[arg];
+  // Retrieve and assign the initiative formula setting.
+  const initFormula = game.settings.get("usr", "initFormula");
+  _simpleUpdateInit(initFormula);
+
+  /**
+   * Update the initiative formula.
+   * @param {string} formula - Dice formula to evaluate.
+   * @param {boolean} notify - Whether or not to post nofications.
+   */
+  function _simpleUpdateInit(formula, notify = false) {
+    const isValid = Roll.validate(formula);
+    if ( !isValid ) {
+      if ( notify ) ui.notifications.error(`${game.i18n.localize("SIMPLE.NotifyInitFormulaInvalid")}: ${formula}`);
+      return;
     }
+    CONFIG.Combat.initiative.formula = formula;
   }
-  return outStr;
+
+  /**
+   * Slugify a string.
+   */
+  Handlebars.registerHelper('slugify', function(value) {
+    return value.slugify({strict: true});
+  });
+
+  /**
+   * Capitalize a string.
+   */
+  Handlebars.registerHelper('capitalize', function(value) {
+    return value[0].toUpperCase() + value.substring(1);
+  });
+
+
+  // Preload template partials
+  await preloadHandlebarsTemplates();
 });
-
-Handlebars.registerHelper('toLowerCase', function(str) {
-  return str.toLowerCase();
-});
-
-/* -------------------------------------------- */
-/*  Ready Hook                                  */
-/* -------------------------------------------- */
-
-Hooks.once("ready", async function() {
-  // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
-  Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
-});
-
-/* -------------------------------------------- */
-/*  Hotbar Macros                               */
-/* -------------------------------------------- */
 
 /**
- * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
- * @param {Object} data     The dropped data
- * @param {number} slot     The hotbar slot to use
- * @returns {Promise}
+ * Macrobar hook.
  */
-async function createItemMacro(data, slot) {
-  if (data.type !== "Item") return;
-  if (!("data" in data)) return ui.notifications.warn("You can only create macro buttons for owned Items");
-  const item = data.data;
-
-  // Create the macro command
-  const command = `game.usr.rollItemMacro("${item.name}");`;
-  let macro = game.macros.find(m => (m.name === item.name) && (m.command === command));
-  if (!macro) {
-    macro = await Macro.create({
-      name: item.name,
-      type: "script",
-      img: item.img,
-      command: command,
-      flags: { "usr.itemMacro": true }
-    });
-  }
-  game.user.assignHotbarMacro(macro, slot);
-  return false;
-}
+Hooks.on("hotbarDrop", (bar, data, slot) => createusrMacro(data, slot));
 
 /**
- * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
- * @param {string} itemName
- * @return {Promise}
+ * Adds the actor template context menu.
  */
-function rollItemMacro(itemName) {
-  const speaker = ChatMessage.getSpeaker();
-  let actor;
-  if (speaker.token) actor = game.actors.tokens[speaker.token];
-  if (!actor) actor = game.actors.get(speaker.actor);
-  const item = actor ? actor.items.find(i => i.name === itemName) : null;
-  if (!item) return ui.notifications.warn(`Your controlled Actor does not have an item named ${itemName}`);
+Hooks.on("getActorDirectoryEntryContext", (html, options) => {
 
-  // Trigger the item roll
-  return item.roll();
-}
+  // Define an actor as a template.
+  options.push({
+    name: game.i18n.localize("SIMPLE.DefineTemplate"),
+    icon: '<i class="fas fa-stamp"></i>',
+    condition: li => {
+      const actor = game.actors.get(li.data("documentId"));
+      return !actor.isTemplate;
+    },
+    callback: li => {
+      const actor = game.actors.get(li.data("documentId"));
+      actor.setFlag("usr", "isTemplate", true);
+    }
+  });
+
+  // Undefine an actor as a template.
+  options.push({
+    name: game.i18n.localize("SIMPLE.UnsetTemplate"),
+    icon: '<i class="fas fa-times"></i>',
+    condition: li => {
+      const actor = game.actors.get(li.data("documentId"));
+      return actor.isTemplate;
+    },
+    callback: li => {
+      const actor = game.actors.get(li.data("documentId"));
+      actor.setFlag("usr", "isTemplate", false);
+    }
+  });
+});
+
+/**
+ * Adds the item template context menu.
+ */
+Hooks.on("getItemDirectoryEntryContext", (html, options) => {
+
+  // Define an item as a template.
+  options.push({
+    name: game.i18n.localize("SIMPLE.DefineTemplate"),
+    icon: '<i class="fas fa-stamp"></i>',
+    condition: li => {
+      const item = game.items.get(li.data("documentId"));
+      return !item.isTemplate;
+    },
+    callback: li => {
+      const item = game.items.get(li.data("documentId"));
+      item.setFlag("usr", "isTemplate", true);
+    }
+  });
+
+  // Undefine an item as a template.
+  options.push({
+    name: game.i18n.localize("SIMPLE.UnsetTemplate"),
+    icon: '<i class="fas fa-times"></i>',
+    condition: li => {
+      const item = game.items.get(li.data("documentId"));
+      return item.isTemplate;
+    },
+    callback: li => {
+      const item = game.items.get(li.data("documentId"));
+      item.setFlag("usr", "isTemplate", false);
+    }
+  });
+});

@@ -1,62 +1,125 @@
 {
-  "Actor": {
-    "types": ["character", "npc"],
-    "templates": {
-      "base": {
-        "position": {
-          "value": 3,
-          "min": 0,
-          "max": 5
-        },
-        "health": {
-          "value": 10,
-          "min": 0,
-          "max": 10
-        },
-        "biography": ""
+"Actor": {
+  "types": ["character"],
+  "htmlFields": ["biography"],
+  "character": {
+    "biography": "",
+    "health": {
+      "value": 10,
+      "min": 0,
+      "max": 10
+    },
+    "power": {
+      "value": 5,
+      "min": 0,
+      "max": 5
+    },
+    "traits": {
+      "fortitude": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0
+      },
+      "intelligence": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0
+      },
+      "initiative": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0
+      },
+      "willpower": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0
+      },
+      "awareness": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0
+      },
+      "mobility": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "melee": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "medicine": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "ranged": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "engineering": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "charisma": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "survival": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "subterfuge": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "animals": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "craftsmanship": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
+      },
+      "naval": {
+        "value": 1,
+        "xp": 0,
+        "roll": 0,
+        "spec": {}
       }
     },
-    "character": {
-      "templates": ["base"],
-      "attributes": {
-        "fortitude": 1,
-        "intelligence": 1,
-        "initiative": 1,
-        "willpower": 1,
-        "mobility": 1,
-        "awareness": 1,
-        "melee": 1,
-        "medicine": 1,
-        "ranged": 1,
-        "engineering": 1,
-        "charisma": 1,
-        "survival": 1,
-        "subterfuge": 1,
-        "animals": 1,
-        "craftsmanship": 1,
-        "naval": 1
-      }
-    },
-    "npc": {
-      "templates": ["base"],
-      "cr": 0
-    }
-  },
-  "Item": {
-    "types": ["item", "feature"],
-    "templates": {
-      "base": {
-        "description": ""
-      }
-    },
-    "item": {
-      "templates": ["base"],
-      "quantity": 1,
-      "weight": 0,
-      "formula": "d20 + @str.mod + ceil(@lvl / 2)"
-    },
-    "feature": {
-      "templates": ["base"]
-    }
+    "attributes": {},
+    "groups": {}
   }
+},
+"Item": {
+  "types": ["item"],
+  "htmlFields": ["description"],
+  "item": {
+    "description": "",
+    "quantity": 1,
+    "weight": 0,
+    "attributes": {},
+    "groups": {}
+  }
+}
 }

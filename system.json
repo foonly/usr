@@ -1,10 +1,13 @@
 {
   "name": "usr",
-  "title": "Universal System for Role-Playing",
-  "description": "The Universal System for Role-Playing for FoundryVTT!",
+  "title": "Universal Simple Role-Playing",
+  "description": "The Universal Simple Role-Playing System for FoundryVTT!",
   "version": "0.1.0",
   "minimumCoreVersion": "0.10.0",
-  "compatibleCoreVersion": "10",
+  "compatibility": {
+    "minimum": 10,
+    "verified": "10"
+  },
   "authors": [{
     "name": "Niklas Schönberg",
     "url": "https://niklas.uplink.fi",
