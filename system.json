@@ -28,8 +28,8 @@
   "gridUnits": "m",
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
-  "url": "https://gitlab.com/foonly/usr",
-  "manifest": "https://gitlab.com/foonly/usr/-/blob/main/system.json",
+  "url": "https://github.com/foonly/usr",
+  "manifest": "https://raw.githubusercontent.com/foonly/usr/main/system.json",
   "download": "",
   "license": "LICENSE.txt"
 }

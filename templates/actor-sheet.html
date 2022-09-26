@@ -8,14 +8,13 @@
                 <input name="name" type="text" value="{{data.name}}" placeholder="Name" />
             </h1>
             <div class="resource">
-                <input type="number" name="system.health.value" value="{{systemData.health.value}}"/>
-                <span> / </span>
-                <input type="number" name="system.health.max" value="{{systemData.health.max}}"/>
+                Position
+                {{#times 5}}
+                    <input type="radio" name="position" value="{{this}}"/>
+                {{/times}}
             </div>
             <div class="resource">
-                <input type="number" name="system.power.value" value="{{systemData.power.value}}"/>
-                <span> / </span>
-                <input type="number" name="system.power.max" value="{{systemData.power.max}}"/>
+                Foo
             </div>
         </div>
     </header>
