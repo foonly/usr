@@ -1,7 +1,7 @@
 <section class="traits">
     {{#each traits as |trait key|}}
         <div class="trait">
-            <label for="traits.{{ key }}">
+            <label class="trait-title" for="traits.{{ key }}">
                 {{ capitalize key }}
             </label>
             <input class="trait-value" type="number" id="traits.{{ key }}" name="system.traits.{{ key }}.value" value="{{trait.value}}"/>
