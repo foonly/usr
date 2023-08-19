@@ -1,24 +1,21 @@
-.usr {
-  .sheet {
-    .actor {
-      min-width: 560px;
-      min-height: 420px;
-    }
-    .item {
-      min-width: 460px;
-      min-height: 400px;
-    }
-  }
-  .trait {
-    margin-bottom: 1em;
-    > label {
-      font-size: 1.4em;
-      min-width: 160px;
-      display: inline-block;
-    }
-    .trait-value {
-      font-size: 1.4em;
-      width: 30px;
-    }
-  }
+// Add custom fonts by visiting and search https://fonts.google.com
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+// Import utilities.
+@import 'utils/typography';
+@import 'utils/colors';
+@import 'utils/mixins';
+@import 'utils/variables';
+
+/* Global styles */
+@import 'global/window';
+@import 'global/grid';
+@import 'global/flex';
+
+/* Styles limited to boilerplate sheets */
+.boilerplate {
+  @import 'components/forms';
+  @import 'components/resource';
+  @import 'components/items';
+  @import 'components/effects';
 }
