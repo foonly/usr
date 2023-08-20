@@ -13,6 +13,116 @@
           "min": 0,
           "max": 5
         },
+        "traits": {
+          "fortitude": {
+            "label": "Fortitude",
+            "value": 1,
+            "xp": 0,
+            "roll": 0
+          },
+          "intelligence": {
+            "label": "Intelligence",
+            "value": 1,
+            "xp": 0,
+            "roll": 0
+          },
+          "initiative": {
+            "label": "Initiative",
+            "value": 1,
+            "xp": 0,
+            "roll": 0
+          },
+          "willpower": {
+            "label": "Willpower",
+            "value": 1,
+            "xp": 0,
+            "roll": 0
+          },
+          "awareness": {
+            "label": "Awareness",
+            "value": 1,
+            "xp": 0,
+            "roll": 0
+          },
+          "mobility": {
+            "label": "Mobility",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "melee": {
+            "label": "Melee",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "medicine": {
+            "label": "Medicine",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "ranged": {
+            "label": "Ranged",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "engineering": {
+            "label": "Engineering",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "charisma": {
+            "label": "Charisma",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "survival": {
+            "label": "Survival",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "subterfuge": {
+            "label": "Subterfuge",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "animals": {
+            "label": "Animals",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "craftsmanship": {
+            "label": "Craftsmanship",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          },
+          "naval": {
+            "label": "Naval",
+            "value": 1,
+            "xp": 0,
+            "roll": 0,
+            "spec": {}
+          }
+        },
+
         "biography": ""
       }
     },

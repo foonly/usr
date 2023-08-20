@@ -69,7 +69,7 @@ export class usrActorSheet extends ActorSheet {
   _prepareCharacterData(context) {
     // Handle ability scores.
     for (let [k, v] of Object.entries(context.system.abilities)) {
-      v.label = game.i18n.localize(CONFIG.USR.abilities[k]) ?? k;
+      v.label = game.i18n.localize(CONFIG.usr.abilities[k]) ?? k;
     }
   }
 
