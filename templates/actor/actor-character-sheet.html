@@ -66,9 +66,12 @@
           <div class="traits flexcol">
             {{#each system.traits as |trait key| }}
             <div class="trait flexrow flex-group-center">
-              <label for="system.traits.{{key}}.value" class="resource-label rollable flexlarge align-left" data-roll="4d10<@traits.{{key}}.value" data-label="{{ trait.label }}">{{ key }}</label>
+              <label for="system.traits.{{key}}.value" class="resource-label flexlarge align-left" data-label="{{ trait.label }}">{{ trait.label }}</label>
               <input type="text" name="system.traits.{{key}}.value" value="{{trait.value}}" data-dtype="Number"/>
-              <span class="trait-mod rollable" data-roll="d10<@traits.{{key}}.value" data-label="{{trait.label}}">{{numberFormat trait.value decimals=0 sign=true}}</span>
+              <span class="trait rollable" data-roll="4d10cs<=@traits.{{key}}.value" data-label="{{trait.label}}">Normal</span>
+              <span class="trait rollable" data-roll="3d10cs<=@traits.{{key}}.value" data-label="{{trait.label}}">Tricky</span>
+              <span class="trait rollable" data-roll="2d10cs<=@traits.{{key}}.value" data-label="{{trait.label}}">Hard</span>
+              <span class="trait rollable" data-roll="1d10cs<=@traits.{{key}}.value" data-label="{{trait.label}}">Very Hard</span>
             </div>
             {{/each}}
           </div>
