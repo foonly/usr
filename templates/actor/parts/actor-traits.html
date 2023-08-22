@@ -1,0 +1,10 @@
+<div class="traits flexcol">
+    {{#each system.traits as |trait key| }}
+    <div class="trait flexrow flex-group-center">
+        <label for="system.traits.{{key}}.value" class="resource-label flexlarge align-left"
+            data-label="{{ trait.label }}">{{ trait.label }}</label>
+        <input type="text" name="system.traits.{{key}}.value" value="{{trait.value}}" data-dtype="Number" />
+        <button class="trait rollable" data-roll-usr="{{trait.value}}/4/0" data-label="{{trait.label}}">Normal</button>
+    </div>
+    {{/each}}
+</div>

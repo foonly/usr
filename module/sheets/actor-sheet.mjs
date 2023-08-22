@@ -13,7 +13,7 @@ export class usrActorSheet extends ActorSheet {
       template: "systems/usr/templates/actor/actor-sheet.html",
       width: 600,
       height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "features" }]
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "traits" }]
     });
   }
 
@@ -211,6 +211,22 @@ export class usrActorSheet extends ActorSheet {
         const item = this.actor.items.get(itemId);
         if (item) return item.roll();
       }
+    }
+
+    if (dataset.rollUsr) {
+      const label = dataset.label ? `[trait] ${dataset.label}` : '';
+      const parts = dataset.rollUsr.split('/');
+      const skill = parts[0];
+      const difficulty = parts[1]??4;
+      const specialization = parts[2]??0;
+      const roll = new Roll(`${difficulty}d10cs<=${skill}`, this.actor.getRollData());
+      roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+        flavor: label,
+        rollMode: game.settings.get('core', 'rollMode'),
+      });
+      console.log(roll.dice);
+      return roll;
     }
 
     // Handle rolls that supply the formula directly.

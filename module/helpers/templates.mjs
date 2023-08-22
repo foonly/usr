@@ -7,6 +7,7 @@
   return loadTemplates([
 
     // Actor partials.
+    "systems/usr/templates/actor/parts/actor-traits.html",
     "systems/usr/templates/actor/parts/actor-features.html",
     "systems/usr/templates/actor/parts/actor-items.html",
     "systems/usr/templates/actor/parts/actor-spells.html",
