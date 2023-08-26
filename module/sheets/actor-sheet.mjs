@@ -1,11 +1,14 @@
-import {onManageActiveEffect, prepareActiveEffectCategories} from "../helpers/effects.mjs";
+import {
+  onManageActiveEffect,
+  prepareActiveEffectCategories,
+} from "../helpers/effects.mjs";
+import {usrRoll} from "../helpers/roll.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
 export class usrActorSheet extends ActorSheet {
-
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
@@ -13,7 +16,13 @@ export class usrActorSheet extends ActorSheet {
       template: "systems/usr/templates/actor/actor-sheet.html",
       width: 600,
       height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "traits" }]
+      tabs: [
+        {
+          navSelector: ".sheet-tabs",
+          contentSelector: ".sheet-body",
+          initial: "traits",
+        },
+      ],
     });
   }
 
@@ -40,13 +49,13 @@ export class usrActorSheet extends ActorSheet {
     context.flags = actorData.flags;
 
     // Prepare character data and items.
-    if (actorData.type == 'character') {
+    if (actorData.type == "character") {
       this._prepareItems(context);
       this._prepareCharacterData(context);
     }
 
     // Prepare NPC data and items.
-    if (actorData.type == 'npc') {
+    if (actorData.type == "npc") {
       this._prepareItems(context);
     }
 
@@ -94,22 +103,22 @@ export class usrActorSheet extends ActorSheet {
       6: [],
       7: [],
       8: [],
-      9: []
+      9: [],
     };
 
     // Iterate through items, allocating to containers
     for (let i of context.items) {
       i.img = i.img || DEFAULT_TOKEN;
       // Append to gear.
-      if (i.type === 'item') {
+      if (i.type === "item") {
         gear.push(i);
       }
       // Append to features.
-      else if (i.type === 'feature') {
+      else if (i.type === "feature") {
         features.push(i);
       }
       // Append to spells.
-      else if (i.type === 'spell') {
+      else if (i.type === "spell") {
         if (i.system.spellLevel != undefined) {
           spells[i.system.spellLevel].push(i);
         }
@@ -129,7 +138,7 @@ export class usrActorSheet extends ActorSheet {
     super.activateListeners(html);
 
     // Render the item sheet for viewing/editing prior to the editable check.
-    html.find('.item-edit').click(ev => {
+    html.find(".item-edit").click((ev) => {
       const li = $(ev.currentTarget).parents(".item");
       const item = this.actor.items.get(li.data("itemId"));
       item.sheet.render(true);
@@ -140,10 +149,10 @@ export class usrActorSheet extends ActorSheet {
     if (!this.isEditable) return;
 
     // Add Inventory Item
-    html.find('.item-create').click(this._onItemCreate.bind(this));
+    html.find(".item-create").click(this._onItemCreate.bind(this));
 
     // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
+    html.find(".item-delete").click((ev) => {
       const li = $(ev.currentTarget).parents(".item");
       const item = this.actor.items.get(li.data("itemId"));
       item.delete();
@@ -151,15 +160,17 @@ export class usrActorSheet extends ActorSheet {
     });
 
     // Active Effect management
-    html.find(".effect-control").click(ev => onManageActiveEffect(ev, this.actor));
+    html
+      .find(".effect-control")
+      .click((ev) => onManageActiveEffect(ev, this.actor));
 
     // Rollable abilities.
-    html.find('.rollable').click(this._onRoll.bind(this));
+    html.find(".rollable").click(this._onRoll.bind(this));
 
     // Drag events for macros.
     if (this.actor.isOwner) {
-      let handler = ev => this._onDragStart(ev);
-      html.find('li.item').each((i, li) => {
+      let handler = (ev) => this._onDragStart(ev);
+      html.find("li.item").each((i, li) => {
         if (li.classList.contains("inventory-header")) return;
         li.setAttribute("draggable", true);
         li.addEventListener("dragstart", handler, false);
@@ -185,13 +196,13 @@ export class usrActorSheet extends ActorSheet {
     const itemData = {
       name: name,
       type: type,
-      system: data
+      system: data,
     };
     // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system["type"];
 
     // Finally, create the item!
-    return await Item.create(itemData, {parent: this.actor});
+    return await Item.create(itemData, { parent: this.actor });
   }
 
   /**
@@ -205,41 +216,39 @@ export class usrActorSheet extends ActorSheet {
     const dataset = element.dataset;
 
     // Handle item rolls.
-    if (dataset.rollType) {
-      if (dataset.rollType == 'item') {
-        const itemId = element.closest('.item').dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (item) return item.roll();
-      }
-    }
+    if (dataset.rollType && dataset.rollType == "item") {
+      const itemId = element.closest(".item").dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (item) return item.roll();
+    } else if (dataset.rollUsr) {
+      // Parse the value.
+      const parts = dataset.rollUsr.split("/");
 
-    if (dataset.rollUsr) {
-      const label = dataset.label ? `[trait] ${dataset.label}` : '';
-      const parts = dataset.rollUsr.split('/');
+      // Set values from parsed data.
       const skill = parts[0];
-      const difficulty = parts[1]??4;
-      const specialization = parts[2]??0;
-      const roll = new Roll(`${difficulty}d10cs<=${skill}`, this.actor.getRollData());
-      roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
-      });
-      console.log(roll.dice);
-      return roll;
-    }
+      const difficulty = parts[1] ?? 4;
+      const specialization = parts[2] ?? 0;
 
-    // Handle rolls that supply the formula directly.
-    if (dataset.roll) {
-      let label = dataset.label ? `[ability] ${dataset.label}` : '';
+      const flavor = dataset.label ?? '';
+
+      // Get data for the message.
+      const speaker = ChatMessage.getSpeaker({ actor: this.actor });
+      console.log(speaker);
+
+      // Make roll and calculate.
+      usrRoll({speaker, flavor, skill, difficulty, specialization});
+
+      return true;
+    } else if (dataset.roll) {
+      // Handle rolls that supply the formula directly.
+      let label = dataset.label ? `[ability] ${dataset.label}` : "";
       let roll = new Roll(dataset.roll, this.actor.getRollData());
       roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
+        rollMode: game.settings.get("core", "rollMode"),
       });
       return roll;
     }
   }
-
 }

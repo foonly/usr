@@ -1,0 +1,27 @@
+<div class="dice-roll">
+    <div class="dice-result">
+        <div class="dice-formula">
+            Difficulty: {{ difficulty }}
+            / Skill: {{ skill }} {{#if specialization }}({{specialization}}){{/if}}
+        </div>
+        <div class="dice-tooltip">
+            <section class="tooltip-part">
+                <div class="dice">
+                    <header class="part-header flexrow">
+                        <span class="part-formula">{{ dice.length }}d10</span>
+                        <span class="part-total">{{successes}}</span>
+                    </header>
+                    <ol class="dice-rolls">
+                        {{#each dice}}
+                            <li class="roll die d10{{#if success }} success{{/if}}">{{ value }}</li>
+                        {{/each}}
+                    </ol>
+                </div>
+            </section>
+        </div>
+        <h4 class="dice-total">
+            {{#if critical }}Critical{{/if}}
+            {{#if successes }}{{successes}} Successes{{else}}Fail{{/if}}
+        </h4>
+    </div>
+</div>

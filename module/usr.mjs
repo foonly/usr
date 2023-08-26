@@ -134,13 +134,3 @@ function rollItemMacro(itemUuid) {
     item.roll();
   });
 }
-
-async function rollUsr(skill, difficulty=4, specialization=0) {
-  // Construct the Roll instance
-  let roll = new Roll("@difficulty d10cs <= @skill", {skill, difficulty});
-  console.log(roll.terms);
-  // Execute the roll
-  await r.evaluate();
-
-  return roll;
-}
