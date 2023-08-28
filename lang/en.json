@@ -16,19 +16,7 @@
   "USR.TraitCraftsmanship": "Craftsmanship",
   "USR.TraitNaval": "Naval",
 
-  "USR.AbilityStr": "Strength",
-  "USR.AbilityCon": "Constitution",
-  "USR.AbilityDex": "Dexterity",
-  "USR.AbilityInt": "Intelligence",
-  "USR.AbilityWis": "Wisdom",
-  "USR.AbilityCha": "Charisma",
-
-  "USR.AbilityStrAbbr": "str",
-  "USR.AbilityConAbbr": "con",
-  "USR.AbilityDexAbbr": "dex",
-  "USR.AbilityIntAbbr": "int",
-  "USR.AbilityWisAbbr": "wis",
-  "USR.AbilityChaAbbr": "cha",
+  "USR.AddSpec": "Add Specialization",
 
   "USR.EffectCreate": "Create Effect",
   "USR.EffectToggle": "Toggle Effect",
