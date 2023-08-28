@@ -1,17 +1,34 @@
-<div class="traits flexcol">
+<table class="traits-table">
+    <thead>
+        <tr>
+            <th>Trait</th>
+            <th>Value</th>
+            <th>XP</th>
+            <th>Roll</th>
+        </tr>
+    </thead>
+    <tbody>
     {{#each system.traits as |trait key| }}
-        <div class="trait flexrow flex-group-center">
-            <label for="trait-{{key}}" class="resource-label flexlarge align-left"
-                data-label="{{ trait.label }}">{{ trait.label }}</label>
-            <input type="text" id="trait-{{key}}" name="system.traits.{{key}}.value" value="{{trait.value}}" data-dtype="Number" />
-            <button class="trait rollable" data-roll-usr="{{trait.value}}/4/0" data-label="{{trait.label}}">Normal</button>
-            <button class="trait" data-label="{{trait.label}}">Custom</button>
-        </div>
-        {{# if trait.spec}}
-            <a class="effect-control" data-action="create" title="{{localize 'USR.AddSpec'}}">
-                <i class="fas fa-plus"></i> {{localize "USR.Add"}}
-            </a>
-        {{/if}}
-        <hr/>
+        <tr>
+            <td class="trait-label">
+                <a class="item-control item-edit" title="{{localize 'USR.TraitEdit'}}">
+                    <i class="fas fa-edit"></i>
+                </a>
+                {{ trait.label }}
+            </td>
+            <td class="trait-value">
+                {{trait.value}}
+                <sup class="trait-rolls">**</sup>
+            </td>
+
+            <td class="trait-xp">4/5</td>
+            <td class="trait-roll">
+                <button class="rollable roll die d10" data-roll-usr="{{trait.value}}/4/0" data-label="{{trait.label}}">4</button>
+                <button class="rollable roll die d10" data-roll-usr="{{trait.value}}/3/0" data-label="{{trait.label}}">3</button>
+                <button class="rollable roll die d10" data-roll-usr="{{trait.value}}/2/0" data-label="{{trait.label}}">2</button>
+                <button class="rollable roll die d10" data-label="{{trait.label}}">?</button>
+            </td>
+        </tr>
     {{/each}}
-</div>
+    </tbody>
+</table>

@@ -12,7 +12,7 @@ export class usrActorSheet extends ActorSheet {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["boilerplate", "sheet", "actor"],
+      classes: ["usr", "sheet", "actor"],
       template: "systems/usr/templates/actor/actor-sheet.html",
       width: 600,
       height: 600,

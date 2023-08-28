@@ -18,9 +18,10 @@
 
   "USR.AddSpec": "Add Specialization",
 
+  "USR.TraitEdit": "Edit Trait",
+
   "USR.EffectCreate": "Create Effect",
   "USR.EffectToggle": "Toggle Effect",
-  "USR.EffectEdit": "Edit Effect",
   "USR.EffectDelete": "Delete Effect",
 
   "USR.Add": "Add"

@@ -1,0 +1,33 @@
+.sheet-header {
+  .profile-img {
+    border: 0;
+  }
+}
+
+.traits-table {
+  .trait-value {
+    font-size: 2em;
+    sup {
+      font-size: .5em;
+    }
+  }
+  .trait-roll {
+    width: 110px;
+  }
+  button.roll.d10 {
+    position: relative;
+    border: 0;
+    width: 24px;
+    line-height: 24px;
+    float: left;
+    margin-right: 1px;
+    background-color: transparent;
+    background-image: url("/icons/svg/d10-grey.svg");
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    font-size: var(--font-size-16);
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+  }
+}
