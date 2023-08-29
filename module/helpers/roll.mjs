@@ -1,3 +1,5 @@
+import {usr} from "./config.mjs";
+
 export function usrRoll(data) {
     if (data.skill <= data.specialization) {
         data.specialization = data.skill - 1;
@@ -87,4 +89,38 @@ export function usrRoll(data) {
     })
 
     return result;
+}
+
+export function makeRoll(data) {
+    if (data.actor.system.traits) {
+        data.traits = [];
+        Object.keys(data.actor.system.traits).forEach(key => {
+            const trait = data.actor.system.traits[key];
+            data.traits.push({
+                key: key,
+                label: trait.label,
+                value: trait.value,
+                active: (trait.label === data.label),
+            });
+        })
+        data.difficulty = usr.difficulty;
+    }
+    console.log(data);
+    renderTemplate('systems/usr/templates/helpers/roll-dialog.html', data).then(content => {
+        let d = new Dialog({
+            title: "Custom Roll",
+            content,
+            buttons: {
+                roll: {
+                    icon: '<i class="fas fa-dice-d10"></i>',
+                    label: "Roll",
+                    callback: () => console.log("Chose One")
+                }
+            },
+            default: "two",
+            render: html => console.log("Register interactivity in the rendered dialog"),
+            close: html => console.log("This always is logged no matter which option is chosen")
+        });
+        d.render(true);
+    });
 }

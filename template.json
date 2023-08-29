@@ -4,12 +4,13 @@
     "templates": {
       "base": {
         "health": {
-          "value": 10,
-          "min": 0,
-          "max": 10
+          "s": 0,
+          "m": 0,
+          "l": 0,
+          "x": 0
         },
-        "power": {
-          "value": 5,
+        "position": {
+          "value": 4,
           "min": 0,
           "max": 5
         },
@@ -127,16 +128,10 @@
       }
     },
     "character": {
-      "templates": ["base"],
-      "attributes": {
-        "level": {
-          "value": 1
-        }
-      }
+      "templates": ["base"]
     },
     "npc": {
-      "templates": ["base"],
-      "cr": 0
+      "templates": ["base"]
     }
   },
   "Item": {

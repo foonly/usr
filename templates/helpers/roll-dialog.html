@@ -1,0 +1,14 @@
+<div>
+    <select name="difficulty">
+        {{#each difficulty }}
+            <option value="{{dice}}"{{#if active}} selected="selected" {{/if}}>{{label}} ({{ dice }})</option>
+        {{/each}}
+    </select>
+    {{#if traits}}
+        <select name="trait">
+            {{#each traits }}
+                <option value="{{key}}"{{#if active}} selected="selected" {{/if}}>{{label}} ({{ value }})</option>
+            {{/each}}
+        </select>
+    {{/if}}
+</div>
