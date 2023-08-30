@@ -7,8 +7,16 @@
 .traits-table {
   .trait-value {
     font-size: 2em;
-    sup {
+
+    &.rolls-1::after {
+      vertical-align: super;
       font-size: .5em;
+      content: "*";
+    }
+    &.rolls-2::after {
+      vertical-align: super;
+      font-size: .5em;
+      content: "**";
     }
   }
   .trait-roll {
@@ -29,5 +37,14 @@
     color: #000;
     font-weight: bold;
     text-align: center;
+  }
+  .trait-specialization {
+    font-size: .9em;
+    .trait-label {
+      padding-left: 2rem;
+    }
+    .trait-value {
+      font-size: 1.5em;
+    }
   }
 }

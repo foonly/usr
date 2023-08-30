@@ -31,7 +31,7 @@ export class usrActor extends Actor {
   prepareDerivedData() {
     const actorData = this;
     const systemData = actorData.system;
-    const flags = actorData.flags.boilerplate || {};
+    const flags = {};
 
     // Make separate methods for each Actor type (character, npc, etc.) to keep
     // things organized.
@@ -47,12 +47,6 @@ export class usrActor extends Actor {
 
     // Make modifications to data here. For example:
     const systemData = actorData.system;
-
-    // Loop through ability scores, and add their modifiers to our sheet output.
-    for (let [key, ability] of Object.entries(systemData.abilities)) {
-      // Calculate the modifier using d20 rules.
-      ability.mod = Math.floor((ability.value - 10) / 2);
-    }
   }
 
   /**
@@ -63,7 +57,7 @@ export class usrActor extends Actor {
 
     // Make modifications to data here. For example:
     const systemData = actorData.system;
-    systemData.xp = (systemData.cr * systemData.cr) * 100;
+    //systemData.xp = (systemData.cr * systemData.cr) * 100;
   }
 
   /**
@@ -91,11 +85,6 @@ export class usrActor extends Actor {
       for (let [k, v] of Object.entries(data.abilities)) {
         data[k] = foundry.utils.deepClone(v);
       }
-    }
-
-    // Add level for easier access, or fall back to 0.
-    if (data.attributes.level) {
-      data.lvl = data.attributes.level.value ?? 0;
     }
   }
 

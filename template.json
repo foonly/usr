@@ -50,77 +50,77 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "melee": {
             "label": "Melee",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "ranged": {
             "label": "Ranged",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "medicine": {
             "label": "Medicine",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "engineering": {
             "label": "Engineering",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "charisma": {
             "label": "Charisma",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "survival": {
             "label": "Survival",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "subterfuge": {
             "label": "Subterfuge",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "animals": {
             "label": "Animals",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "craftsmanship": {
             "label": "Craftsmanship",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           },
           "naval": {
             "label": "Naval",
             "value": 1,
             "xp": 0,
             "roll": 0,
-            "spec": {}
+            "spec": []
           }
         },
         "fullName": "",

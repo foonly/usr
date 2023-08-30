@@ -50,13 +50,13 @@ export class usrActorSheet extends ActorSheet {
         context.flags = actorData.flags;
 
         // Prepare character data and items.
-        if (actorData.type == "character") {
+        if (actorData.type === "character") {
             this._prepareItems(context);
             this._prepareCharacterData(context);
         }
 
         // Prepare NPC data and items.
-        if (actorData.type == "npc") {
+        if (actorData.type === "npc") {
             this._prepareItems(context);
         }
 
@@ -77,10 +77,6 @@ export class usrActorSheet extends ActorSheet {
      * @return {undefined}
      */
     _prepareCharacterData(context) {
-        // Handle ability scores.
-        for (let [k, v] of Object.entries(context.system.abilities)) {
-            v.label = game.i18n.localize(CONFIG.usr.abilities[k]) ?? k;
-        }
     }
 
     /**
@@ -105,12 +101,6 @@ export class usrActorSheet extends ActorSheet {
             // Append to features.
             else if (i.type === "feature") {
                 features.push(i);
-            }
-            // Append to spells.
-            else if (i.type === "spell") {
-                if (i.system.spellLevel != undefined) {
-                    spells[i.system.spellLevel].push(i);
-                }
             }
         }
 
@@ -155,8 +145,7 @@ export class usrActorSheet extends ActorSheet {
         html.find(".trait-edit").click(ev => {
             const key = ev.currentTarget.dataset.trait;
             const trait = this.actor.system.traits[key];
-            console.log(trait);
-            new TraitSheet(trait, key).render(true);
+            new TraitSheet(trait, key, this.actor).render(true);
         });
 
         // Add Inventory Item
