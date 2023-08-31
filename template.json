@@ -19,37 +19,43 @@
             "label": "Fortitude",
             "value": 1,
             "xp": 0,
-            "roll": 0
+            "roll": 0,
+            "hasSpec": false
           },
           "intelligence": {
             "label": "Intelligence",
             "value": 1,
             "xp": 0,
-            "roll": 0
+            "roll": 0,
+            "hasSpec": false
           },
           "initiative": {
             "label": "Initiative",
             "value": 1,
             "xp": 0,
-            "roll": 0
+            "roll": 0,
+            "hasSpec": false
           },
           "willpower": {
             "label": "Willpower",
             "value": 1,
             "xp": 0,
-            "roll": 0
+            "roll": 0,
+            "hasSpec": false
           },
           "awareness": {
             "label": "Awareness",
             "value": 1,
             "xp": 0,
-            "roll": 0
+            "roll": 0,
+            "hasSpec": false
           },
           "mobility": {
             "label": "Mobility",
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "melee": {
@@ -57,6 +63,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "ranged": {
@@ -64,6 +71,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "medicine": {
@@ -71,6 +79,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "engineering": {
@@ -78,6 +87,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "charisma": {
@@ -85,6 +95,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "survival": {
@@ -92,6 +103,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "subterfuge": {
@@ -99,6 +111,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "animals": {
@@ -106,6 +119,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "craftsmanship": {
@@ -113,6 +127,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           },
           "naval": {
@@ -120,6 +135,7 @@
             "value": 1,
             "xp": 0,
             "roll": 0,
+            "hasSpec": true,
             "spec": []
           }
         },
@@ -128,7 +144,8 @@
       }
     },
     "character": {
-      "templates": ["base"]
+      "templates": ["base"],
+      "xp": 0
     },
     "npc": {
       "templates": ["base"]

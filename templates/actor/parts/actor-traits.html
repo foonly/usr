@@ -39,9 +39,9 @@
                 <td class="trait-xp">{{ xp }}/3</td>
                 <td class="trait-roll">
                     <button class="rollable roll die d10" data-roll-usr="{{ ../value }}/4/{{ value }}" data-label="{{ title }}">4</button>
-                    <button class="rollable roll die d10" data-roll-usr="{{ ../value }}/3/{{spec.value}}" data-label="{{spec.title}}">3</button>
-                    <button class="rollable roll die d10" data-roll-usr="{{ ../value }}/2/{{spec.value}}" data-label="{{spec.title}}">2</button>
-                    <button class="roll-dialog roll die d10" data-roll-usr="{{ ../value }}" data-label="{{spec.title}}">?</button>
+                    <button class="rollable roll die d10" data-roll-usr="{{ ../value }}/3/{{ value }}" data-label="{{ title }}">3</button>
+                    <button class="rollable roll die d10" data-roll-usr="{{ ../value }}/2/{{ value }}" data-label="{{ title }}">2</button>
+                    <button class="roll-dialog roll die d10" data-roll-usr="{{ ../value }}/0/{{ value }}" data-label="{{ title }}">?</button>
                 </td>
             </tr>
         {{/each}}

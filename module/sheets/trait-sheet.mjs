@@ -45,11 +45,10 @@ export class TraitSheet extends FormApplication {
     }
 
     async _updateObject(event, formData) {
-        console.log(formData);
         this.object.value = formData.value;
         this.object.roll = formData.roll;
         this.object.xp = formData.xp;
-        if (Array.isArray(this.object.spec)) {
+        if (this.object.hasSpec) {
             const spec = [];
             let nr = 0;
             while (formData[`spec-${nr}-title`]) {

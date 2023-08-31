@@ -8,6 +8,8 @@ export function usrRoll(data) {
         data.difficulty = -2;
     }
 
+    const speaker = ChatMessage.getSpeaker({actor: data.actor});
+
     const nr = Math.abs(data.difficulty);
 
     const roll = new Roll(`${nr}d10`);
@@ -20,6 +22,7 @@ export function usrRoll(data) {
         dice: [],
         successes: 0,
         critical: false,
+        formula: '',
         total: '',
     }
 
@@ -69,6 +72,10 @@ export function usrRoll(data) {
         }
     }
 
+    result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
+    if (result.specialization > 0) {
+        result.formula += ` (${result.specialization})`;
+    }
     result.total = (result.critical ? 'Critical ' : '') + (result.successes ? result.successes + ' Successes' : 'Fail');
 
 
@@ -79,13 +86,13 @@ export function usrRoll(data) {
             type: CONST.CHAT_MESSAGE_TYPES.ROLL,
             content,
             sound: CONFIG.sounds.dice,
-            speaker: data.speaker,
+            speaker,
             flavor: data.flavor,
         };
 
         const msg = new ChatMessage(messageData);
 
-        ChatMessage.create(msg.toObject(), { rollMode: game.settings.get("core", "rollMode") });
+        ChatMessage.create(msg.toObject(), {rollMode: game.settings.get("core", "rollMode")});
     })
 
     return result;
@@ -102,10 +109,19 @@ export function makeRoll(data) {
                 value: trait.value,
                 active: (trait.label === data.label),
             });
+            if (trait.hasSpec) {
+                trait.spec.forEach((spec, index) => {
+                    data.traits.push({
+                        key: key,
+                        label: ` - ${spec.title}`,
+                        value: `${trait.value}/${spec.value}`,
+                        active: (spec.title === data.label),
+                    });
+                })
+            }
         })
-        data.difficulty = usr.difficulty;
     }
-    console.log(data);
+    data.difficulty = usr.difficulty;
     renderTemplate('systems/usr/templates/helpers/roll-dialog.html', data).then(content => {
         let d = new Dialog({
             title: "Custom Roll",
@@ -114,12 +130,29 @@ export function makeRoll(data) {
                 roll: {
                     icon: '<i class="fas fa-dice-d10"></i>',
                     label: "Roll",
-                    callback: () => console.log("Chose One")
+                    callback: (html) => {
+                        const flavor = html.find("#label")[0].innerHTML ?? 'Custom';
+                        const difficulty = parseInt(html.find("#difficulty")[0].value ?? 1);
+                        const trait = (html.find("#trait")[0].value ?? '1').split('/');
+                        const skill = parseInt(trait[0]??1);
+                        const specialization = parseInt(trait[1]??0);
+
+                        usrRoll({
+                            flavor,
+                            difficulty,
+                            skill,
+                            specialization,
+                            speaker: data.actor
+                        });
+
+                        console.log(label);
+                        console.log(difficulty);
+                        console.log(skill);
+                        console.log(specialization);
+                    }
                 }
             },
-            default: "two",
-            render: html => console.log("Register interactivity in the rendered dialog"),
-            close: html => console.log("This always is logged no matter which option is chosen")
+            default: "roll",
         });
         d.render(true);
     });

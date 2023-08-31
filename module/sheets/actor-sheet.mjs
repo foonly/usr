@@ -230,12 +230,8 @@ export class usrActorSheet extends ActorSheet {
 
             const flavor = dataset.label ?? '';
 
-            // Get data for the message.
-            const speaker = ChatMessage.getSpeaker({actor: this.actor});
-            console.log(speaker);
-
             // Make roll and calculate.
-            usrRoll({speaker, flavor, skill, difficulty, specialization});
+            usrRoll({actor: this.actor, flavor, skill, difficulty, specialization});
 
             return true;
         } else if (dataset.roll) {

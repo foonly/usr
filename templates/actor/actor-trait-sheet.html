@@ -6,7 +6,7 @@
         <input type="number" min="0" max="2" id="roll-{{key}}" name="roll" value="{{trait.roll}}" data-dtype="Number" />
         <label for="xp-{{key}}">XP</label>
         <input type="number" min="0" max="5" id="xp-{{key}}" name="xp" value="{{trait.xp}}" data-dtype="Number" />
-        {{#if trait.spec}}
+        {{#if trait.hasSpec}}
             {{#each trait.spec as |spec nr| }}
                 <input type="text" name="spec-{{nr}}-title" value="{{spec.title}}" />
                 <input type="number" min="0" max="3" name="spec-{{nr}}-value" value="{{spec.value}}" data-dtype="Number" />
