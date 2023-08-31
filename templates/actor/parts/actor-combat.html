@@ -1,0 +1,15 @@
+<h3>Damage Monitor</h3>
+<div class="damage-monitor">
+    {{#each system.damage.monitor}}
+        <div class="mod">{{modifier}}</div>
+    {{/each}}
+    {{#each system.damage.monitor}}
+        <div class="val {{value}}">{{value}}</div>
+    {{/each}}
+</div>
+
+X <input name="system.health.x" type="number" min="0" value="{{system.health.x}}" placeholder="x"/>
+L <input name="system.health.l" type="number" min="0" value="{{system.health.l}}" placeholder="l"/>
+M <input name="system.health.m" type="number" min="0" value="{{system.health.m}}" placeholder="m"/>
+S <input name="system.health.s" type="number" min="0" value="{{system.health.s}}" placeholder="s"/>
+D <input name="system.health.d" type="number" min="0" value="{{system.health.d}}" placeholder="d"/>

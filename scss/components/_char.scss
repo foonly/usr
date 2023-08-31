@@ -1,7 +1,12 @@
 .sheet-header {
+  flex-grow: 0;
   .profile-img {
     border: 0;
   }
+}
+
+.sheet-tabs {
+  flex-grow: 0;
 }
 
 .traits-table {
@@ -46,5 +51,26 @@
     .trait-value {
       font-size: 1.5em;
     }
+  }
+}
+
+.damage-monitor {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(2, auto);
+
+  .mod {
+    background-color: $c-tan;
+    border: 1px $c-dark solid;
+    color: $c-faint;
+    text-align: center;
+    padding: 4px;
+  }
+
+  .val {
+    text-transform: uppercase;
+    text-align: center;
+    padding: 4px;
+    border: 1px $c-dark solid;
   }
 }

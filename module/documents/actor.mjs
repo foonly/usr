@@ -1,3 +1,5 @@
+import {usr} from "../helpers/config.mjs";
+
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -31,7 +33,46 @@ export class usrActor extends Actor {
   prepareDerivedData() {
     const actorData = this;
     const systemData = actorData.system;
-    const flags = {};
+
+    // Damage calculations.
+    const types = ['d','s','m','l','x'];
+    const monitor = [];
+    for (let i = 0; i < 12; i++) {
+      let modifier = (usr.damageModifier[i+1]??-10).toString();
+      if (modifier === "-10") {
+        modifier = "X";
+      }
+      if (modifier === "0") {
+        modifier = "";
+      }
+      monitor[i] = {
+        value: "",
+        modifier
+      };
+    }
+    let damage = 0
+    types.forEach(type => {
+      const oldDamage = damage;
+      damage += systemData.health[type] ?? 0;
+      if (damage > 12) {
+        // Limit total damage to 12, dropping the least significant wounds.
+        systemData.health[type] = 12 - oldDamage;
+        damage = 12;
+      }
+
+      // Fill monitor.
+      for (let i = oldDamage; i < (damage); i++) {
+        monitor[i].value = type;
+      }
+    });
+
+    systemData.damage = {
+      damage,
+      modifier: usr.damageModifier[damage]??-10,
+      monitor
+    };
+
+    console.log(systemData);
 
     // Make separate methods for each Actor type (character, npc, etc.) to keep
     // things organized.

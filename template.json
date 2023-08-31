@@ -4,6 +4,7 @@
     "templates": {
       "base": {
         "health": {
+          "d": 0,
           "s": 0,
           "m": 0,
           "l": 0,
