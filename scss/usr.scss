@@ -13,6 +13,7 @@
 
 /* Styles limited to usr sheets */
 .usr {
+  @import "components/forms";
   @import "components/char";
   @import "components/trait-sheet";
 }

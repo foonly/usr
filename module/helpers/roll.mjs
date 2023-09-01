@@ -144,16 +144,12 @@ export function makeRoll(data) {
                             specialization,
                             speaker: data.actor
                         });
-
-                        console.log(label);
-                        console.log(difficulty);
-                        console.log(skill);
-                        console.log(specialization);
                     }
                 }
             },
             default: "roll",
         });
+        d.options.classes = ["usr", "dialog", "roll"];
         d.render(true);
     });
 }

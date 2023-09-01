@@ -1,14 +1,3 @@
-.sheet-header {
-  flex-grow: 0;
-  .profile-img {
-    border: 0;
-  }
-}
-
-.sheet-tabs {
-  flex-grow: 0;
-}
-
 .traits-table {
   .trait-value {
     font-size: 2em;
@@ -72,5 +61,6 @@
     text-align: center;
     padding: 4px;
     border: 1px $c-dark solid;
+    min-height: 24px;
   }
 }

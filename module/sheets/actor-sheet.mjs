@@ -3,6 +3,7 @@ import {
     prepareActiveEffectCategories,
 } from "../helpers/effects.mjs";
 import {makeRoll, usrRoll} from "../helpers/roll.mjs";
+import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
 
 /**
@@ -131,8 +132,20 @@ export class usrActorSheet extends ActorSheet {
                 actor: this.actor,
             };
             makeRoll(data);
-
         });
+
+        html.find(".add-heal").click((ev) => {
+            addHealingPoints(this.actor);
+        });
+
+        html.find(".add-damage").click((ev) => {
+            addDamage(this.actor);
+        });
+
+        html.find(".remove-stun").click((ev) => {
+            removeStun(this.actor);
+        });
+
 
         // Rollable abilities.
         html.find(".rollable").click(this._onRoll.bind(this));

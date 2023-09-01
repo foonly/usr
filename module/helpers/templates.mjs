@@ -3,14 +3,15 @@
  * Pre-loaded templates are compiled and cached for fast access when rendering
  * @return {Promise}
  */
- export const preloadHandlebarsTemplates = async function() {
-  return loadTemplates([
+export const preloadHandlebarsTemplates = async function () {
+    return loadTemplates([
 
-    // Actor partials.
-    "systems/usr/templates/actor/parts/actor-biography.html",
-    "systems/usr/templates/actor/parts/actor-combat.html",
-    "systems/usr/templates/actor/parts/actor-traits.html",
-    "systems/usr/templates/actor/parts/actor-features.html",
-    "systems/usr/templates/actor/parts/actor-items.html",
-  ]);
+        // Actor partials.
+        "systems/usr/templates/actor/parts/actor-biography.html",
+        "systems/usr/templates/actor/parts/actor-combat.html",
+        "systems/usr/templates/actor/parts/actor-traits.html",
+        "systems/usr/templates/actor/parts/actor-trait.html",
+        "systems/usr/templates/actor/parts/actor-features.html",
+        "systems/usr/templates/actor/parts/actor-items.html",
+    ]);
 };

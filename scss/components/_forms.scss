@@ -2,6 +2,32 @@
   font-family: $font-primary;
 }
 
+.entry {
+  font-size: 1.2em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 8px 0;
+
+  label {
+    padding: 4px 8px;
+    color: $c-grey;
+  }
+
+  input {
+    width: unset;
+    height: unset;
+    flex-grow: 1;
+    padding: 4px;
+  }
+
+  &.number {
+    input {
+      max-width: 60px;
+    }
+  }
+}
+
 .sheet-header {
   flex: 0 auto;
   overflow: hidden;
@@ -15,6 +41,7 @@
     flex: 0 0 100px;
     height: 100px;
     margin-right: 10px;
+    border: 0;
   }
 
   .header-fields {

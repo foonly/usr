@@ -67,6 +67,6 @@ export class TraitSheet extends FormApplication {
         }
         const traits = this.parent.system.traits;
         traits[this.key] = this.object;
-        this.parent.update({"system.traits": traits})
+        this.parent.update({"system.traits": traits});
     }
 }

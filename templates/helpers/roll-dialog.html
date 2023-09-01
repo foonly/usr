@@ -6,11 +6,6 @@
             Make Custom Roll
         {{/if}}
     </h3>
-    <select id="difficulty">
-        {{#each difficulty }}
-            <option value="{{dice}}"{{#if active}} selected="selected" {{/if}}>{{label}} ({{ dice }})</option>
-        {{/each}}
-    </select>
     {{#if traits}}
         <select id="trait">
             <option value="">Select Trait</option>
@@ -19,4 +14,9 @@
             {{/each}}
         </select>
     {{/if}}
+    <select id="difficulty">
+        {{#each difficulty }}
+            <option value="{{dice}}"{{#if active}} selected="selected" {{/if}}>{{label}}</option>
+        {{/each}}
+    </select>
 </div>

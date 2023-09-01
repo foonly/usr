@@ -1,5 +1,6 @@
-<section>
-    <input name="system.fullName" type="text" value="{{system.fullName}}" placeholder="Full Name"/>
+<div class="entry">
+    <label for="full-name">Full Name:</label>
+    <input id="full-name" name="system.fullName" type="text" value="{{system.fullName}}" placeholder="Full Name"/>
+</div>
 
-    {{editor system.biography target="system.biography" button=true owner=owner editable=editable}}
-</section>
+{{editor system.biography target="system.biography" button=true owner=owner editable=editable}}

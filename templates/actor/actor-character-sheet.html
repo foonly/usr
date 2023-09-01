@@ -5,8 +5,17 @@
         <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
         <div class="header-fields">
             <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
-            <input name="xp" type="number" value="{{system.xp}}"/>
-            Damage modifier: {{ system.damage.modifier }}
+            <div class="grid grid-3col">
+                <div class="entry number">
+                    <label for="bonus-xp">XP:</label>
+                    <input id="bonus-xp" name="system.xp" min="0" type="number" value="{{system.xp}}"
+                           data-dtype="Number"/>
+                </div>
+                <div class="entry">
+                    <label>Modifier:</label>
+                    <span>{{ system.damage.modifier }}</span>
+                </div>
+            </div>
         </div>
     </header>
 
