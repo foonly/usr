@@ -244,7 +244,7 @@ export class usrActorSheet extends ActorSheet {
             const flavor = dataset.label ?? '';
 
             // Make roll and calculate.
-            usrRoll({actor: this.actor, flavor, skill, difficulty, specialization});
+            usrRoll({actor: this.actor, trait: dataset.trait ?? '', flavor, skill, difficulty, specialization});
 
             return true;
         } else if (dataset.roll) {

@@ -8,8 +8,6 @@ export function usrRoll(data) {
         data.difficulty = -2;
     }
 
-    const speaker = ChatMessage.getSpeaker({actor: data.actor});
-
     const nr = Math.abs(data.difficulty);
 
     const roll = new Roll(`${nr}d10`);
@@ -78,6 +76,7 @@ export function usrRoll(data) {
     }
     result.total = (result.critical ? 'Critical ' : '') + (result.successes ? result.successes + ' Successes' : 'Fail');
 
+    const speaker = ChatMessage.getSpeaker({actor: data.actor});
 
     renderTemplate('systems/usr/templates/helpers/roll.html', result).then(content => {
         // Prepare chat data

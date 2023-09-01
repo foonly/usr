@@ -1,8 +1,8 @@
 export class TraitSheet extends FormApplication {
-    constructor(trait, key, parent) {
+    constructor(trait, key, actor) {
         super(trait, {id: `trait-${key}-edit-sheet`, title: `Edit ${trait.label}`});
         this.key = key;
-        this.parent = parent;
+        this.actor = actor;
     }
 
     static get defaultOptions() {
@@ -12,6 +12,7 @@ export class TraitSheet extends FormApplication {
             width: 400,
             height: 400,
             template: 'systems/usr/templates/actor/actor-trait-sheet.html',
+            closeOnSubmit: false,
             id: 'trait-edit-sheet',
             title: 'Edit Trait',
         });
@@ -19,7 +20,6 @@ export class TraitSheet extends FormApplication {
 
     getData() {
         // Send data to the template
-        console.log(this);
         return {
             trait: this.object,
             key: this.key,
@@ -30,6 +30,8 @@ export class TraitSheet extends FormApplication {
         super.activateListeners(html);
 
         html.find(".add-spec").click(ev => {
+            this.submit();
+
             if (!Array.isArray(this.object.spec)) {
                 this.object.spec = [];
             }
@@ -39,15 +41,21 @@ export class TraitSheet extends FormApplication {
                 roll: 0,
                 xp: 0
             });
-
+            this.updateActor();
             this.render();
         });
+
+        html.find("#ok").click(ev => {
+            this.close();
+        });
+
     }
 
     async _updateObject(event, formData) {
         this.object.value = formData.value;
         this.object.roll = formData.roll;
         this.object.xp = formData.xp;
+
         if (this.object.hasSpec) {
             const spec = [];
             let nr = 0;
@@ -65,8 +73,13 @@ export class TraitSheet extends FormApplication {
             }
             this.object.spec = spec;
         }
-        const traits = this.parent.system.traits;
+
+        this.updateActor();
+    }
+
+    updateActor() {
+        const traits = this.actor.system.traits;
         traits[this.key] = this.object;
-        this.parent.update({"system.traits": traits});
+        this.actor.update({"system.traits": traits});
     }
 }

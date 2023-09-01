@@ -79,7 +79,7 @@ export function addDamage(actor) {
                     label: "Resist",
                     callback: (html) => {
                         const args = getArgs(html);
-                        setDamage(args.amount,args.type,actor);
+                        resistDamage(args.amount,args.type,actor);
                     }
                 }
             },
@@ -95,6 +95,15 @@ function getArgs(html) {
     const amount = parseInt(html.find("#add-damage")[0].value ?? '0')
 
     return {type, amount};
+}
+
+function resistDamage(amount,type,actor) {
+    const resist = 5;
+
+    const roll = new Roll(`${amount}d10cs<=${resist}`);
+    roll.evaluate({async: false});
+
+    console.log(roll);
 }
 
 function setDamage(amount,type,actor) {
