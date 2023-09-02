@@ -2,7 +2,7 @@ import {
     onManageActiveEffect,
     prepareActiveEffectCategories,
 } from "../helpers/effects.mjs";
-import {makeRoll, usrRoll} from "../helpers/roll.mjs";
+import {makeRoll, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
 
@@ -146,6 +146,12 @@ export class usrActorSheet extends ActorSheet {
             removeStun(this.actor);
         });
 
+        html.find(".roll-xp").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const dataset = element.dataset;
+            rollXp({actor: this.actor, trait: dataset.trait, spec: dataset.spec ?? ''});
+        });
 
         // Rollable abilities.
         html.find(".rollable").click(this._onRoll.bind(this));
@@ -233,18 +239,16 @@ export class usrActorSheet extends ActorSheet {
 
             // USR Roll.
         } else if (dataset.rollUsr) {
-            // Parse the value.
-            const parts = dataset.rollUsr.split("/");
-
-            // Set values from parsed data.
-            const skill = parts[0];
-            const difficulty = parts[1] ?? 4;
-            const specialization = parts[2] ?? 0;
-
-            const flavor = dataset.label ?? '';
+            const data = {
+                actor: this.actor,
+                difficulty: parseInt(dataset.rollUsr),
+                trait: dataset.trait ?? '',
+                spec: dataset.spec ?? '',
+                flavor: dataset.label ?? '',
+            }
 
             // Make roll and calculate.
-            usrRoll({actor: this.actor, trait: dataset.trait ?? '', flavor, skill, difficulty, specialization});
+            usrRoll(data);
 
             return true;
         } else if (dataset.roll) {

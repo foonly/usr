@@ -65,9 +65,27 @@ export class usrActor extends Actor {
             }
         });
 
+        const modifier = usr.damageModifier[damage] ?? -10;
+        let modifierText = modifier.toString();
+        if (modifier < -9) {
+            modifierText = "X";
+        } else if (modifier > -1) {
+            modifierText = "None";
+        }
+
+        const resistance = {
+            x: Math.ceil(systemData.traits.fortitude.value * .9),
+            l: Math.ceil(systemData.traits.fortitude.value * .8),
+            m: Math.ceil(systemData.traits.fortitude.value * .7),
+            s: Math.ceil(systemData.traits.fortitude.value * .6),
+            d: Math.ceil(systemData.traits.fortitude.value * .5),
+        };
+
         systemData.damage = {
             damage,
-            modifier: usr.damageModifier[damage] ?? -10,
+            modifier,
+            modifierText,
+            resistance,
             monitor
         };
 

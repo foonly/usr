@@ -1,13 +1,27 @@
 import {usr} from "./config.mjs";
 
 export function usrRoll(data) {
+    const traits = data.actor.system.traits;
+
+    // Get values for trait and specialization if given.
+    if (data.trait) {
+        const trait = traits[data.trait];
+        data.skill = trait.value;
+        if (data.spec) {
+            trait.spec.forEach(spec => {
+                if (data.spec === spec.title) {
+                    data.specialization = spec.value;
+                }
+            });
+        }
+    }
+
     if (data.skill <= data.specialization) {
         data.specialization = data.skill - 1;
     }
     if (data.difficulty < 1 && data.difficulty > -2) {
         data.difficulty = -2;
     }
-
     const nr = Math.abs(data.difficulty);
 
     const roll = new Roll(`${nr}d10`);
@@ -94,6 +108,29 @@ export function usrRoll(data) {
         ChatMessage.create(msg.toObject(), {rollMode: game.settings.get("core", "rollMode")});
     })
 
+    if (!result.critical && data.trait && data.actor) {
+        let awarded = false;
+        if (data.trait) {
+            const trait = traits[data.trait];
+            if (data.spec) {
+                trait.spec.forEach(spec => {
+                    if (data.spec === spec.title) {
+                        if (spec.roll < 1 || (spec.roll < 2 && data.difficulty < 4)) {
+                            awarded = true;
+                            spec.roll++;
+                        }
+                    }
+                });
+            }
+            if (!awarded) {
+                if (trait.roll < 1 || (trait.roll < 2 && data.difficulty < 4)) {
+                    trait.roll++;
+                }
+            }
+        }
+        data.actor.update({"system.traits": traits});
+    }
+
     return result;
 }
 
@@ -133,8 +170,8 @@ export function makeRoll(data) {
                         const flavor = html.find("#label")[0].innerHTML ?? 'Custom';
                         const difficulty = parseInt(html.find("#difficulty")[0].value ?? 1);
                         const trait = (html.find("#trait")[0].value ?? '1').split('/');
-                        const skill = parseInt(trait[0]??1);
-                        const specialization = parseInt(trait[1]??0);
+                        const skill = parseInt(trait[0] ?? 1);
+                        const specialization = parseInt(trait[1] ?? 0);
 
                         usrRoll({
                             flavor,
@@ -151,4 +188,78 @@ export function makeRoll(data) {
         d.options.classes = ["usr", "dialog", "roll"];
         d.render(true);
     });
+}
+
+export function rollXp(data) {
+    const traits = data.actor.system.traits;
+    const trait = traits[data.trait];
+    if (data.spec) {
+        trait.spec.forEach(spec => {
+            if (data.spec === spec.title) {
+                // Roll on specialization.
+                if (spec.value > 2) {
+                    return false;
+                }
+                let paid = false;
+                if (spec.roll > 0) {
+                    spec.roll--;
+                    paid = true;
+                } else if (data.actor.system.xp > 0) {
+                    data.actor.update({"system.xp": data.actor.system.xp-1});
+                    paid = true;
+                }
+                if (paid) {
+                    const target = spec.value * 3 + 10;
+                    const roll = new Roll("2d10");
+                    roll.evaluate({async: false});
+                    if (roll.total > target) {
+                        spec.xp++;
+                        if (spec.xp > 2) {
+                            spec.value++;
+                            spec.xp -= 3;
+                        }
+                    }
+                    const label = `Roll for XP on ${spec.title} with value of ${spec.value}. Needs a result over ${target}.`
+                    roll.toMessage({
+                        speaker: ChatMessage.getSpeaker({actor: data.actor}),
+                        flavor: label,
+                        rollMode: game.settings.get("core", "rollMode"),
+                    });
+                }
+                data.actor.update({"system.traits": traits});
+            }
+        });
+    } else {
+        // Roll on trait.
+        if (trait.value > 6) {
+            return false;
+        }
+        let paid = false;
+        if (trait.roll > 0) {
+            trait.roll--;
+            paid = true;
+        } else if (data.actor.system.xp > 0) {
+            data.actor.update({"system.xp": data.actor.system.xp-1});
+            paid = true;
+        }
+        if (paid) {
+            const target = trait.value * 2 + 6;
+            const roll = new Roll("2d10");
+            roll.evaluate({async: false});
+            if (roll.total > target) {
+                trait.xp++;
+                if (trait.xp > 4) {
+                    trait.value++;
+                    trait.xp -= 5;
+                }
+            }
+            const label = `Roll for XP on ${trait.label} with value of ${trait.value}. Needs a result over ${target}.`
+            roll.toMessage({
+                speaker: ChatMessage.getSpeaker({actor: data.actor}),
+                flavor: label,
+                rollMode: game.settings.get("core", "rollMode"),
+            });
+        }
+        data.actor.update({"system.traits": traits});
+    }
 }

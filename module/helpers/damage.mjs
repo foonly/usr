@@ -98,12 +98,25 @@ function getArgs(html) {
 }
 
 function resistDamage(amount,type,actor) {
-    const resist = 5;
+    const resist = actor.system.damage.resistance[type];
+    const wound = usr.wounds[type];
 
     const roll = new Roll(`${amount}d10cs<=${resist}`);
     roll.evaluate({async: false});
 
-    console.log(roll);
+    const label = `Resisting ${amount} ${wound.label} damage.`;
+
+    roll.toMessage({
+        speaker: ChatMessage.getSpeaker({actor}),
+        flavor: label,
+        rollMode: game.settings.get("core", "rollMode"),
+    });
+
+    let remaining = amount - roll.total;
+
+    if (remaining > 0) {
+        setDamage(remaining,type,actor);
+    }
 }
 
 function setDamage(amount,type,actor) {

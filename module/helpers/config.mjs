@@ -6,15 +6,15 @@ export const usr = {};
  */
 
 usr.difficulty = [
-    {"label": "Routine (6)", "dice": 6, "active": false},
-    {"label": "Easy (5)", "dice": 5, "active": false},
-    {"label": "Normal (4)", "dice": 4, "active": true},
-    {"label": "Tricky (3)", "dice": 3, "active": false},
-    {"label": "Hard (2)", "dice": 2, "active": false},
-    {"label": "Very Hard (1)", "dice": 1, "active": false},
-    {"label": "Extremely Hard (*2)", "dice": -2, "active": false},
-    {"label": "Special (*3)", "dice": -3, "active": false},
-    {"label": "Special (*4)", "dice": -4, "active": false},
+    {"label": "6 - Routine", "dice": 6, "active": false},
+    {"label": "5 - Easy", "dice": 5, "active": false},
+    {"label": "4 - Normal", "dice": 4, "active": true},
+    {"label": "3 - Tricky", "dice": 3, "active": false},
+    {"label": "2 - Hard", "dice": 2, "active": false},
+    {"label": "1 - Very Hard", "dice": 1, "active": false},
+    {"label": "*2 - Extremely Hard", "dice": -2, "active": false},
+    {"label": "*3 - Special", "dice": -3, "active": false},
+    {"label": "*4 - Special", "dice": -4, "active": false},
 ];
 
 usr.damageModifier = [
@@ -39,4 +39,12 @@ usr.wounds = {
     "m": {"label": "Moderate", "hp": 7},
     "s": {"label": "Serious", "hp": 12},
     "d": {"label": "Deadly", "hp": 16},
-}
+};
+
+usr.health = [
+    "Healthy",
+    "Stable",
+    "Unstable",
+    "Critical",
+    "Dead",
+];
