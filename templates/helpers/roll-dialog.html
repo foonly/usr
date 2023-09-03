@@ -10,7 +10,7 @@
         <select id="trait">
             <option value="">Select Trait</option>
             {{#each traits }}
-                <option value="{{value}}"{{#if active}} selected="selected" {{/if}}>{{label}} ({{ value }})</option>
+                <option value="{{index}}"{{#if active}} selected="selected" {{/if}}>{{label}} ({{ value }})</option>
             {{/each}}
         </select>
     {{/if}}

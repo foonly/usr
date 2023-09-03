@@ -115,7 +115,7 @@ export function usrRoll(data) {
             if (data.spec) {
                 trait.spec.forEach(spec => {
                     if (data.spec === spec.title) {
-                        if (spec.roll < 1 || (spec.roll < 2 && data.difficulty < 4)) {
+                        if (spec.value < 3 && (spec.roll < 1 || (spec.roll < 2 && data.difficulty < 4))) {
                             awarded = true;
                             spec.roll++;
                         }
@@ -123,7 +123,7 @@ export function usrRoll(data) {
                 });
             }
             if (!awarded) {
-                if (trait.roll < 1 || (trait.roll < 2 && data.difficulty < 4)) {
+                if (trait.value < 7 && (trait.roll < 1 || (trait.roll < 2 && data.difficulty < 4))) {
                     trait.roll++;
                 }
             }
@@ -141,6 +141,7 @@ export function makeRoll(data) {
             const trait = data.actor.system.traits[key];
             data.traits.push({
                 key: key,
+                index: key,
                 label: trait.label,
                 value: trait.value,
                 active: (trait.label === data.label),
@@ -149,6 +150,7 @@ export function makeRoll(data) {
                 trait.spec.forEach((spec, index) => {
                     data.traits.push({
                         key: key,
+                        index: `${key}/${spec.title}`,
                         label: ` - ${spec.title}`,
                         value: `${trait.value}/${spec.value}`,
                         active: (spec.title === data.label),
@@ -169,16 +171,16 @@ export function makeRoll(data) {
                     callback: (html) => {
                         const flavor = html.find("#label")[0].innerHTML ?? 'Custom';
                         const difficulty = parseInt(html.find("#difficulty")[0].value ?? 1);
-                        const trait = (html.find("#trait")[0].value ?? '1').split('/');
-                        const skill = parseInt(trait[0] ?? 1);
-                        const specialization = parseInt(trait[1] ?? 0);
+                        const parts = (html.find("#trait")[0].value ?? '1').split('/');
+                        const trait = parts[0];
+                        const spec = parts[1] ?? '';
 
                         usrRoll({
                             flavor,
                             difficulty,
-                            skill,
-                            specialization,
-                            speaker: data.actor
+                            trait,
+                            spec,
+                            actor: data.actor
                         });
                     }
                 }
@@ -205,11 +207,11 @@ export function rollXp(data) {
                     spec.roll--;
                     paid = true;
                 } else if (data.actor.system.xp > 0) {
-                    data.actor.update({"system.xp": data.actor.system.xp-1});
+                    data.actor.update({"system.xp": data.actor.system.xp - 1});
                     paid = true;
                 }
                 if (paid) {
-                    const target = spec.value * 3 + 10;
+                    const target = spec.value * 3 + 11;
                     const roll = new Roll("2d10");
                     roll.evaluate({async: false});
                     if (roll.total > target) {
@@ -239,7 +241,7 @@ export function rollXp(data) {
             trait.roll--;
             paid = true;
         } else if (data.actor.system.xp > 0) {
-            data.actor.update({"system.xp": data.actor.system.xp-1});
+            data.actor.update({"system.xp": data.actor.system.xp - 1});
             paid = true;
         }
         if (paid) {
