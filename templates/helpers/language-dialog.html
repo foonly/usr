@@ -1,0 +1,20 @@
+<div class="entry">
+    <label for="language">Language:</label>
+    <input id="language" type="text" placeholder="Language"/>
+</div>
+<div class="entry">
+    <label for="speak">Speak:</label>
+    <select id="speak">
+        {{#each speak as | value index | }}
+            <option value="{{ index }}">{{ value }}</option>
+        {{/each}}
+    </select>
+</div>
+<div class="entry">
+    <label for="write">Write:</label>
+    <select id="write">
+        {{#each write as | value index | }}
+            <option value="{{ index }}">{{ value }}</option>
+        {{/each}}
+    </select>
+</div>

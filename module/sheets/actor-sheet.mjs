@@ -5,6 +5,7 @@ import {
 import {makeRoll, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
+import {editLanguage} from "../helpers/dialog.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -132,6 +133,10 @@ export class usrActorSheet extends ActorSheet {
                 actor: this.actor,
             };
             makeRoll(data);
+        });
+
+        html.find(".add-language").click((ev) => {
+            editLanguage(this.actor);
         });
 
         html.find(".add-heal").click((ev) => {

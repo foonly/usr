@@ -9,7 +9,8 @@
           "m": 0,
           "l": 0,
           "x": 0,
-          "hp": 0
+          "hp": 0,
+          "status": 0
         },
         "position": {
           "value": 4,
@@ -141,20 +142,26 @@
             "spec": []
           }
         },
-        "fullName": "",
-        "biography": ""
+        "info": {
+          "fullName": "",
+          "biography": "",
+          "age": "",
+          "height": "",
+          "weight": ""
+        }
       }
     },
     "character": {
       "templates": ["base"],
-      "xp": 0
+      "xp": 0,
+      "languages": []
     },
     "npc": {
       "templates": ["base"]
     }
   },
   "Item": {
-    "types": ["item", "feature", "spell"],
+    "types": ["item", "weapon", "ranged"],
     "templates": {
       "base": {
         "description": ""
@@ -162,9 +169,7 @@
     },
     "item": {
       "templates": ["base"],
-      "quantity": 1,
-      "weight": 0,
-      "formula": "d20 + @str.mod + ceil(@lvl / 2)"
+      "quantity": 1
     },
     "feature": {
       "templates": ["base"]

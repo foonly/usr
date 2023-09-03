@@ -1,0 +1,21 @@
+<table class="language-table">
+    <thead>
+        <tr>
+            <th>Language</th>
+            <th>Speak</th>
+            <th>Write</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each system.languages }}
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ speak }}</td>
+                <td>{{ write }}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+<a class="add-language action-icon" data-trait="{{key}}" title="{{localize 'USR.AddLanguage'}}">
+    <i class="fas fa-plus"></i> {{localize 'USR.AddLanguage'}}
+</a>

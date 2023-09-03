@@ -48,3 +48,16 @@ usr.health = [
     "Critical",
     "Dead",
 ];
+
+usr.speak = [
+    "None",
+    "Basic",
+    "Good",
+    "Advanced"
+];
+
+usr.write = [
+    "None",
+    "Basic",
+    "Advanced"
+];

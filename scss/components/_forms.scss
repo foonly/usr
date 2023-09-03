@@ -64,3 +64,11 @@
 .sheet-tabs {
   flex: 0;
 }
+
+.editor {
+  min-height: 100px;
+  .tox {
+    background-color: #66666630;
+    min-height: 400px;
+  }
+}

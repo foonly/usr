@@ -15,8 +15,8 @@
                 <label>XP</label>
                 <input type="number" min="0" max="3" name="spec-{{nr}}-xp" value="{{spec.xp}}" data-dtype="Number" />
             {{/each}}
-            <a class="add-spec" data-trait="{{key}}" title="{{localize 'USR.AddSpec'}}">
-                <i class="fas fa-plus"></i>
+            <a class="add-spec grid-6col action-icon" data-trait="{{key}}" title="{{localize 'USR.AddSpec'}}">
+                <i class="fas fa-plus"></i> {{localize 'USR.AddSpec'}}
             </a>
         {{/if}}
     </main>

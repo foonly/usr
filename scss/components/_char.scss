@@ -1,6 +1,7 @@
 .traits-table {
   .trait-value {
     font-size: 2em;
+    text-align: center;
 
     &.rolls-1::after {
       vertical-align: super;
@@ -12,6 +13,9 @@
       font-size: .5em;
       content: "**";
     }
+  }
+  .trait-xp {
+    text-align: center;
   }
   .trait-roll {
     width: 110px;
@@ -63,4 +67,8 @@
     border: 1px $c-dark solid;
     min-height: 24px;
   }
+}
+
+.action-icon {
+  margin: .5rem;
 }

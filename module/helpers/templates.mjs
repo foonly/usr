@@ -11,7 +11,7 @@ export const preloadHandlebarsTemplates = async function () {
         "systems/usr/templates/actor/parts/actor-combat.html",
         "systems/usr/templates/actor/parts/actor-traits.html",
         "systems/usr/templates/actor/parts/actor-trait.html",
-        "systems/usr/templates/actor/parts/actor-features.html",
+        "systems/usr/templates/actor/parts/actor-knowledge.html",
         "systems/usr/templates/actor/parts/actor-items.html",
     ]);
 };
