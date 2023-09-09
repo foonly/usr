@@ -50,9 +50,7 @@ export function editLanguage(actor, index = -1) {
                 language.speak = speak;
                 language.write = write;
               }
-              languages.sort((a, b) => {
-                return b.speak - a.speak;
-              });
+              languages.sort(languageSort);
               actor.update({ "system.languages": languages });
             }
           },
@@ -65,9 +63,38 @@ export function editLanguage(actor, index = -1) {
   });
 }
 
+function languageSort(a, b) {
+  if (a.speak !== b.speak) {
+    return b.speak - a.speak;
+  }
+  if (a.write !== b.write) {
+    return b.write - a.write;
+  }
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+}
+
 export function editKnowledge(actor, index = -1) {
+  const knowledge = actor.system.knowledge ?? [];
+  let name = "";
+  let level = 0;
+
+  if (index > -1) {
+    const know = knowledge[index];
+    name = know.name;
+    level = parseInt(know.level);
+  }
+
   const data = {
-    levels: usr.knowledge,
+    name,
+    levelList: usr.knowledge.map((label, i) => {
+      return { label, active: i === level };
+    }),
   };
 
   renderTemplate(
@@ -84,12 +111,18 @@ export function editKnowledge(actor, index = -1) {
           callback: (html) => {
             const name = html.find("#knowledge")[0].value;
             const level = html.find("#level")[0].value;
-            const knowledge = actor.system.knowledge ?? [];
             if (name.length) {
-              knowledge.push({
-                name,
-                level,
-              });
+              if (index === -1) {
+                knowledge.push({
+                  name,
+                  level,
+                });
+              } else {
+                
+                knowledge[index].name = name;
+                knowledge[index].level = level;
+              }
+              knowledge.sort(knowledgeSort);
               actor.update({ "system.knowledge": knowledge });
             }
           },
@@ -100,4 +133,17 @@ export function editKnowledge(actor, index = -1) {
     d.options.classes = ["usr", "dialog", "knowledge"];
     d.render(true);
   });
+}
+
+function knowledgeSort(a, b) {
+  if (a.level !== b.level) {
+    return b.level - a.level;
+  }
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
 }

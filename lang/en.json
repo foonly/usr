@@ -24,7 +24,9 @@
   "USR.AddLanguage": "Add Language",
   "USR.AddKnowledge": "Add Knowledge",
 
-  "USR.TraitEdit": "Edit Trait",
+  "USR.EditTrait": "Edit Trait",
+  "USR.EditLanguage": "Edit Language",
+  "USR.EditKnowledge": "Edit Knowledge",
 
   "USR.EffectCreate": "Create Effect",
   "USR.EffectToggle": "Toggle Effect",

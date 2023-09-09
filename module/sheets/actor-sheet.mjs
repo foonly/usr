@@ -87,8 +87,13 @@ export class usrActorSheet extends ActorSheet {
                write: usr.write[lang.write]
            }
         });
-        console.log(context);
-    }
+        context.knowledgeList = context.system.knowledge.map(know => {
+            return {
+                name: know.name,
+                level: usr.knowledge[know.level]
+            }
+         });
+     }
 
     /**
      * Organize and classify Items for Character sheets.
@@ -151,8 +156,11 @@ export class usrActorSheet extends ActorSheet {
             editLanguage(this.actor, dataset.index ?? -1);
         });
 
-        html.find(".add-knowledge").click((ev) => {
-            editKnowledge(this.actor);
+        html.find(".edit-knowledge").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const dataset = element.dataset;
+            editKnowledge(this.actor, dataset.index ?? -1);
         });
 
         html.find(".add-heal").click((ev) => {
