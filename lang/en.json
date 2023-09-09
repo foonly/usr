@@ -16,8 +16,13 @@
   "USR.TraitCraftsmanship": "Craftsmanship",
   "USR.TraitNaval": "Naval",
 
+  "USR.Language": "Language",
+  "USR.Level": "Level",
+  "USR.Knowledge": "Knowledge",
+
   "USR.AddSpec": "Add Specialization",
   "USR.AddLanguage": "Add Language",
+  "USR.AddKnowledge": "Add Knowledge",
 
   "USR.TraitEdit": "Edit Trait",
 

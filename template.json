@@ -154,7 +154,8 @@
     "character": {
       "templates": ["base"],
       "xp": 0,
-      "languages": []
+      "languages": [],
+      "knowledge": []
     },
     "npc": {
       "templates": ["base"]

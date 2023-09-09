@@ -61,3 +61,10 @@ usr.write = [
     "Basic",
     "Advanced"
 ];
+
+usr.knowledge = [
+    "None",
+    "Basic",
+    "Good",
+    "Advanced"
+];

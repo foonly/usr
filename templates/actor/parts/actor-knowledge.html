@@ -1,10 +1,10 @@
 <table class="language-table">
     <thead>
-    <tr>
-        <th>Language</th>
-        <th>Speak</th>
-        <th>Write</th>
-    </tr>
+        <tr>
+            <th>{{localize 'USR.Language' }}</th>
+            <th>Speak</th>
+            <th>Write</th>
+        </tr>
     </thead>
     <tbody>
     {{#each languageList as |lang index| }}
@@ -23,4 +23,22 @@
 </table>
 <a class="edit-language action-icon" title="{{localize 'USR.AddLanguage'}}">
     <i class="fas fa-plus"></i> {{localize 'USR.AddLanguage'}}
+</a>
+
+<table class="knowledge-table">
+    <thead>
+        <tr>
+            <th>{{localize 'USR.Knowledge'}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each system.knowledge }}
+            <tr>
+                <td>{{ name }}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+<a class="add-knowledge action-icon" title="{{localize 'USR.AddKnowledge'}}">
+    <i class="fas fa-plus"></i> {{localize 'USR.AddKnowledge'}}
 </a>

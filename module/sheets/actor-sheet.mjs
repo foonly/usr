@@ -5,7 +5,7 @@ import {
 import {makeRoll, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
-import {editLanguage} from "../helpers/dialog.mjs";
+import {editLanguage, editKnowledge} from "../helpers/dialog.mjs";
 import {usr} from "../helpers/config.mjs";
 
 /**
@@ -149,6 +149,10 @@ export class usrActorSheet extends ActorSheet {
             const element = event.currentTarget;
             const dataset = element.dataset;
             editLanguage(this.actor, dataset.index ?? -1);
+        });
+
+        html.find(".add-knowledge").click((ev) => {
+            editKnowledge(this.actor);
         });
 
         html.find(".add-heal").click((ev) => {
