@@ -92,7 +92,7 @@ export function usrRoll(data) {
 
     const speaker = ChatMessage.getSpeaker({actor: data.actor});
 
-    renderTemplate('systems/usr/templates/helpers/roll.html', result).then(content => {
+    renderTemplate('systems/usr/templates/helpers/roll.hbs', result).then(content => {
         // Prepare chat data
         const messageData = {
             user: game.user.id,
@@ -160,7 +160,7 @@ export function makeRoll(data) {
         })
     }
     data.difficulty = usr.difficulty;
-    renderTemplate('systems/usr/templates/helpers/roll-dialog.html', data).then(content => {
+    renderTemplate('systems/usr/templates/helpers/roll-dialog.hbs', data).then(content => {
         let d = new Dialog({
             title: "Custom Roll",
             content,

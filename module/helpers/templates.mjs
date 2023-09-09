@@ -7,11 +7,11 @@ export const preloadHandlebarsTemplates = async function () {
     return loadTemplates([
 
         // Actor partials.
-        "systems/usr/templates/actor/parts/actor-biography.html",
-        "systems/usr/templates/actor/parts/actor-combat.html",
-        "systems/usr/templates/actor/parts/actor-traits.html",
-        "systems/usr/templates/actor/parts/actor-trait.html",
-        "systems/usr/templates/actor/parts/actor-knowledge.html",
-        "systems/usr/templates/actor/parts/actor-items.html",
+        "systems/usr/templates/actor/parts/actor-biography.hbs",
+        "systems/usr/templates/actor/parts/actor-combat.hbs",
+        "systems/usr/templates/actor/parts/actor-traits.hbs",
+        "systems/usr/templates/actor/parts/actor-trait.hbs",
+        "systems/usr/templates/actor/parts/actor-knowledge.hbs",
+        "systems/usr/templates/actor/parts/actor-items.hbs",
     ]);
 };

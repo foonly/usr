@@ -17,7 +17,7 @@ export class usrActorSheet extends ActorSheet {
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             classes: ["usr", "sheet", "actor"],
-            template: "systems/usr/templates/actor/actor-sheet.html",
+            template: "systems/usr/templates/actor/actor-sheet.hbs",
             width: 600,
             height: 600,
             tabs: [
@@ -32,7 +32,7 @@ export class usrActorSheet extends ActorSheet {
 
     /** @override */
     get template() {
-        return `systems/usr/templates/actor/actor-${this.actor.type}-sheet.html`;
+        return `systems/usr/templates/actor/actor-${this.actor.type}-sheet.hbs`;
     }
 
     /* -------------------------------------------- */

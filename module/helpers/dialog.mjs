@@ -22,7 +22,7 @@ export function editLanguage(actor, index = -1) {
   };
 
   renderTemplate(
-    "systems/usr/templates/helpers/language-dialog.html",
+    "systems/usr/templates/helpers/language-dialog.hbs",
     data
   ).then((content) => {
     let d = new Dialog({
@@ -71,7 +71,7 @@ export function editKnowledge(actor, index = -1) {
   };
 
   renderTemplate(
-    "systems/usr/templates/helpers/knowledge-dialog.html",
+    "systems/usr/templates/helpers/knowledge-dialog.hbs",
     data
   ).then((content) => {
     let d = new Dialog({

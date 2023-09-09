@@ -10,7 +10,7 @@ export function removeStun (actor) {
 
 export function addHealingPoints(actor) {
     const data = {};
-    renderTemplate('systems/usr/templates/helpers/heal-dialog.html', data).then(content => {
+    renderTemplate('systems/usr/templates/helpers/heal-dialog.hbs', data).then(content => {
         let d = new Dialog({
             title: "Add Healing Points",
             content,
@@ -60,7 +60,7 @@ export function addDamage(actor) {
     const data = {
         wounds: usr.wounds
     };
-    renderTemplate('systems/usr/templates/helpers/damage-dialog.html', data).then(content => {
+    renderTemplate('systems/usr/templates/helpers/damage-dialog.hbs', data).then(content => {
         let d = new Dialog({
             classes: ["usr", "dialog", "damage"],
             title: "Take Damage",
