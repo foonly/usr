@@ -1,0 +1,12 @@
+<div class="entry">
+    <label for="knowledge">{{localize 'USR.Knowledge' }}:</label>
+    <input id="knowledge" type="text" placeholder="Knowledge Skill"/>
+</div>
+<div class="entry">
+    <label for="level">{{localize 'USR.Level' }}:</label>
+    <select id="level">
+        {{#each levels as | value index | }}
+            <option value="{{ index }}">{{ value }}</option>
+        {{/each}}
+    </select>
+</div>
