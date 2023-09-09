@@ -2,9 +2,24 @@ import {usrRoll} from "./roll.mjs";
 import {usr} from "./config.mjs";
 
 export function editLanguage(actor, index = -1) {
+    const languages = actor.system.languages ?? [];
+    let name = '';
+    let speak = 0;
+    let write = 0;
+    if (index > -1) {
+        const language = languages[index];
+        name = language.name;
+        speak = parseInt(language.speak);
+        write = parseInt(language.write);
+    }
     const data = {
-        speak: usr.speak,
-        write: usr.write
+        name,
+        speakList: usr.speak.map((label, i) => {
+            return {label, active: (i === speak)}
+        }),
+        writeList: usr.write.map((label, i) => {
+            return {label, active: (i === write)}
+        })
     };
 
     renderTemplate('systems/usr/templates/helpers/language-dialog.html', data).then(content => {
@@ -17,15 +32,22 @@ export function editLanguage(actor, index = -1) {
                     label: "Save",
                     callback: (html) => {
                         const name = html.find("#language")[0].value;
-                        const speak = html.find("#speak")[0].value;
-                        const write = html.find("#write")[0].value;
-                        const languages = actor.system.languages ?? [];
+                        const speak = parseInt(html.find("#speak")[0].value);
+                        const write = parseInt(html.find("#write")[0].value);
+
                         if (name.length) {
-                            languages.push({
-                                name,
-                                speak,
-                                write
-                            });
+                            if (index === -1) {
+                                languages.push({
+                                    name,
+                                    speak,
+                                    write
+                                });
+                            } else {
+                                const language = languages[index];
+                                language.name = name;
+                                language.speak = speak;
+                                language.write = write;
+                            }
                             actor.update({"system.languages": languages});
                         }
                     }
