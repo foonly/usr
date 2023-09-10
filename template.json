@@ -155,16 +155,24 @@
       "templates": ["base"],
       "xp": 0,
       "languages": [],
-      "knowledge": []
+      "knowledge": [],
+      "chips": {
+        "white": 0,
+        "green": 0,
+        "blue": 0,
+        "red": 0,
+        "black": 0
+      }
     },
     "npc": {
       "templates": ["base"]
     }
   },
   "Item": {
-    "types": ["item", "weapon", "ranged"],
+    "types": ["item", "melee", "ranged", "armor"],
     "templates": {
       "base": {
+        "weight": 0,
         "description": ""
       }
     },
@@ -172,12 +180,22 @@
       "templates": ["base"],
       "quantity": 1
     },
-    "feature": {
-      "templates": ["base"]
-    },
-    "spell": {
+    "melee": {
       "templates": ["base"],
-      "spellLevel": 1
+      "damage": 1,
+      "type" : "x"
+    },
+    "ranged": {
+      "templates": ["base"],
+      "damage": 1,
+      "accuracy": 1,
+      "penetration": 0,
+      "shots": 1,
+      "reload": 0,
+      "ammo": 0
+    },
+    "armor": {
+      "templates": ["base"]
     }
   }
 }

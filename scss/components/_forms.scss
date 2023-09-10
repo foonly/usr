@@ -59,6 +59,46 @@
       margin: 0;
     }
   }
+
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 48px;
+
+    .chip {
+      background-image: url("/systems/usr/assets/chips/white.webp");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      text-align: center;
+      line-height: 2rem;
+      font-size: 2rem;
+      padding-top: 12px;
+
+      input {
+        border: 0;
+        background-color: transparent;
+        height: 2rem;
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      &.chip-green {
+        background-image: url("/systems/usr/assets/chips/green.webp");
+      }
+      &.chip-blue {
+        background-image: url("/systems/usr/assets/chips/blue.webp");
+      }
+      &.chip-red {
+        background-image: url("/systems/usr/assets/chips/red.webp");
+      }
+      &.chip-black {
+        background-image: url("/systems/usr/assets/chips/black.webp");
+        color: $c-faint;
+      }
+    }
+  }
 }
 
 .sheet-tabs {

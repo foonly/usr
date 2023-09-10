@@ -59,6 +59,7 @@ usr.speak = [
 usr.write = [
     "None",
     "Basic",
+    "Good",
     "Advanced"
 ];
 

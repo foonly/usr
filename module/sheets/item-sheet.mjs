@@ -7,7 +7,7 @@ export class usrItemSheet extends ItemSheet {
   /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      classes: ["boilerplate", "sheet", "item"],
+      classes: ["usr", "sheet", "item"],
       width: 520,
       height: 480,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }]
@@ -37,7 +37,7 @@ export class usrItemSheet extends ItemSheet {
 
     // Retrieve the roll data for TinyMCE editors.
     context.rollData = {};
-    let actor = this.object?.parent ?? null;
+    const actor = this.object?.parent ?? null;
     if (actor) {
       context.rollData = actor.getRollData();
     }

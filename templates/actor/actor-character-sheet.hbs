@@ -16,6 +16,13 @@
                     <span>{{ system.damage.modifierText }}</span>
                 </div>
             </div>
+            <div class="chips">
+                {{#each system.chips as |nr type|}}
+                    <div class="chip chip-{{type}}">
+                        <input name="system.chips.{{type}}" min="0" type="number" value="{{nr}}" data-dtype="Number"/>
+                    </div>
+                {{/each}}
+            </div>
         </div>
     </header>
 

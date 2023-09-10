@@ -19,10 +19,18 @@
   "USR.Language": "Language",
   "USR.Level": "Level",
   "USR.Knowledge": "Knowledge",
+  "USR.Item": "Item",
+  "USR.Qty": "Qty",
+  "USR.Weight": "Weight",
+  "USR.Actions": "Actions",
+
 
   "USR.AddSpec": "Add Specialization",
   "USR.AddLanguage": "Add Language",
   "USR.AddKnowledge": "Add Knowledge",
+  "USR.AddItem": "Add Item",
+  "USR.AddMelee": "Add Melee Weapon",
+  "USR.AddRanged": "Add Ranged Weapon",
 
   "USR.EditTrait": "Edit Trait",
   "USR.EditLanguage": "Edit Language",

@@ -105,7 +105,8 @@ export class usrActorSheet extends ActorSheet {
     _prepareItems(context) {
         // Initialize containers.
         const gear = [];
-        const features = [];
+        const melee = [];
+        const ranged = [];
 
         // Iterate through items, allocating to containers
         for (let i of context.items) {
@@ -114,15 +115,20 @@ export class usrActorSheet extends ActorSheet {
             if (i.type === "item") {
                 gear.push(i);
             }
-            // Append to features.
-            else if (i.type === "feature") {
-                features.push(i);
+            // Append to melee weapons.
+            else if (i.type === "melee") {
+                melee.push(i);
+            }
+            // Append to ranged weapons.
+            else if (i.type === "ranged") {
+                ranged.push(i);
             }
         }
 
         // Assign and return
         context.gear = gear;
-        context.features = features;
+        context.melee = melee;
+        context.ranged = ranged;
     }
 
     /* -------------------------------------------- */
@@ -132,9 +138,10 @@ export class usrActorSheet extends ActorSheet {
         super.activateListeners(html);
 
         // Render the item sheet for viewing/editing prior to the editable check.
-        html.find(".item-edit").click((ev) => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.items.get(li.data("itemId"));
+        html.find(".item-edit").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const item = this.actor.items.get(element.dataset.itemId);
             item.sheet.render(true);
         });
 
@@ -200,9 +207,10 @@ export class usrActorSheet extends ActorSheet {
         html.find(".item-create").click(this._onItemCreate.bind(this));
 
         // Delete Inventory Item
-        html.find(".item-delete").click((ev) => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.items.get(li.data("itemId"));
+        html.find(".item-delete").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const item = this.actor.items.get(element.dataset.itemId);
             item.delete();
             li.slideUp(200, () => this.render(false));
         });
