@@ -156,6 +156,13 @@ export class usrActorSheet extends ActorSheet {
             makeRoll(data);
         });
 
+        html.find(".edit-asset").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const dataset = element.dataset;
+            editAsset(this.actor, dataset.index ?? -1);
+        });
+        
         html.find(".edit-language").click((event) => {
             event.preventDefault();
             const element = event.currentTarget;

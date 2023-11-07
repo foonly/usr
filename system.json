@@ -2,19 +2,24 @@
   "id": "usr",
   "title": "Universal Simple Role-Playing",
   "description": "The Universal Simple Role-Playing System for FoundryVTT!",
-  "version": "0.1.7",
-  "minimumCoreVersion": "0.10.0",
+  "version": "0.1.8",
   "compatibility": {
     "minimum": 10,
     "verified": "11"
   },
-  "authors": [{
-    "name": "Niklas Schönberg",
-    "url": "https://niklas.uplink.fi",
-    "email": "niklas@uplink.fi"
-  }],
-  "esmodules": ["module/usr.mjs"],
-  "styles": ["css/usr.css"],
+  "authors": [
+    {
+      "name": "Niklas Schönberg",
+      "url": "https://niklas.uplink.fi",
+      "email": "niklas@uplink.fi"
+    }
+  ],
+  "esmodules": [
+    "module/usr.mjs"
+  ],
+  "styles": [
+    "css/usr.css"
+  ],
   "scripts": [],
   "packs": [],
   "languages": [

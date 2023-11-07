@@ -1,6 +1,9 @@
 {
   "Actor": {
-    "types": ["character", "npc"],
+    "types": [
+      "character",
+      "npc"
+    ],
     "templates": {
       "base": {
         "health": {
@@ -152,10 +155,13 @@
       }
     },
     "character": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "xp": 0,
       "languages": [],
       "knowledge": [],
+      "assets": [],
       "chips": {
         "white": 0,
         "green": 0,
@@ -165,11 +171,18 @@
       }
     },
     "npc": {
-      "templates": ["base"]
+      "templates": [
+        "base"
+      ]
     }
   },
   "Item": {
-    "types": ["item", "melee", "ranged", "armor"],
+    "types": [
+      "item",
+      "melee",
+      "ranged",
+      "armor"
+    ],
     "templates": {
       "base": {
         "weight": 0,
@@ -177,16 +190,22 @@
       }
     },
     "item": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "quantity": 1
     },
     "melee": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "damage": 1,
-      "type" : "x"
+      "type": "x"
     },
     "ranged": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "damage": 1,
       "accuracy": 1,
       "penetration": 0,
@@ -195,7 +214,9 @@
       "ammo": 0
     },
     "armor": {
-      "templates": ["base"]
+      "templates": [
+        "base"
+      ]
     }
   }
 }

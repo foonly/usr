@@ -1,5 +1,61 @@
 import { usr } from "./config.mjs";
 
+export function editAsset(actor, index = -1) {
+  const assets = actor.system.assets ?? [];
+  let name = "";
+  let amount = 0;
+  if (index > -1) {
+    const asset = assets[index];
+    name = asset.name;
+    amount = parseInt(asset.amount);
+  }
+  const data = {
+    name,
+    amount,
+  };
+
+  renderTemplate(
+    "systems/usr/templates/helpers/asset-dialog.hbs",
+    data
+  ).then((content) => {
+    let d = new Dialog({
+      title: "Asset",
+      content,
+      buttons: {
+        save: {
+          icon: '<i class="fas fa-earth-europe"></i>',
+          label: "Save",
+          callback: (html) => {
+            const name = html.find("#language")[0].value;
+            const speak = parseInt(html.find("#speak")[0].value);
+            const write = parseInt(html.find("#write")[0].value);
+
+            if (name.length) {
+              if (index === -1) {
+                languages.push({
+                  name,
+                  speak,
+                  write,
+                });
+              } else {
+                const language = languages[index];
+                language.name = name;
+                language.speak = speak;
+                language.write = write;
+              }
+              languages.sort(languageSort);
+              actor.update({ "system.languages": languages });
+            }
+          },
+        },
+      },
+      default: "save",
+    });
+    d.options.classes = ["usr", "dialog", "language"];
+    d.render(true);
+  });
+}
+
 export function editLanguage(actor, index = -1) {
   const languages = actor.system.languages ?? [];
   let name = "";

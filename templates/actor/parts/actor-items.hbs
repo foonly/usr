@@ -1,3 +1,36 @@
+<table class="assets-table">
+  <thead>
+    <tr>
+      <th>{{localize "USR.Asset"}}</th>
+      <th>Amount</th>
+      <th>Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each system.assets as |row index|}}
+      <tr>
+        <td>
+          <a
+            class="edit-asset action-icon"
+            data-index="{{index}}"
+            title="{{localize 'USR.EditAsset'}}"
+          >
+            <i class="fas fa-edit"></i>
+          </a>
+          {{row.name}}
+        </td>
+        <td>{{row.amount}}</td>
+        <td></td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+<a class="edit-asset action-icon" title="{{localize 'USR.AddAsset'}}">
+  <i class="fas fa-plus"></i>
+  {{localize "USR.AddAsset"}}
+</a>
+
+
 <table class="items-table">
   <thead>
     <tr>
