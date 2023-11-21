@@ -1,11 +1,11 @@
 {
   "name": "usr",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Simple SCSS compiler.",
   "scripts": {
     "build": "sass scss:css",
     "watch": "sass --watch scss:css",
-    "version": "versionSync.mjs && git add system.json"
+    "version": "node versionSync.mjs && git add system.json"
   },
   "browserslist": [
     "last 3 versions"

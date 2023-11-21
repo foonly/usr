@@ -1,4 +1,3 @@
-#! /usr/bin/node
 import { readFileSync, writeFileSync } from "fs";
 
 try {
