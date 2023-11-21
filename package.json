@@ -1,6 +1,6 @@
 {
   "name": "usr",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "Simple SCSS compiler.",
   "scripts": {
     "build": "sass scss:css",
