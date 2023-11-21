@@ -16,12 +16,15 @@
                     <span>{{ system.damage.modifierText }}</span>
                 </div>
             </div>
-            <div class="chips">
-                {{#each system.chips as |nr type|}}
-                    <div class="chip chip-{{type}}">
-                        <input name="system.chips.{{type}}" min="0" type="number" value="{{nr}}" data-dtype="Number"/>
-                    </div>
-                {{/each}}
+            <div class="chip-container">
+                <div class="chips">
+                    {{#each chipsList as |type index|}}
+                        <div class="chip" data-chip="{{type}}">
+                        </div>
+                    {{/each}}
+                </div>
+                <button class="rollable roll die d6" data-roll-chip="1">1</button>
+                <button class="rollable roll die d6" data-roll-chip="2">2</button>
             </div>
         </div>
     </header>

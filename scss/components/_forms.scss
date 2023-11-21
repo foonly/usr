@@ -61,41 +61,29 @@
   }
 
   .chips {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 
     .chip {
       background-image: url("/systems/usr/assets/chips/white.webp");
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      text-align: center;
-      line-height: 2rem;
-      font-size: 2rem;
-      padding-top: 12px;
+      height: 48px;
+      width: 48px;
 
-      input {
-        border: 0;
-        background-color: transparent;
-        height: 2rem;
-        &:focus {
-          box-shadow: none;
-        }
-      }
-
-      &.chip-green {
+      &[data-chip="green"] {
         background-image: url("/systems/usr/assets/chips/green.webp");
       }
-      &.chip-blue {
+      &[data-chip="blue"] {
         background-image: url("/systems/usr/assets/chips/blue.webp");
       }
-      &.chip-red {
+      &[data-chip="red"] {
         background-image: url("/systems/usr/assets/chips/red.webp");
       }
-      &.chip-black {
+      &[data-chip="black"] {
         background-image: url("/systems/usr/assets/chips/black.webp");
-        color: $c-faint;
       }
     }
   }

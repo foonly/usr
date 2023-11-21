@@ -80,20 +80,26 @@ export class usrActorSheet extends ActorSheet {
      * @return {undefined}
      */
     _prepareCharacterData(context) {
+        context.chipsList = [];
+        for (const color of Object.keys(context.system.chips)) {
+            for (let i = 0; i < context.system.chips[color]; i++) {
+                context.chipsList.push(color);
+            }
+        }
         context.languageList = context.system.languages.map(lang => {
-           return {
-               name: lang.name,
-               speak: usr.speak[lang.speak],
-               write: usr.write[lang.write]
-           }
+            return {
+                name: lang.name,
+                speak: usr.speak[lang.speak],
+                write: usr.write[lang.write]
+            }
         });
         context.knowledgeList = context.system.knowledge.map(know => {
             return {
                 name: know.name,
                 level: usr.knowledge[know.level]
             }
-         });
-     }
+        });
+    }
 
     /**
      * Organize and classify Items for Character sheets.
@@ -162,7 +168,7 @@ export class usrActorSheet extends ActorSheet {
             const dataset = element.dataset;
             editAsset(this.actor, dataset.index ?? -1);
         });
-        
+
         html.find(".edit-language").click((event) => {
             event.preventDefault();
             const element = event.currentTarget;
