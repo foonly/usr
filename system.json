@@ -34,7 +34,7 @@
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
   "url": "https://github.com/foonly/usr",
-  "manifest": "https://raw.githubusercontent.com/foonly/usr/main/system.json",
-  "download": "",
-  "license": "LICENSE.txt"
+  "manifest": "https://github.com/foonly/usr/releases/latest/download/system.json",
+  "download": "https://github.com/foonly/usr/releases/latest/download/release.zip",
+  "license": "CC BY-SA 4.0"
 }
