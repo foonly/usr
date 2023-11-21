@@ -16,3 +16,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "system.json"
