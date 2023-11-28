@@ -265,3 +265,15 @@ export function rollXp(data) {
         data.actor.update({"system.traits": traits});
     }
 }
+
+export function rollChip(actor, dice = 1) {
+    const chips = actor.system.chips;
+    const total = chips.white + chips.green + chips.blue + chips.red + chips.black;
+    const roll = new Roll(`${dice}d6kh1cs>${total}`);
+    roll.evaluate({async: false});
+    roll.toMessage({
+        speaker: ChatMessage.getSpeaker({actor}),
+        flavor: 'Rolling for fate chip.',
+        rollMode: game.settings.get("core", "rollMode"),
+    });
+}

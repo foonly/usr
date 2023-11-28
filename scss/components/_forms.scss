@@ -63,7 +63,7 @@
   .chips {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
 
     .chip {
       background-image: url("/systems/usr/assets/chips/white.webp");

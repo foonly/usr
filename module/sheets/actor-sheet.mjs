@@ -2,7 +2,7 @@ import {
     onManageActiveEffect,
     prepareActiveEffectCategories,
 } from "../helpers/effects.mjs";
-import {makeRoll, rollXp, usrRoll} from "../helpers/roll.mjs";
+import {makeRoll, rollChip, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
 import {editLanguage, editKnowledge} from "../helpers/dialog.mjs";
@@ -200,6 +200,13 @@ export class usrActorSheet extends ActorSheet {
             const element = event.currentTarget;
             const dataset = element.dataset;
             rollXp({actor: this.actor, trait: dataset.trait, spec: dataset.spec ?? ''});
+        });
+
+        html.find(".roll-chip").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const dataset = element.dataset;
+            rollChip(this.actor, dataset.rollChip);
         });
 
         // Rollable abilities.
