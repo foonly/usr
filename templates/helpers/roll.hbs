@@ -7,12 +7,12 @@
             <section class="tooltip-part">
                 <div class="dice">
                     <header class="part-header flexrow">
-                        <span class="part-formula">{{ dice.length }}d10</span>
+                        <span class="part-formula">{{ dice.length }}{{ type }}</span>
                         <span class="part-total">{{successes}}</span>
                     </header>
                     <ol class="dice-rolls">
                         {{#each dice}}
-                            <li class="roll die d10{{#if success }} success{{/if}}">{{ value }}</li>
+                            <li class="roll die {{ ../type }}{{#if success }} success{{/if}}">{{ value }}</li>
                         {{/each}}
                     </ol>
                 </div>

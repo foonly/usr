@@ -31,6 +31,7 @@ export function usrRoll(data) {
         difficulty: data.difficulty,
         skill: data.skill,
         specialization: data.specialization,
+        type: 'd10',
         dice: [],
         successes: 0,
         critical: false,
@@ -92,21 +93,7 @@ export function usrRoll(data) {
 
     const speaker = ChatMessage.getSpeaker({actor: data.actor});
 
-    renderTemplate('systems/usr/templates/helpers/roll.hbs', result).then(content => {
-        // Prepare chat data
-        const messageData = {
-            user: game.user.id,
-            type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-            content,
-            sound: CONFIG.sounds.dice,
-            speaker,
-            flavor: data.flavor,
-        };
-
-        const msg = new ChatMessage(messageData);
-
-        ChatMessage.create(msg.toObject(), {rollMode: game.settings.get("core", "rollMode")});
-    })
+    showRoll(result, speaker, data.flavor);
 
     if (!result.critical && data.trait && data.actor) {
         let awarded = false;
@@ -132,6 +119,25 @@ export function usrRoll(data) {
     }
 
     return result;
+}
+
+function showRoll(result, speaker, flavor = "") {
+    renderTemplate('systems/usr/templates/helpers/roll.hbs', result).then(content => {
+        // Prepare chat data
+        const messageData = {
+            user: game.user.id,
+            type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+            content,
+            sound: CONFIG.sounds.dice,
+            speaker,
+            flavor,
+        };
+
+        const msg = new ChatMessage(messageData);
+
+        ChatMessage.create(msg.toObject(), {rollMode: game.settings.get("core", "rollMode")});
+    })
+
 }
 
 export function makeRoll(data) {
@@ -269,11 +275,53 @@ export function rollXp(data) {
 export function rollChip(actor, dice = 1) {
     const chips = actor.system.chips;
     const total = chips.white + chips.green + chips.blue + chips.red + chips.black;
-    const roll = new Roll(`${dice}d6kh1cs>${total}`);
+    const roll = new Roll(`${dice}d6cs>${total}`);
     roll.evaluate({async: false});
-    roll.toMessage({
-        speaker: ChatMessage.getSpeaker({actor}),
-        flavor: 'Rolling for fate chip.',
-        rollMode: game.settings.get("core", "rollMode"),
-    });
+    const result = {
+        type: 'd6',
+        dice: [],
+        successes: roll.total,
+        formula: `${dice}D6 against ${total} chips.`,
+        total: 'No Chip',
+    }
+    for (const die of roll.dice[0].results) {
+        result.dice.push({value: die.result, success: die.result > total});
+    }
+    if (roll.total > 0) {
+        const newChips = {
+            white: chips.white,
+            green: chips.green,
+            blue: chips.blue,
+            red: chips.red,
+            black: chips.black
+        };
+        const chip = new Roll("1d5");
+        chip.evaluate({async: false});
+        switch (chip.total) {
+            case 1:
+                newChips.white++;
+                result.total = "White Chip"
+                break;
+            case 2:
+                newChips.green++;
+                result.total = "Green Chip"
+                break;
+            case 3:
+                newChips.blue++;
+                result.total = "Blue Chip"
+                break;
+            case 4:
+                newChips.red++;
+                result.total = "Red Chip"
+                break;
+            case 5:
+                newChips.black++;
+                result.total = "Black Chip"
+                break;
+        }
+        actor.update({"system.chips": newChips});
+        console.debug(chip.total);
+    }
+    const speaker = ChatMessage.getSpeaker({actor});
+    showRoll(result, speaker, 'Fate Chip');
 }
