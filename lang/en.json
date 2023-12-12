@@ -19,12 +19,15 @@
   "USR.Language": "Language",
   "USR.Level": "Level",
   "USR.Knowledge": "Knowledge",
-  "USR.Asset": "Asset",
   "USR.Item": "Item",
   "USR.Qty": "Qty",
   "USR.Weight": "Weight",
   "USR.Actions": "Actions",
-
+  "USR.Asset": "Asset",
+  "USR.Assets": "Assets",
+  "USR.AssetName": "Asset Name",
+  "USR.AssetAmount": "Amount",
+  "USR.AssetChange": "Change",
 
   "USR.AddSpec": "Add Specialization",
   "USR.AddLanguage": "Add Language",

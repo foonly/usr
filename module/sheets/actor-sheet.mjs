@@ -5,7 +5,7 @@ import {
 import {makeRoll, rollChip, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
-import {editLanguage, editKnowledge, useChip} from "../helpers/dialog.mjs";
+import {editLanguage, editKnowledge, editAsset, useChip} from "../helpers/dialog.mjs";
 import {usr} from "../helpers/config.mjs";
 
 /**

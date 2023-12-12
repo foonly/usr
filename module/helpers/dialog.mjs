@@ -20,7 +20,6 @@ export async function useChip(data) {
   if (newChips[data.type] > 0) {
     newChips[data.type]--;
     data.actor.update({"system.chips": newChips});
-    console.log(`Delete ${data.type} chip.`);
     return data.type;
   }
 }
@@ -51,25 +50,21 @@ export function editAsset(actor, index = -1) {
           icon: '<i class="fas fa-earth-europe"></i>',
           label: "Save",
           callback: (html) => {
-            const name = html.find("#language")[0].value;
-            const speak = parseInt(html.find("#speak")[0].value);
-            const write = parseInt(html.find("#write")[0].value);
+            const name = html.find("#asset")[0].value;
+            const amount = parseInt(html.find("#amount")[0].value);
 
             if (name.length) {
               if (index === -1) {
-                languages.push({
+                assets.push({
                   name,
-                  speak,
-                  write,
+                  amount,
                 });
               } else {
-                const language = languages[index];
-                language.name = name;
-                language.speak = speak;
-                language.write = write;
+                const asset = assets[index];
+                asset.name = name;
+                asset.amount = amount;
               }
-              languages.sort(languageSort);
-              actor.update({ "system.languages": languages });
+              actor.update({ "system.assets": assets });
             }
           },
         },
