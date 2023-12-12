@@ -1,5 +1,30 @@
 import { usr } from "./config.mjs";
 
+export async function useChip(data) {
+  const confirmation = await Dialog.confirm({
+    content: `Are you sure you want to use your ${data.type} chip?`
+  });
+
+  if (!confirmation) {
+    return Promise.reject("Not confirmed");
+  }
+
+  const newChips = {
+    white: data.actor.system.chips.white,
+    green: data.actor.system.chips.green,
+    blue: data.actor.system.chips.blue,
+    red: data.actor.system.chips.red,
+    black: data.actor.system.chips.black
+  };
+
+  if (newChips[data.type] > 0) {
+    newChips[data.type]--;
+    data.actor.update({"system.chips": newChips});
+    console.log(`Delete ${data.type} chip.`);
+    return data.type;
+  }
+}
+
 export function editAsset(actor, index = -1) {
   const assets = actor.system.assets ?? [];
   let name = "";
@@ -174,7 +199,7 @@ export function editKnowledge(actor, index = -1) {
                   level,
                 });
               } else {
-                
+
                 knowledge[index].name = name;
                 knowledge[index].level = level;
               }

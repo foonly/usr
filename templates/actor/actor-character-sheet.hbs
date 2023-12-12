@@ -19,25 +19,14 @@
             <div class="chip-container">
                 <div class="chips">
                     {{#each chipsList as |type index|}}
-                        <div class="chip" data-chip="{{type}}">
+                        <div class="chip clickable-chip" data-chip="{{type}}">
                         </div>
                     {{/each}}
                 </div>
-                <table class="chips-list">
-                    <tr>
-                    {{#each system.chips as |nr type|}}
-                        <td>
-                            {{ type }}
-                        </td>
-                        <td>
-                            <input name="system.chips.{{type}}" min="0" type="number" value="{{nr}}" data-dtype="Number"/>
-                        </td>
-                    {{/each}}
-                    </tr>
-                </table>
-
-                <button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
-                <button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
+                <div class="dice">
+                    <button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
+                    <button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
+                </div>
             </div>
         </div>
     </header>

@@ -5,7 +5,7 @@ import {
 import {makeRoll, rollChip, rollXp, usrRoll} from "../helpers/roll.mjs";
 import {addDamage, addHealingPoints, removeStun} from "../helpers/damage.mjs";
 import {TraitSheet} from "./trait-sheet.mjs";
-import {editLanguage, editKnowledge} from "../helpers/dialog.mjs";
+import {editLanguage, editKnowledge, useChip} from "../helpers/dialog.mjs";
 import {usr} from "../helpers/config.mjs";
 
 /**
@@ -207,6 +207,34 @@ export class usrActorSheet extends ActorSheet {
             const element = event.currentTarget;
             const dataset = element.dataset;
             rollChip(this.actor, dataset.rollChip);
+        });
+
+        html.find(".clickable-chip").click((event) => {
+            event.preventDefault();
+            const element = event.currentTarget;
+            const dataset = element.dataset;
+            const actor = this.actor;
+            useChip({actor, type: dataset.chip})
+                .then(r => {
+                    const speaker = ChatMessage.getSpeaker({actor});
+
+                    const content = `Uses ${r} fate chip.`;
+
+                    // Prepare chat data
+                    const messageData = {
+                        user: game.user.id,
+                        content,
+                        speaker,
+                        flavor: "Fate Chip.",
+                    };
+
+                    const msg = new ChatMessage(messageData);
+
+                    ChatMessage.create(msg.toObject(), {rollMode: game.settings.get("core", "rollMode")});
+
+
+                    console.log(r);
+                });
         });
 
         // Rollable abilities.

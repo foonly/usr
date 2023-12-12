@@ -320,7 +320,6 @@ export function rollChip(actor, dice = 1) {
                 break;
         }
         actor.update({"system.chips": newChips});
-        console.debug(chip.total);
     }
     const speaker = ChatMessage.getSpeaker({actor});
     showRoll(result, speaker, 'Fate Chip');
