@@ -41,9 +41,7 @@ export function usrRoll(data) {
     let tens = -1;
     let failed = false;
 
-    console.log("go", roll.dice);
     for (const die of roll.dice[0].results) {
-      console.log(die);
       result.dice.push({
         value: die.result,
         success: die.result <= result.skill,
@@ -98,7 +96,7 @@ export function usrRoll(data) {
 
     const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 
-    showRoll(result, speaker, data.flavor);
+    showRoll(roll, result, speaker, data.flavor);
 
     if (!result.critical && data.trait && data.actor) {
       let awarded = false;
@@ -131,27 +129,20 @@ export function usrRoll(data) {
   });
 }
 
-function showRoll(result, speaker, flavor = "") {
-  renderTemplate("systems/usr-modern/templates/helpers/roll.hbs", result).then(
-    (content) => {
-      // TODO fix v12 compatibility.
+function showRoll(roll, result, speaker, flavor = "") {
+  foundry.applications.handlebars
+    .renderTemplate("systems/usr/templates/helpers/roll.hbs", result)
+    .then((content) => {
       // Prepare chat data
       const messageData = {
-        user: game.user.id,
-        type: CONST.CHAT_MESSAGE_STYLES.ROLL,
         content,
-        sound: CONFIG.sounds.dice,
         speaker,
+        rollMode: game.settings.get("core", "rollMode"),
         flavor,
       };
 
-      const msg = new ChatMessage(messageData);
-
-      ChatMessage.create(msg.toObject(), {
-        rollMode: game.settings.get("core", "rollMode"),
-      });
-    }
-  );
+      roll.toMessage(messageData);
+    });
 }
 
 export function makeRoll(data = {}) {
@@ -180,43 +171,44 @@ export function makeRoll(data = {}) {
     });
   }
   data.difficulty = usr.difficulty;
-  renderTemplate(
-    "systems/usr-modern/templates/helpers/roll-dialog.hbs",
-    data
-  ).then((content) => {
-    console.log(game.user);
-    let d = new Dialog({
-      title: "Custom Roll",
-      content,
-      buttons: {
-        roll: {
-          icon: '<i class="fas fa-dice-d10"></i>',
-          label: "Roll",
-          callback: (html) => {
-            const labelElement = html.find("#label");
-            const flavor = labelElement[0]
-              ? labelElement[0].innerHTML ?? "Custom"
-              : "Custom";
-            const difficulty = parseInt(html.find("#difficulty")[0].value ?? 1);
-            const parts = (html.find("#trait")[0].value ?? "1").split("/");
-            const trait = parts[0];
-            const spec = parts[1] ?? "";
+  foundry.applications.handlebars
+    .renderTemplate("systems/usr/templates/helpers/roll-dialog.hbs", data)
+    .then((content) => {
+      console.log(game.user);
+      let d = new Dialog({
+        title: "Custom Roll",
+        content,
+        buttons: {
+          roll: {
+            icon: '<i class="fas fa-dice-d10"></i>',
+            label: "Roll",
+            callback: (html) => {
+              const labelElement = html.find("#label");
+              const flavor = labelElement[0]
+                ? (labelElement[0].innerHTML ?? "Custom")
+                : "Custom";
+              const difficulty = parseInt(
+                html.find("#difficulty")[0].value ?? 1,
+              );
+              const parts = (html.find("#trait")[0].value ?? "1").split("/");
+              const trait = parts[0];
+              const spec = parts[1] ?? "";
 
-            usrRoll({
-              flavor,
-              difficulty,
-              trait,
-              spec,
-              actor: data.actor ?? game.user,
-            });
+              usrRoll({
+                flavor,
+                difficulty,
+                trait,
+                spec,
+                actor: data.actor ?? game.user,
+              });
+            },
           },
         },
-      },
-      default: "roll",
+        default: "roll",
+      });
+      d.options.classes = ["usr", "dialog", "roll"];
+      d.render(true);
     });
-    d.options.classes = ["usr", "dialog", "roll"];
-    d.render(true);
-  });
 }
 
 export function rollXp(data) {
@@ -341,10 +333,10 @@ export function rollChip(actor, dice = 1) {
             break;
         }
         actor.update({ "system.chips": newChips });
-        showRoll(result, speaker, "Fate Chip");
+        showRoll(roll, result, speaker, "Fate Chip");
       });
     } else {
-      showRoll(result, speaker, "Fate Chip");
+      showRoll(roll, result, speaker, "Fate Chip");
     }
   });
 }

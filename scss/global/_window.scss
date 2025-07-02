@@ -1,15 +1,17 @@
-.window-app {
-  font-family: $font-primary;
-}
-button {
-  font-family: $font-primary;
-}
+.usr {
+    .window-app {
+        font-family: var(--usr-font-primary);
+    }
+    button {
+        font-family: var(--usr-font-primary);
+    }
 
-.rollable {
-  &:hover,
-  &:focus {
-    color: #000;
-    text-shadow: 0 0 10px red;
-    cursor: pointer;
-  }
+    .rollable {
+        &:hover,
+        &:focus {
+            color: #000;
+            text-shadow: 0 0 10px red;
+            cursor: pointer;
+        }
+    }
 }

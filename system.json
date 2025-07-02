@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "compatibility": {
     "minimum": 12,
-    "verified": "12"
+    "verified": 13
   },
   "authors": [
     {
@@ -14,12 +14,8 @@
       "email": "niklas@uplink.fi"
     }
   ],
-  "esmodules": [
-    "module/usr.mjs"
-  ],
-  "styles": [
-    "css/usr.css"
-  ],
+  "esmodules": ["module/usr.mjs"],
+  "styles": ["css/usr.css"],
   "scripts": [],
   "packs": [],
   "languages": [
