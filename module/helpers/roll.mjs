@@ -80,7 +80,7 @@ export function usrRoll(data) {
 
     if (tens > 0) {
       result.successes -= tens;
-      if (result.successes < 1) {
+      if (result.successes < 0) {
         result.successes = 0;
         result.critical = true;
       }
