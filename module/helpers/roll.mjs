@@ -37,6 +37,7 @@ export function usrRoll(data) {
       total: "",
     };
 
+    /* Start tens and ones at -1, because we start counting from the second one. */
     let ones = -1;
     let tens = -1;
     let failed = false;
@@ -65,13 +66,6 @@ export function usrRoll(data) {
         tens++;
       }
     }
-    if (result.difficulty < 0) {
-      if (failed) {
-        result.successes = 0;
-      } else {
-        result.successes++;
-      }
-    }
 
     if (ones > 0) {
       result.successes += ones;
@@ -83,6 +77,14 @@ export function usrRoll(data) {
       if (result.successes < 0) {
         result.successes = 0;
         result.critical = true;
+      }
+    }
+
+    if (result.difficulty < 0) {
+      if (failed) {
+        result.successes = 0;
+      } else {
+        result.successes++;
       }
     }
 
