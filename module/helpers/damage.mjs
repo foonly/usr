@@ -11,8 +11,9 @@ export function removeStun(actor) {
 
 export function addHealingPoints(actor) {
 	const data = {};
-	renderTemplate("systems/usr/templates/helpers/heal-dialog.hbs", data).then(
-		(content) => {
+	foundry.applications.handlebars
+		.renderTemplate("systems/usr/templates/helpers/heal-dialog.hbs", data)
+		.then((content) => {
 			let d = new Dialog({
 				title: "Add Healing Points",
 				content,
@@ -56,8 +57,7 @@ export function addHealingPoints(actor) {
 			});
 			d.options.classes = ["usr", "dialog", "heal"];
 			d.render(true);
-		},
-	);
+		});
 }
 
 export function addDamage(actor) {
