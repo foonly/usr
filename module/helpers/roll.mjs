@@ -1,24 +1,35 @@
 import { usr } from "./config.mjs";
 
 export function usrRoll(data) {
-	const traits = data.actor.system ? data.actor.system.traits : [];
+	const traits = data.actor?.system?.traits ?? [];
+	data.specialization = Number.isFinite(data.specialization)
+		? data.specialization
+		: 0;
 
 	// Get values for trait and specialization if given.
 	if (data.trait) {
 		const trait = traits[data.trait];
-		data.skill = trait.value;
-		if (data.spec) {
+		if (!trait) {
+			ui.notifications.warn(
+				`Could not find trait "${data.trait}" for this roll.`,
+			);
+			return;
+		}
+		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
+		if (data.spec && Array.isArray(trait.spec)) {
 			trait.spec.forEach((spec) => {
 				if (data.spec === spec.title) {
-					data.specialization = spec.value;
+					data.specialization = Number.isFinite(spec.value) ? spec.value : 0;
 				}
 			});
 		}
 	}
 
+	data.skill = Number.isFinite(data.skill) ? data.skill : 0;
 	if (data.skill <= data.specialization) {
 		data.specialization = data.skill - 1;
 	}
+	// Since difficulty goes from down from 1 to -2, a difficulty of 0 or -1 should be converted to -2.
 	if (data.difficulty < 1 && data.difficulty > -2) {
 		data.difficulty = -2;
 	}
@@ -104,25 +115,30 @@ export function usrRoll(data) {
 			let awarded = false;
 			if (data.trait) {
 				const trait = traits[data.trait];
-				if (data.spec) {
+				if (!trait) return;
+				if (data.spec && Array.isArray(trait.spec)) {
 					trait.spec.forEach((spec) => {
 						if (data.spec === spec.title) {
+							const specValue = Number.isFinite(spec.value) ? spec.value : 0;
+							const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
 							if (
-								spec.value < 3 &&
-								(spec.roll < 1 || (spec.roll < 2 && data.difficulty < 4))
+								specValue < 3 &&
+								(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
 							) {
 								awarded = true;
-								spec.roll++;
+								spec.roll = specRoll + 1;
 							}
 						}
 					});
 				}
 				if (!awarded) {
+					const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
+					const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
 					if (
-						trait.value < 7 &&
-						(trait.roll < 1 || (trait.roll < 2 && data.difficulty < 4))
+						traitValue < 7 &&
+						(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
 					) {
-						trait.roll++;
+						trait.roll = traitRoll + 1;
 					}
 				}
 			}
@@ -176,7 +192,6 @@ export function makeRoll(data = {}) {
 	foundry.applications.handlebars
 		.renderTemplate("systems/usr/templates/helpers/roll-dialog.hbs", data)
 		.then((content) => {
-			console.log(game.user);
 			let d = new Dialog({
 				title: "Custom Roll",
 				content,
@@ -196,12 +211,18 @@ export function makeRoll(data = {}) {
 							const trait = parts[0];
 							const spec = parts[1] ?? "";
 
+							const actor = data.actor ?? game.user.character;
+							if (!actor) {
+								ui.notifications.warn("No actor available for this roll.");
+								return;
+							}
+
 							usrRoll({
 								flavor,
 								difficulty,
 								trait,
 								spec,
-								actor: data.actor ?? game.user,
+								actor,
 							});
 						},
 					},
