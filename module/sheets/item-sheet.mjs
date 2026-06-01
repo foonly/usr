@@ -1,68 +1,77 @@
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ItemSheet } = foundry.applications.sheets;
+
 /**
- * Extend the basic ItemSheet with some very simple modifications
- * @extends {foundry.appv1.sheets.ItemSheet}
+ * Extend the basic ItemSheet with some very simple modifications.
  */
-export class usrItemSheet extends foundry.appv1.sheets.ItemSheet {
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["usr", "sheet", "item"],
-      width: 520,
-      height: 480,
-      tabs: [
-        {
-          navSelector: ".sheet-tabs",
-          contentSelector: ".sheet-body",
-          initial: "description",
-        },
-      ],
-    });
-  }
+export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
+	static DEFAULT_OPTIONS = {
+		classes: ["usr", "sheet", "item"],
+		position: {
+			width: 520,
+			height: 480,
+		},
+		window: {
+			resizable: true,
+		},
+		form: {
+			submitOnChange: true,
+		},
+	};
 
-  /** @override */
-  get template() {
-    const path = "systems/usr/templates/item";
-    // Return a single sheet for all item types.
-    // return `${path}/item-sheet.hbs`;
+	static PARTS = {
+		sheet: {
+			template: "systems/usr/templates/item/item-sheet.hbs",
+			root: true,
+			scrollable: [".sheet-body"],
+		},
+	};
 
-    // Alternatively, you could use the following return statement to do a
-    // unique item sheet by type, like `weapon-sheet.hbs`.
-    return `${path}/item-${this.item.type}-sheet.hbs`;
-  }
+	static TABS = {
+		primary: {
+			tabs: [{ id: "description" }, { id: "attributes" }],
+			initial: "description",
+		},
+	};
 
-  /* -------------------------------------------- */
+	get template() {
+		const path = "systems/usr/templates/item";
+		return `${path}/item-${this.item.type}-sheet.hbs`;
+	}
 
-  /** @override */
-  getData() {
-    // Retrieve base data structure.
-    const context = super.getData();
+	/* -------------------------------------------- */
 
-    // Use a safe clone of the item data for further operations.
-    const itemData = context.item;
+	/** @override */
+	_configureRenderParts(options) {
+		const parts = super._configureRenderParts(options);
+		parts.sheet.template = this.template;
+		return parts;
+	}
 
-    // Retrieve the roll data for TinyMCE editors.
-    context.rollData = {};
-    const actor = this.object?.parent ?? null;
-    if (actor) {
-      context.rollData = actor.getRollData();
-    }
+	/* -------------------------------------------- */
 
-    // Add the actor's data to context.data for easier access, as well as flags.
-    context.system = itemData.system;
-    context.flags = itemData.flags;
+	/** @override */
+	async _prepareContext(options) {
+		const context = await super._prepareContext(options);
+		const itemData = this.item.toObject(false);
 
-    return context;
-  }
+		Object.assign(context, {
+			item: itemData,
+			system: itemData.system,
+			flags: itemData.flags,
+			owner: this.item.isOwner,
+			cssClass: this.options.classes.join(" "),
+			rollData: this.actor ? this.actor.getRollData() : {},
+		});
 
-  /* -------------------------------------------- */
+		return context;
+	}
 
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+	/* -------------------------------------------- */
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
-
-    // Roll handlers, click handlers, etc. would go here.
-  }
+	/** @override */
+	async _onRender(context, options) {
+		await super._onRender(context, options);
+		this.window.content?.classList.add("flexcol");
+	}
 }

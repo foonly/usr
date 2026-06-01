@@ -1,17 +1,27 @@
 .usr {
-    .window-app {
-        font-family: var(--usr-font-primary);
-    }
-    button {
-        font-family: var(--usr-font-primary);
-    }
+	&.window-app,
+	&.application {
+		font-family: var(--usr-font-primary);
+	}
 
-    .rollable {
-        &:hover,
-        &:focus {
-            color: #000;
-            text-shadow: 0 0 10px red;
-            cursor: pointer;
-        }
-    }
+	.window-content {
+		font-family: var(--usr-font-primary);
+	}
+
+	&.sheet .window-content {
+		min-height: 0;
+	}
+
+	button {
+		font-family: var(--usr-font-primary);
+	}
+
+	.rollable {
+		&:hover,
+		&:focus {
+			color: #000;
+			text-shadow: 0 0 10px red;
+			cursor: pointer;
+		}
+	}
 }

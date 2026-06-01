@@ -1,5 +1,7 @@
 import { usr } from "./config.mjs";
 
+const { DialogV2 } = foundry.applications.api;
+
 export function usrRoll(data) {
 	const traits = data.actor?.system?.traits ?? [];
 	data.specialization = Number.isFinite(data.specialization)
@@ -163,22 +165,22 @@ export function showRoll(roll, result, speaker, flavor = "") {
 		});
 }
 
-export function makeRoll(data = {}) {
+export async function makeRoll(data = {}) {
 	if (data.actor && data.actor.system.traits) {
 		data.traits = [];
 		Object.keys(data.actor.system.traits).forEach((key) => {
 			const trait = data.actor.system.traits[key];
 			data.traits.push({
-				key: key,
+				key,
 				index: key,
 				label: trait.label,
 				value: trait.value,
 				active: trait.label === data.label,
 			});
 			if (trait.hasSpec && trait.spec) {
-				trait.spec.forEach((spec, index) => {
+				trait.spec.forEach((spec) => {
 					data.traits.push({
-						key: key,
+						key,
 						index: `${key}/${spec.title}`,
 						label: ` - ${spec.title}`,
 						value: `${trait.value}/${spec.value}`,
@@ -188,50 +190,55 @@ export function makeRoll(data = {}) {
 			}
 		});
 	}
+
 	data.difficulty = usr.difficulty;
-	foundry.applications.handlebars
-		.renderTemplate("systems/usr/templates/helpers/roll-dialog.hbs", data)
-		.then((content) => {
-			let d = new Dialog({
-				title: "Custom Roll",
-				content,
-				buttons: {
-					roll: {
-						icon: '<i class="fas fa-dice-d10"></i>',
-						label: "Roll",
-						callback: (html) => {
-							const labelElement = html.find("#label");
-							const flavor = labelElement[0]
-								? (labelElement[0].innerHTML ?? "Custom")
-								: "Custom";
-							const difficulty = parseInt(
-								html.find("#difficulty")[0].value ?? 1,
-							);
-							const parts = (html.find("#trait")[0].value ?? "1").split("/");
-							const trait = parts[0];
-							const spec = parts[1] ?? "";
+	const content = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/helpers/roll-dialog.hbs",
+		data,
+	);
 
-							const actor = data.actor ?? game.user.character;
-							if (!actor) {
-								ui.notifications.warn("No actor available for this roll.");
-								return;
-							}
+	return new DialogV2({
+		classes: ["usr", "dialog", "roll"],
+		window: {
+			title: "Custom Roll",
+		},
+		content,
+		buttons: [
+			{
+				action: "roll",
+				icon: "fa-solid fa-dice-d10",
+				label: "Roll",
+				default: true,
+				callback: (_event, _button, dialog) => {
+					const labelElement = dialog.element.querySelector("#label");
+					const flavor = labelElement?.innerHTML ?? "Custom";
+					const difficulty = Number.parseInt(
+						dialog.element.querySelector("#difficulty")?.value ?? "1",
+						10,
+					);
+					const parts = (
+						dialog.element.querySelector("#trait")?.value ?? "1"
+					).split("/");
+					const trait = parts[0];
+					const spec = parts[1] ?? "";
 
-							usrRoll({
-								flavor,
-								difficulty,
-								trait,
-								spec,
-								actor,
-							});
-						},
-					},
+					const actor = data.actor ?? game.user.character;
+					if (!actor) {
+						ui.notifications.warn("No actor available for this roll.");
+						return;
+					}
+
+					usrRoll({
+						flavor,
+						difficulty,
+						trait,
+						spec,
+						actor,
+					});
 				},
-				default: "roll",
-			});
-			d.options.classes = ["usr", "dialog", "roll"];
-			d.render(true);
-		});
+			},
+		],
+	}).render({ force: true });
 }
 
 export function rollXp(data) {

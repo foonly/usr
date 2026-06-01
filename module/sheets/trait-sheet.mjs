@@ -1,87 +1,145 @@
-export class TraitSheet extends FormApplication {
-  constructor(trait, key, actor) {
-    super(trait, {
-      id: `trait-${key}-edit-sheet`,
-      title: `Edit ${trait.label}`,
-    });
-    this.key = key;
-    this.actor = actor;
-  }
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["usr", "sheet", "trait"],
-      popOut: true,
-      width: 400,
-      height: 400,
-      template: "systems/usr/templates/actor/actor-trait-sheet.hbs",
-      closeOnSubmit: false,
-      id: "trait-edit-sheet",
-      title: "Edit Trait",
-    });
-  }
+/**
+ * Edit a single trait on an actor using the Application V2 framework.
+ */
+export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
+	constructor(trait, key, actor, options = {}) {
+		super(
+			foundry.utils.mergeObject(
+				{
+					id: `trait-${key}-edit-sheet`,
+					window: {
+						title: `Edit ${trait.label}`,
+					},
+				},
+				options,
+			),
+		);
 
-  getData() {
-    // Send data to the template
-    return {
-      trait: this.object,
-      key: this.key,
-    };
-  }
+		this.trait = foundry.utils.deepClone(trait);
+		this.key = key;
+		this.actor = actor;
+	}
 
-  activateListeners(html) {
-    super.activateListeners(html);
+	static DEFAULT_OPTIONS = {
+		classes: ["usr", "sheet", "trait"],
+		tag: "form",
+		position: {
+			width: 400,
+			height: 400,
+		},
+		window: {
+			resizable: true,
+			title: "Edit Trait",
+		},
+		form: {
+			handler: this.prototype._onSubmitForm,
+			submitOnChange: false,
+			closeOnSubmit: false,
+		},
+		actions: {
+			addSpec: this.prototype._onAddSpec,
+			saveAndClose: this.prototype._onSaveAndClose,
+		},
+	};
 
-    html.find(".add-spec").click((ev) => {
-      this.submit();
+	static PARTS = {
+		sheet: {
+			template: "systems/usr/templates/actor/actor-trait-sheet.hbs",
+			root: true,
+		},
+	};
 
-      if (!Array.isArray(this.object.spec)) {
-        this.object.spec = [];
-      }
-      this.object.spec.push({
-        title: "",
-        value: 0,
-        roll: 0,
-        xp: 0,
-      });
-      this.updateActor();
-      this.render();
-    });
+	/** @override */
+	async _prepareContext(options) {
+		const context = await super._prepareContext(options);
+		return Object.assign(context, {
+			trait: this.trait,
+			key: this.key,
+			cssClass: this.options.classes.join(" "),
+		});
+	}
 
-    html.find("#ok").click((ev) => {
-      this.close();
-    });
-  }
+	/** @override */
+	async _onRender(context, options) {
+		await super._onRender(context, options);
+		this.window.content?.classList.add("trait-sheet");
+	}
 
-  async _updateObject(event, formData) {
-    this.object.value = formData.value;
-    this.object.roll = formData.roll;
-    this.object.xp = formData.xp;
+	/**
+	 * Submit the current form state, add a specialization, and re-render.
+	 * @returns {Promise<void>}
+	 */
+	async _onAddSpec() {
+		await this.submit();
 
-    if (this.object.hasSpec) {
-      const spec = [];
-      let nr = 0;
-      while (formData[`spec-${nr}-title`]) {
-        const title = formData[`spec-${nr}-title`];
-        if (title.trim().length) {
-          spec.push({
-            title,
-            value: formData[`spec-${nr}-value`],
-            roll: formData[`spec-${nr}-roll`],
-            xp: formData[`spec-${nr}-xp`],
-          });
-        }
-        nr++;
-      }
-      this.object.spec = spec;
-    }
+		if (!Array.isArray(this.trait.spec)) {
+			this.trait.spec = [];
+		}
 
-    this.updateActor();
-  }
+		this.trait.spec.push({
+			title: "",
+			value: 0,
+			roll: 0,
+			xp: 0,
+		});
 
-  updateActor() {
-    const traits = this.actor.system.traits;
-    traits[this.key] = this.object;
-    this.actor.update({ "system.traits": traits });
-  }
+		await this.updateActor();
+		await this.render({ force: true });
+	}
+
+	/**
+	 * Submit the current form state and close the sheet.
+	 * @returns {Promise<void>}
+	 */
+	async _onSaveAndClose() {
+		await this.submit();
+		await this.close();
+	}
+
+	/**
+	 * Update the local trait state from the submitted form.
+	 * @param {SubmitEvent} event
+	 * @param {HTMLFormElement} form
+	 * @param {import("../..//../../FoundryVTT/client/applications/ux/form-data-extended.mjs").default} formData
+	 * @returns {Promise<void>}
+	 */
+	async _onSubmitForm(event, form, formData) {
+		const data = formData.object;
+
+		this.trait.value = Number.parseInt(data.value ?? 0, 10);
+		this.trait.roll = Number.parseInt(data.roll ?? 0, 10);
+		this.trait.xp = Number.parseInt(data.xp ?? 0, 10);
+
+		if (this.trait.hasSpec) {
+			const spec = [];
+			let nr = 0;
+			while (data[`spec-${nr}-title`] !== undefined) {
+				const title = data[`spec-${nr}-title`];
+				if (title.trim().length) {
+					spec.push({
+						title,
+						value: Number.parseInt(data[`spec-${nr}-value`] ?? 0, 10),
+						roll: Number.parseInt(data[`spec-${nr}-roll`] ?? 0, 10),
+						xp: Number.parseInt(data[`spec-${nr}-xp`] ?? 0, 10),
+					});
+				}
+				nr++;
+			}
+			this.trait.spec = spec;
+		}
+
+		await this.updateActor();
+	}
+
+	/**
+	 * Persist the edited trait back to the actor.
+	 * @returns {Promise<import("../../FoundryVTT/client/documents/actor.mjs").default>}
+	 */
+	updateActor() {
+		const traits = foundry.utils.deepClone(this.actor.system.traits);
+		traits[this.key] = this.trait;
+		return this.actor.update({ "system.traits": traits });
+	}
 }

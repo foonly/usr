@@ -40,14 +40,14 @@ Hooks.once("init", async function () {
 	// Register sheet application classes
 	foundry.documents.collections.Actors.unregisterSheet(
 		"core",
-		foundry.appv1.sheets.ActorSheet,
+		foundry.applications.sheets.ActorSheet,
 	);
 	foundry.documents.collections.Actors.registerSheet("usr", usrActorSheet, {
 		makeDefault: true,
 	});
 	foundry.documents.collections.Items.unregisterSheet(
 		"core",
-		foundry.appv1.sheets.ItemSheet,
+		foundry.applications.sheets.ItemSheet,
 	);
 	foundry.documents.collections.Items.registerSheet("usr", usrItemSheet, {
 		makeDefault: true,

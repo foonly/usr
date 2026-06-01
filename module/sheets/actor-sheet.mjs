@@ -13,29 +13,48 @@ import {
 } from "../helpers/dialog.mjs";
 import { usr } from "../helpers/config.mjs";
 
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheet } = foundry.applications.sheets;
+
 /**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {foundry.appv1.sheets.ActorSheet}
+ * Extend the basic ActorSheet with some very simple modifications.
  */
-export class usrActorSheet extends foundry.appv1.sheets.ActorSheet {
-	/** @override */
-	static get defaultOptions() {
-		return foundry.utils.mergeObject(super.defaultOptions, {
-			classes: ["usr", "sheet", "actor"],
-			template: "systems/usr/templates/actor/actor-sheet.hbs",
+export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
+	static DEFAULT_OPTIONS = {
+		classes: ["usr", "sheet", "actor"],
+		position: {
 			width: 600,
 			height: 600,
-			tabs: [
-				{
-					navSelector: ".sheet-tabs",
-					contentSelector: ".sheet-body",
-					initial: "traits",
-				},
-			],
-		});
-	}
+		},
+		window: {
+			resizable: true,
+		},
+		form: {
+			submitOnChange: true,
+		},
+	};
 
-	/** @override */
+	static PARTS = {
+		sheet: {
+			template: "systems/usr/templates/actor/actor-character-sheet.hbs",
+			root: true,
+			scrollable: [".sheet-body"],
+		},
+	};
+
+	static TABS = {
+		primary: {
+			tabs: [
+				{ id: "bio" },
+				{ id: "traits" },
+				{ id: "combat" },
+				{ id: "knowledge" },
+				{ id: "items" },
+			],
+			initial: "traits",
+		},
+	};
+
 	get template() {
 		return `systems/usr/templates/actor/actor-${this.actor.type}-sheet.hbs`;
 	}
@@ -43,46 +62,50 @@ export class usrActorSheet extends foundry.appv1.sheets.ActorSheet {
 	/* -------------------------------------------- */
 
 	/** @override */
-	getData() {
-		// Retrieve the data structure from the base sheet. You can inspect or log
-		// the context variable to see the structure, but some key properties for
-		// sheets are the actor object, the data object, whether or not it's
-		// editable, the items array, and the effects array.
-		const context = super.getData();
+	_configureRenderParts(options) {
+		const parts = super._configureRenderParts(options);
+		parts.sheet.template = this.template;
+		return parts;
+	}
 
-		// Use a safe clone of the actor data for further operations.
+	/* -------------------------------------------- */
+
+	/** @override */
+	async _prepareContext(options) {
+		const context = await super._prepareContext(options);
 		const actorData = this.actor.toObject(false);
+		const items = this.actor.items.map((item) => {
+			const data = item.toObject(false);
+			data.data = data.system;
+			return data;
+		});
 
-		// Add the actor's data to context.data for easier access, as well as flags.
-		context.system = actorData.system;
-		context.flags = actorData.flags;
+		Object.assign(context, {
+			actor: actorData,
+			items,
+			system: actorData.system,
+			flags: actorData.flags,
+			owner: this.actor.isOwner,
+			cssClass: this.options.classes.join(" "),
+			rollData: this.actor.getRollData(),
+			effects: prepareActiveEffectCategories(this.actor.effects),
+		});
 
-		// Prepare character data and items.
 		if (actorData.type === "character") {
 			this._prepareItems(context);
 			this._prepareCharacterData(context);
 		}
 
-		// Prepare NPC data and items.
 		if (actorData.type === "npc") {
 			this._prepareItems(context);
 		}
-
-		// Add roll data for TinyMCE editors.
-		context.rollData = context.actor.getRollData();
-
-		// Prepare active effects
-		context.effects = prepareActiveEffectCategories(this.actor.effects);
 
 		return context;
 	}
 
 	/**
-	 * Organize and classify Items for Character sheets.
-	 *
-	 * @param {Object} actorData The actor to prepare.
-	 *
-	 * @return {undefined}
+	 * Organize and classify items for character sheets.
+	 * @param {object} context The sheet rendering context.
 	 */
 	_prepareCharacterData(context) {
 		context.chipsList = [];
@@ -107,36 +130,25 @@ export class usrActorSheet extends foundry.appv1.sheets.ActorSheet {
 	}
 
 	/**
-	 * Organize and classify Items for Character sheets.
-	 *
-	 * @param {Object} actorData The actor to prepare.
-	 *
-	 * @return {undefined}
+	 * Organize and classify items for actor sheets.
+	 * @param {object} context The sheet rendering context.
 	 */
 	_prepareItems(context) {
-		// Initialize containers.
 		const gear = [];
 		const melee = [];
 		const ranged = [];
 
-		// Iterate through items, allocating to containers
-		for (let i of context.items) {
-			i.img = i.img || DEFAULT_TOKEN;
-			// Append to gear.
-			if (i.type === "item") {
-				gear.push(i);
-			}
-			// Append to melee weapons.
-			else if (i.type === "melee") {
-				melee.push(i);
-			}
-			// Append to ranged weapons.
-			else if (i.type === "ranged") {
-				ranged.push(i);
+		for (const item of context.items) {
+			item.img ||= CONST.DEFAULT_TOKEN;
+			if (item.type === "item") {
+				gear.push(item);
+			} else if (item.type === "melee") {
+				melee.push(item);
+			} else if (item.type === "ranged") {
+				ranged.push(item);
 			}
 		}
 
-		// Assign and return
 		context.gear = gear;
 		context.melee = melee;
 		context.ranged = ranged;
@@ -145,181 +157,143 @@ export class usrActorSheet extends foundry.appv1.sheets.ActorSheet {
 	/* -------------------------------------------- */
 
 	/** @override */
-	activateListeners(html) {
-		super.activateListeners(html);
+	async _onRender(context, options) {
+		await super._onRender(context, options);
 
-		// Render the item sheet for viewing/editing prior to the editable check.
-		html.find(".item-edit").click((event) => {
+		this.element.classList.add(this.actor.type);
+		this.window.content?.classList.add("flexcol", this.actor.type);
+
+		const html = this.form ?? this.element;
+		const on = (selector, handler) => {
+			for (const element of html.querySelectorAll(selector)) {
+				element.addEventListener("click", handler);
+			}
+		};
+
+		on(".item-edit", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
 			const item = this.actor.items.get(element.dataset.itemId);
-			item.sheet.render(true);
+			item?.sheet.render({ force: true });
 		});
 
-		// Roll dialog.
-		html.find(".roll-dialog").click((ev) => {
-			const element = ev.currentTarget;
-			const data = {
+		on(".roll-dialog", (event) => {
+			const element = event.currentTarget;
+			makeRoll({
 				label: element.dataset.label,
 				skill: element.dataset.rollUsr,
 				actor: this.actor,
-			};
-			makeRoll(data);
+			});
 		});
 
-		html.find(".edit-asset").click((event) => {
+		on(".edit-asset", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
-			editAsset(this.actor, dataset.index ?? -1);
+			editAsset(this.actor, element.dataset.index ?? -1);
 		});
 
-		html.find(".edit-language").click((event) => {
+		on(".edit-language", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
-			editLanguage(this.actor, dataset.index ?? -1);
+			editLanguage(this.actor, element.dataset.index ?? -1);
 		});
 
-		html.find(".edit-knowledge").click((event) => {
+		on(".edit-knowledge", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
-			editKnowledge(this.actor, dataset.index ?? -1);
+			editKnowledge(this.actor, element.dataset.index ?? -1);
 		});
 
-		html.find(".add-heal").click((ev) => {
-			addHealingPoints(this.actor);
-		});
+		on(".add-heal", () => addHealingPoints(this.actor));
+		on(".add-damage", () => addDamage(this.actor));
+		on(".remove-stun", () => removeStun(this.actor));
 
-		html.find(".add-damage").click((ev) => {
-			addDamage(this.actor);
-		});
-
-		html.find(".remove-stun").click((ev) => {
-			removeStun(this.actor);
-		});
-
-		html.find(".roll-xp").click((event) => {
+		on(".roll-xp", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
 			rollXp({
 				actor: this.actor,
-				trait: dataset.trait,
-				spec: dataset.spec ?? "",
+				trait: element.dataset.trait,
+				spec: element.dataset.spec ?? "",
 			});
 		});
 
-		html.find(".roll-chip").click((event) => {
+		on(".roll-chip", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
-			rollChip(this.actor, dataset.rollChip);
+			rollChip(this.actor, element.dataset.rollChip);
 		});
 
-		html.find(".clickable-chip").click((event) => {
+		on(".clickable-chip", async (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
-			const dataset = element.dataset;
 			const actor = this.actor;
-			useChip({ actor, type: dataset.chip }).then((r) => {
-				const speaker = ChatMessage.getSpeaker({ actor });
+			const result = await useChip({ actor, type: element.dataset.chip });
+			if (!result) return;
 
-				const content = `Uses ${r} fate chip.`;
+			const speaker = ChatMessage.getSpeaker({ actor });
+			const content = `Uses ${result} fate chip.`;
+			const messageData = {
+				user: game.user.id,
+				content,
+				speaker,
+				flavor: "Fate Chip.",
+			};
 
-				// Prepare chat data
-				const messageData = {
-					user: game.user.id,
-					content,
-					speaker,
-					flavor: "Fate Chip.",
-				};
-
-				const msg = new ChatMessage(messageData);
-
-				ChatMessage.create(msg.toObject(), {
-					rollMode: game.settings.get("core", "rollMode"),
-				});
-
-				console.log(r);
+			const msg = new ChatMessage(messageData);
+			ChatMessage.create(msg.toObject(), {
+				rollMode: game.settings.get("core", "rollMode"),
 			});
 		});
 
-		// Rollable abilities.
-		html.find(".rollable").click(this._onRoll.bind(this));
+		on(".rollable", this._onRoll.bind(this));
 
-		// -------------------------------------------------------------
-		// Everything below here is only needed if the sheet is editable
 		if (!this.isEditable) return;
 
-		// Edit trait
-		html.find(".trait-edit").click((ev) => {
-			const key = ev.currentTarget.dataset.trait;
+		on(".trait-edit", (event) => {
+			const key = event.currentTarget.dataset.trait;
 			const trait = this.actor.system.traits[key];
-			new TraitSheet(trait, key, this.actor).render(true);
+			new TraitSheet(trait, key, this.actor).render({ force: true });
 		});
 
-		// Add Inventory Item
-		html.find(".item-create").click(this._onItemCreate.bind(this));
+		on(".item-create", this._onItemCreate.bind(this));
 
-		// Delete Inventory Item
-		html.find(".item-delete").click((event) => {
+		on(".item-delete", async (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
 			const item = this.actor.items.get(element.dataset.itemId);
-			item.delete();
-			li.slideUp(200, () => this.render(false));
+			await item?.delete();
 		});
 
-		// Active Effect management
-		html
-			.find(".effect-control")
-			.click((ev) => onManageActiveEffect(ev, this.actor));
-
-		// Drag events for macros.
-		if (this.actor.isOwner) {
-			let handler = (ev) => this._onDragStart(ev);
-			html.find("li.item").each((i, li) => {
-				if (li.classList.contains("inventory-header")) return;
-				li.setAttribute("draggable", true);
-				li.addEventListener("dragstart", handler, false);
-			});
-		}
+		on(".effect-control", (event) => onManageActiveEffect(event, this.actor));
 	}
 
 	/**
-	 * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset
-	 * @param {Event} event   The originating click event
+	 * Handle creating a new owned item for the actor using initial data defined in the HTML dataset.
+	 * @param {Event} event The originating click event.
+	 * @returns {Promise<Item>}
 	 * @private
 	 */
 	async _onItemCreate(event) {
 		event.preventDefault();
 		const header = event.currentTarget;
-		// Get the type of item to create. 
 		const type = header.dataset.type;
-		// Grab any data associated with this control.
-		const data = foundry.utils.duplicate(header.dataset);
-		// Initialize a default name.
+		const data = foundry.utils.deepClone(header.dataset);
 		const typeLabel = (type ?? "item").toString();
 		const prettyType = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1);
-		const name = `New ${prettyType}`;
-		// Prepare the item object.
 		const itemData = {
-			name: name,
+			name: `New ${prettyType}`,
 			type: type ?? "item",
 			system: data,
 		};
-		// Remove the type from the dataset since it's in the itemData.type prop.
-		delete itemData.system["type"];
 
-		// Finally, create the item!
-		return await Item.create(itemData, { parent: this.actor });
+		delete itemData.system.type;
+		return Item.create(itemData, { parent: this.actor });
 	}
 
 	/**
 	 * Handle clickable rolls.
-	 * @param {Event} event   The originating click event
+	 * @param {Event} event The originating click event.
 	 * @private
 	 */
 	_onRoll(event) {
@@ -327,30 +301,22 @@ export class usrActorSheet extends foundry.appv1.sheets.ActorSheet {
 		const element = event.currentTarget;
 		const dataset = element.dataset;
 
-		// Handle item rolls.
-		if (dataset.rollType && dataset.rollType == "item") {
-			const itemId = element.closest(".item").dataset.itemId;
+		if (dataset.rollType && dataset.rollType === "item") {
+			const itemId = element.closest(".item")?.dataset.itemId;
 			const item = this.actor.items.get(itemId);
 			if (item) return item.roll();
-
-			// USR Roll.
 		} else if (dataset.rollUsr) {
-			const data = {
+			usrRoll({
 				actor: this.actor,
-				difficulty: parseInt(dataset.rollUsr),
+				difficulty: Number.parseInt(dataset.rollUsr, 10),
 				trait: dataset.trait ?? "",
 				spec: dataset.spec ?? "",
 				flavor: dataset.label ?? "",
-			};
-
-			// Make roll and calculate.
-			usrRoll(data);
-
+			});
 			return true;
 		} else if (dataset.roll) {
-			// Handle rolls that supply the formula directly.
-			let label = dataset.label ? `[ability] ${dataset.label}` : "";
-			let roll = new Roll(dataset.roll, this.actor.getRollData());
+			const label = dataset.label ? `[ability] ${dataset.label}` : "";
+			const roll = new Roll(dataset.roll, this.actor.getRollData());
 			roll.toMessage({
 				speaker: ChatMessage.getSpeaker({ actor: this.actor }),
 				flavor: label,

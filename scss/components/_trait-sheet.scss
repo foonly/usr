@@ -1,11 +1,12 @@
 .usr {
-    .trait-sheet {
-        .sheet-body {
-            display: grid;
-            grid-template-columns: 3fr 1fr 2fr 1fr 1fr 1fr;
-            > * {
-                display: block;
-            }
-        }
-    }
+	&.trait .window-content,
+	.trait-sheet {
+		.sheet-body {
+			display: grid;
+			grid-template-columns: 3fr 1fr 2fr 1fr 1fr 1fr;
+			> * {
+				display: block;
+			}
+		}
+	}
 }
