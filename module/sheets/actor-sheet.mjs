@@ -84,6 +84,15 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			data.data = data.system;
 			return data;
 		});
+		const biography = actorData.system.biography ?? "";
+		const enrichedBiography =
+			await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+				biography,
+				{
+					relativeTo: this.actor,
+					secrets: this.actor.isOwner,
+				},
+			);
 
 		Object.assign(context, {
 			actor: actorData,
@@ -93,6 +102,8 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			owner: this.actor.isOwner,
 			rollData: this.actor.getRollData(),
 			effects: prepareActiveEffectCategories(this.actor.effects),
+			documentUUID: this.actor.uuid,
+			enrichedBiography,
 		});
 
 		if (actorData.type === "character") {

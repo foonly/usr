@@ -50,7 +50,13 @@
 <div class="form-group stacked">
 	<label>Biography</label>
 	<div class="form-fields">
-		{{editor system.biography target="system.biography" button=true owner=owner
-		editable=editable engine="prosemirror"}}
+		<prose-mirror
+			name="system.biography"
+			value="{{system.biography}}"
+			data-document-uuid="{{documentUUID}}"
+			toggled
+			relative
+			{{#unless editable}}disabled{{/unless}}
+		>{{{enrichedBiography}}}</prose-mirror>
 	</div>
 </div>

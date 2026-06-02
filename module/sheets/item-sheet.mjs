@@ -59,13 +59,26 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 		const itemData = this.item.toObject(false);
+		const rollData = this.actor ? this.actor.getRollData() : {};
+		const description = itemData.system.description ?? "";
+		const enrichedDescription =
+			await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+				description,
+				{
+					relativeTo: this.item,
+					rollData,
+					secrets: this.item.isOwner,
+				},
+			);
 
 		Object.assign(context, {
 			item: itemData,
 			system: itemData.system,
 			flags: itemData.flags,
 			owner: this.item.isOwner,
-			rollData: this.actor ? this.actor.getRollData() : {},
+			rollData,
+			documentUUID: this.item.uuid,
+			enrichedDescription,
 		});
 
 		return context;

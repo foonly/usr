@@ -43,8 +43,14 @@ when possible. --}}
 		data-group="primary"
 		data-tab="description"
 	>
-		{{editor system.description target="system.description" rollData=rollData
-		button=true owner=owner editable=editable engine="prosemirror"}}
+		<prose-mirror
+			name="system.description"
+			value="{{system.description}}"
+			data-document-uuid="{{documentUUID}}"
+			toggled
+			relative
+			{{#unless editable}}disabled{{/unless}}
+		>{{{enrichedDescription}}}</prose-mirror>
 	</div>
 
 	{{!-- Attributes Tab --}}
