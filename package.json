@@ -1,21 +1,21 @@
 {
-  "name": "usr",
-  "version": "0.4.1",
-  "description": "Simple SCSS compiler.",
-  "scripts": {
-    "build": "sass scss:css",
-    "watch": "sass --watch scss:css",
-    "version": "node versionSync.mjs && git add system.json",
-    "postversion": "git push && git push --tags"
-  },
-  "browserslist": [
-    "last 3 versions"
-  ],
-  "author": "Niklas Schönberg",
-  "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "sass": "^1.69.5"
-  },
-  "packageManager": "pnpm@11.5.0+sha512.dbfcc4f81cf48597afd4bc391ffdf12c11f1a9fb83a395bfa6b0a2d9cc2fd8ffebafdb1ccbd529632153f793904c2615b7f09fe1a345473fd1c35845172a8eb1"
+	"name": "usr",
+	"version": "0.4.2",
+	"description": "Simple SCSS compiler.",
+	"scripts": {
+		"build": "sass scss:css",
+		"watch": "sass --watch scss:css",
+		"version": "node versionSync.mjs && git add system.json",
+		"postversion": "git push && git push --tags"
+	},
+	"browserslist": [
+		"last 3 versions"
+	],
+	"author": "Niklas Schönberg",
+	"license": "MIT",
+	"private": true,
+	"devDependencies": {
+		"sass": "^1.69.5"
+	},
+	"packageManager": "pnpm@11.5.0+sha512.dbfcc4f81cf48597afd4bc391ffdf12c11f1a9fb83a395bfa6b0a2d9cc2fd8ffebafdb1ccbd529632153f793904c2615b7f09fe1a345473fd1c35845172a8eb1"
 }
