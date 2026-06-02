@@ -27,6 +27,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			height: 600,
 		},
 		window: {
+			contentClasses: ["standard-form"],
 			resizable: true,
 		},
 		form: {
@@ -54,6 +55,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			initial: "traits",
 		},
 	};
+
+	get title() {
+		return this.actor.name || super.title;
+	}
 
 	get template() {
 		return `systems/usr/templates/actor/actor-${this.actor.type}-sheet.hbs`;

@@ -30,6 +30,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 			height: 400,
 		},
 		window: {
+			contentClasses: ["standard-form"],
 			resizable: true,
 			title: "Edit Trait",
 		},

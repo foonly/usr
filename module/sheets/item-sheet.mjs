@@ -12,6 +12,7 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 			height: 480,
 		},
 		window: {
+			contentClasses: ["standard-form"],
 			resizable: true,
 		},
 		form: {
@@ -33,6 +34,10 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 			initial: "description",
 		},
 	};
+
+	get title() {
+		return this.item.name || super.title;
+	}
 
 	get template() {
 		const path = "systems/usr/templates/item";

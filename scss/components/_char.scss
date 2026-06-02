@@ -1,83 +1,211 @@
 .usr {
-    .traits-table {
-        .trait-value {
-            font-size: 2em;
-            text-align: center;
+	.traits-table,
+	.language-table,
+	.knowledge-table,
+	.items-table,
+	.assets-table,
+	.damage-resistance-table {
+		width: 100%;
+		margin: 0 0 0.9rem;
+		border-collapse: collapse;
+		border: 1px solid var(--usr-c-faint);
+		border-radius: 8px;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.35);
 
-            &.rolls-1::after {
-                vertical-align: super;
-                font-size: 0.5em;
-                content: "*";
-            }
-            &.rolls-2::after {
-                vertical-align: super;
-                font-size: 0.5em;
-                content: "**";
-            }
-        }
-        .trait-xp {
-            text-align: center;
-        }
-        .trait-roll {
-            width: 110px;
-        }
-        .trait-specialization {
-            font-size: 0.9em;
-            .trait-label {
-                padding-left: 2rem;
-            }
-            .trait-value {
-                font-size: 1.5em;
-            }
-        }
-    }
+		thead tr {
+			background: rgba(0, 0, 0, 0.06);
+		}
 
-    button.die {
-        position: relative;
-        border: 0;
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        float: left;
-        margin-right: 1px;
-        background-color: transparent;
-        background-repeat: no-repeat;
-        background-size: 24px 24px;
-        font-size: var(--font-size-16);
-        color: #000;
-        font-weight: bold;
-        text-align: center;
-        &.d6 {
-            background-image: url("/icons/svg/d6-grey.svg");
-        }
-        &.d10 {
-            background-image: url("/icons/svg/d10-grey.svg");
-        }
-    }
+		th,
+		td {
+			padding: 0.45rem 0.6rem;
+			vertical-align: middle;
+		}
 
-    .damage-monitor {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        grid-template-rows: repeat(2, auto);
+		th {
+			color: var(--usr-c-grey);
+			font-weight: 700;
+			text-align: left;
+		}
 
-        .mod {
-            background-color: var(--usr-c-tan);
-            border: 1px var(--usr-c-dark) solid;
-            color: var(--usr-c-faint);
-            text-align: center;
-            padding: 4px;
-        }
+		tbody tr + tr td {
+			border-top: 1px solid rgba(0, 0, 0, 0.08);
+		}
 
-        .val {
-            text-transform: uppercase;
-            text-align: center;
-            padding: 4px;
-            border: 1px var(--usr-c-dark) solid;
-            min-height: 24px;
-        }
-    }
+		tbody tr:nth-child(even) {
+			background: rgba(0, 0, 0, 0.02);
+		}
 
-    .action-icon {
-        margin: 0.5rem;
-    }
+		tbody tr:hover {
+			background: rgba(0, 0, 0, 0.04);
+		}
+	}
+
+	.traits-table {
+		.trait-label {
+			white-space: nowrap;
+		}
+
+		.trait-value {
+			font-size: 2em;
+			text-align: center;
+
+			&.rolls-1::after {
+				vertical-align: super;
+				font-size: 0.5em;
+				content: "*";
+			}
+			&.rolls-2::after {
+				vertical-align: super;
+				font-size: 0.5em;
+				content: "**";
+			}
+		}
+
+		.trait-xp {
+			text-align: center;
+		}
+
+		.trait-roll {
+			width: 128px;
+			display: flex;
+			justify-content: flex-end;
+			gap: 2px;
+		}
+
+		.trait-specialization {
+			font-size: 0.9em;
+			.trait-label {
+				padding-left: 2rem;
+			}
+			.trait-value {
+				font-size: 1.5em;
+			}
+		}
+	}
+
+	.items-table,
+	.assets-table,
+	.language-table,
+	.knowledge-table {
+		td:last-child,
+		th:last-child {
+			text-align: center;
+		}
+	}
+
+	.tab > a.action-icon,
+	.tab > a.item-control {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0 0 1rem;
+		padding: 0.35rem 0.65rem;
+		border: 1px solid var(--usr-c-faint);
+		border-radius: 6px;
+		background: rgba(255, 255, 255, 0.5);
+		color: var(--usr-c-dark);
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: rgba(255, 255, 255, 0.8);
+			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+		}
+	}
+
+	.trait-edit,
+	.item-control,
+	td > .action-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		margin-right: 0.15rem;
+		border-radius: 4px;
+		color: var(--usr-c-grey);
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: rgba(0, 0, 0, 0.06);
+			color: var(--usr-c-dark);
+		}
+	}
+
+	.roll-xp {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.15rem 0.45rem;
+		border-radius: 999px;
+		color: var(--usr-c-dark);
+		text-decoration: none;
+		background: rgba(0, 0, 0, 0.04);
+
+		&:hover,
+		&:focus {
+			background: rgba(0, 0, 0, 0.08);
+		}
+	}
+
+	button.die {
+		position: relative;
+		border: 0;
+		width: 24px;
+		height: 24px;
+		line-height: 24px;
+		float: none;
+		margin-right: 1px;
+		background-color: transparent;
+		background-repeat: no-repeat;
+		background-size: 24px 24px;
+		font-size: var(--font-size-16);
+		color: #000;
+		font-weight: bold;
+		text-align: center;
+		&.d6 {
+			background-image: url("/icons/svg/d6-grey.svg");
+		}
+		&.d10 {
+			background-image: url("/icons/svg/d10-grey.svg");
+		}
+	}
+
+	.damage-monitor {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		grid-template-rows: repeat(2, auto);
+
+		.mod {
+			background-color: var(--usr-c-tan);
+			border: 1px var(--usr-c-dark) solid;
+			color: var(--usr-c-faint);
+			text-align: center;
+			padding: 4px;
+		}
+
+		.val {
+			text-transform: uppercase;
+			text-align: center;
+			padding: 4px;
+			border: 1px var(--usr-c-dark) solid;
+			min-height: 24px;
+		}
+	}
+
+	.items-table img {
+		margin-right: 0.35rem;
+		vertical-align: middle;
+		border: 0;
+		border-radius: 4px;
+	}
+
+	.add-heal,
+	.remove-stun,
+	.add-damage {
+		width: 100%;
+	}
 }
