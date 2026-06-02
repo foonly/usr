@@ -8,13 +8,13 @@
 		width: 100%;
 		margin: 0 0 0.9rem;
 		border-collapse: collapse;
-		border: 1px solid var(--usr-c-faint);
+		border: 1px solid var(--usr-border);
 		border-radius: 8px;
 		overflow: hidden;
-		background: rgba(255, 255, 255, 0.35);
+		background: var(--usr-surface-1);
 
 		thead tr {
-			background: rgba(0, 0, 0, 0.06);
+			background: var(--usr-surface-2);
 		}
 
 		th,
@@ -24,21 +24,21 @@
 		}
 
 		th {
-			color: var(--usr-c-grey);
+			color: var(--usr-text-muted);
 			font-weight: 700;
 			text-align: left;
 		}
 
 		tbody tr + tr td {
-			border-top: 1px solid rgba(0, 0, 0, 0.08);
+			border-top: 1px solid var(--usr-border);
 		}
 
 		tbody tr:nth-child(even) {
-			background: rgba(0, 0, 0, 0.02);
+			background: rgba(255, 255, 255, 0.02);
 		}
 
 		tbody tr:hover {
-			background: rgba(0, 0, 0, 0.04);
+			background: var(--usr-surface-hover);
 		}
 	}
 
@@ -68,10 +68,17 @@
 		}
 
 		.trait-roll {
-			width: 128px;
+			width: 140px;
+			min-width: 140px;
 			display: flex;
+			flex-wrap: nowrap;
 			justify-content: flex-end;
 			gap: 2px;
+			white-space: nowrap;
+
+			button {
+				flex: 0 0 24px;
+			}
 		}
 
 		.trait-specialization {
@@ -102,16 +109,16 @@
 		gap: 0.4rem;
 		margin: 0 0 1rem;
 		padding: 0.35rem 0.65rem;
-		border: 1px solid var(--usr-c-faint);
+		border: 1px solid var(--usr-border);
 		border-radius: 6px;
-		background: rgba(255, 255, 255, 0.5);
-		color: var(--usr-c-dark);
+		background: var(--usr-surface-2);
+		color: var(--usr-text);
 		text-decoration: none;
 
 		&:hover,
 		&:focus {
-			background: rgba(255, 255, 255, 0.8);
-			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+			background: var(--usr-surface-3);
+			box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03);
 		}
 	}
 
@@ -125,13 +132,13 @@
 		height: 1.75rem;
 		margin-right: 0.15rem;
 		border-radius: 4px;
-		color: var(--usr-c-grey);
+		color: var(--usr-text-muted);
 		text-decoration: none;
 
 		&:hover,
 		&:focus {
-			background: rgba(0, 0, 0, 0.06);
-			color: var(--usr-c-dark);
+			background: var(--usr-surface-hover);
+			color: var(--usr-text-strong);
 		}
 	}
 
@@ -141,13 +148,13 @@
 		justify-content: center;
 		padding: 0.15rem 0.45rem;
 		border-radius: 999px;
-		color: var(--usr-c-dark);
+		color: var(--usr-text);
 		text-decoration: none;
-		background: rgba(0, 0, 0, 0.04);
+		background: rgba(255, 255, 255, 0.06);
 
 		&:hover,
 		&:focus {
-			background: rgba(0, 0, 0, 0.08);
+			background: rgba(255, 255, 255, 0.12);
 		}
 	}
 
@@ -174,15 +181,67 @@
 		}
 	}
 
+	.combat-overview {
+		display: flex;
+		flex-direction: column;
+		gap: 0.9rem;
+	}
+
+	.section-header,
+	.subsection-header {
+		margin: 0;
+		color: var(--usr-text-muted);
+	}
+
+	.subsection-header {
+		font-size: var(--font-size-16);
+	}
+
+	.combat-summary {
+		align-items: stretch;
+		margin: 0;
+	}
+
+	.combat-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		padding: 0.85rem;
+		border: 1px solid var(--usr-border);
+		border-radius: 10px;
+		background: var(--usr-surface-1);
+	}
+
+	.damage-resistance-table {
+		margin: 0;
+
+		th,
+		td {
+			text-align: center;
+		}
+	}
+
+	.combat-actions {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.5rem;
+		height: 100%;
+		align-content: start;
+	}
+
 	.damage-monitor {
 		display: grid;
 		grid-template-columns: repeat(12, 1fr);
 		grid-template-rows: repeat(2, auto);
+		border: 1px solid var(--usr-border);
+		border-radius: 10px;
+		overflow: hidden;
+		background: var(--usr-surface-1);
 
 		.mod {
-			background-color: var(--usr-c-tan);
-			border: 1px var(--usr-c-dark) solid;
-			color: var(--usr-c-faint);
+			background-color: rgba(184, 157, 116, 0.22);
+			border: 1px solid var(--usr-border);
+			color: var(--usr-text-muted);
 			text-align: center;
 			padding: 4px;
 		}
@@ -191,9 +250,13 @@
 			text-transform: uppercase;
 			text-align: center;
 			padding: 4px;
-			border: 1px var(--usr-c-dark) solid;
+			border: 1px solid var(--usr-border);
 			min-height: 24px;
 		}
+	}
+
+	.combat-traits {
+		margin-bottom: 0;
 	}
 
 	.items-table img {
@@ -207,5 +270,14 @@
 	.remove-stun,
 	.add-damage {
 		width: 100%;
+	}
+
+	@media (max-width: 720px) {
+		.traits-table .trait-roll {
+			width: auto;
+			min-width: 0;
+			justify-content: flex-start;
+			flex-wrap: wrap;
+		}
 	}
 }

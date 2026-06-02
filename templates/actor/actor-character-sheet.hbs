@@ -1,5 +1,5 @@
 {{!-- Sheet Header --}}
-<header class="sheet-header">
+<header class="sheet-header actor-header">
 	<img
 		class="profile-img"
 		src="{{actor.img}}"
@@ -11,40 +11,52 @@
 		width="100"
 	/>
 	<div class="header-fields">
-		<h1 class="charname">
-			<input
-				name="name"
-				type="text"
-				value="{{actor.name}}"
-				placeholder="Name"
-			/>
-		</h1>
-		<div class="grid grid-3col">
-			<div class="entry number">
-				<label for="bonus-xp">XP:</label>
+		<div class="header-top">
+			<h1 class="charname">
 				<input
-					id="bonus-xp"
-					name="system.xp"
-					min="0"
-					type="number"
-					value="{{system.xp}}"
-					data-dtype="Number"
+					name="name"
+					type="text"
+					value="{{actor.name}}"
+					placeholder="Name"
 				/>
-			</div>
-			<div class="entry">
-				<label>Modifier:</label>
-				<span>{{ system.damage.modifierText }}</span>
+			</h1>
+			<div class="header-meta npc-meta">
+				<div class="meta-card readonly">
+					<span class="meta-label">Modifier</span>
+					<span class="meta-value">{{system.damage.modifierText}}</span>
+				</div>
 			</div>
 		</div>
-		<div class="chip-container">
-			<div class="chips">
-				{{#each chipsList as |type index|}}
-				<div class="chip clickable-chip" data-chip="{{type}}"></div>
-				{{/each}}
+		<div class="header-bottom">
+			<div class="chip-panel">
+				<div class="chips">
+					{{#each chipsList as |type index|}}
+					<div class="chip clickable-chip" data-chip="{{type}}"></div>
+					{{/each}}
+				</div>
+				<div class="dice">
+					<button class="rollable roll-chip die d6" data-roll-chip="1">
+						1
+					</button>
+					<button class="rollable roll-chip die d6" data-roll-chip="2">
+						2
+					</button>
+				</div>
 			</div>
-			<div class="dice">
-				<button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
-				<button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
+			<div class="header-meta header-meta-vertical">
+				<div class="meta-card form-group">
+					<label for="bonus-xp">XP</label>
+					<div class="form-fields">
+						<input
+							id="bonus-xp"
+							name="system.xp"
+							min="0"
+							type="number"
+							value="{{system.xp}}"
+							data-dtype="Number"
+						/>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

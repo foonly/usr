@@ -2,18 +2,20 @@
 	&.window-app,
 	&.application {
 		font-family: var(--usr-font-primary);
+		color: var(--usr-text);
 	}
 
 	.window-content {
 		font-family: var(--usr-font-primary);
+		color: var(--usr-text);
 	}
 
 	&.sheet .window-content {
+		display: flex;
+		flex-direction: column;
 		min-height: 0;
-	}
-
-	button {
-		font-family: var(--usr-font-primary);
+		height: 100%;
+		overflow: hidden;
 	}
 
 	.rollable {
