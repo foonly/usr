@@ -60,7 +60,6 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 			system: itemData.system,
 			flags: itemData.flags,
 			owner: this.item.isOwner,
-			cssClass: this.options.classes.join(" "),
 			rollData: this.actor ? this.actor.getRollData() : {},
 		});
 

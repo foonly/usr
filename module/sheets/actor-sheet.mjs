@@ -86,7 +86,6 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			system: actorData.system,
 			flags: actorData.flags,
 			owner: this.actor.isOwner,
-			cssClass: this.options.classes.join(" "),
 			rollData: this.actor.getRollData(),
 			effects: prepareActiveEffectCategories(this.actor.effects),
 		});

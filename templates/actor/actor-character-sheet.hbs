@@ -1,142 +1,136 @@
-<div class="{{cssClass}} {{actor.type}} flexcol">
-	{{!-- Sheet Header --}}
-	<header class="sheet-header">
-		<img
-			class="profile-img"
-			src="{{actor.img}}"
-			data-edit="img"
-			title="{{actor.name}}"
-			height="100"
-			width="100"
-		/>
-		<div class="header-fields">
-			<h1 class="charname">
+{{!-- Sheet Header --}}
+<header class="sheet-header">
+	<img
+		class="profile-img"
+		src="{{actor.img}}"
+		data-edit="img"
+		title="{{actor.name}}"
+		height="100"
+		width="100"
+	/>
+	<div class="header-fields">
+		<h1 class="charname">
+			<input
+				name="name"
+				type="text"
+				value="{{actor.name}}"
+				placeholder="Name"
+			/>
+		</h1>
+		<div class="grid grid-3col">
+			<div class="entry number">
+				<label for="bonus-xp">XP:</label>
 				<input
-					name="name"
-					type="text"
-					value="{{actor.name}}"
-					placeholder="Name"
+					id="bonus-xp"
+					name="system.xp"
+					min="0"
+					type="number"
+					value="{{system.xp}}"
+					data-dtype="Number"
 				/>
-			</h1>
-			<div class="grid grid-3col">
-				<div class="entry number">
-					<label for="bonus-xp">XP:</label>
-					<input
-						id="bonus-xp"
-						name="system.xp"
-						min="0"
-						type="number"
-						value="{{system.xp}}"
-						data-dtype="Number"
-					/>
-				</div>
-				<div class="entry">
-					<label>Modifier:</label>
-					<span>{{ system.damage.modifierText }}</span>
-				</div>
 			</div>
-			<div class="chip-container">
-				<div class="chips">
-					{{#each chipsList as |type index|}}
-					<div class="chip clickable-chip" data-chip="{{type}}"></div>
-					{{/each}}
-				</div>
-				<div class="dice">
-					<button class="rollable roll-chip die d6" data-roll-chip="1">
-						1
-					</button>
-					<button class="rollable roll-chip die d6" data-roll-chip="2">
-						2
-					</button>
-				</div>
+			<div class="entry">
+				<label>Modifier:</label>
+				<span>{{ system.damage.modifierText }}</span>
 			</div>
 		</div>
-	</header>
-
-	{{!-- Sheet Tab Navigation --}}
-	<nav class="sheet-tabs tabs">
-		<a
-			class="item {{tabs.bio.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="bio"
-			>Biography</a
-		>
-		<a
-			class="item {{tabs.traits.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="traits"
-			>Traits</a
-		>
-		<a
-			class="item {{tabs.combat.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="combat"
-			>Combat</a
-		>
-		<a
-			class="item {{tabs.knowledge.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="knowledge"
-			>Knowledge</a
-		>
-		<a
-			class="item {{tabs.items.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="items"
-			>Items</a
-		>
-	</nav>
-
-	{{!-- Sheet Body --}}
-	<section class="sheet-body">
-		{{!-- Biography Tab --}}
-		<div
-			class="tab biography {{tabs.bio.cssClass}}"
-			data-group="primary"
-			data-tab="bio"
-		>
-			{{> "systems/usr/templates/actor/parts/actor-biography.hbs"}}
+		<div class="chip-container">
+			<div class="chips">
+				{{#each chipsList as |type index|}}
+				<div class="chip clickable-chip" data-chip="{{type}}"></div>
+				{{/each}}
+			</div>
+			<div class="dice">
+				<button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
+				<button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
+			</div>
 		</div>
+	</div>
+</header>
 
-		{{!-- Traits Tab --}}
-		<div
-			class="tab traits {{tabs.traits.cssClass}}"
-			data-group="primary"
-			data-tab="traits"
-		>
-			{{> "systems/usr/templates/actor/parts/actor-traits.hbs"}}
-		</div>
+{{!-- Sheet Tab Navigation --}}
+<nav class="sheet-tabs tabs">
+	<a
+		class="item {{tabs.bio.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="bio"
+		>Biography</a
+	>
+	<a
+		class="item {{tabs.traits.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="traits"
+		>Traits</a
+	>
+	<a
+		class="item {{tabs.combat.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="combat"
+		>Combat</a
+	>
+	<a
+		class="item {{tabs.knowledge.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="knowledge"
+		>Knowledge</a
+	>
+	<a
+		class="item {{tabs.items.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="items"
+		>Items</a
+	>
+</nav>
 
-		{{!-- Combat Tab --}}
-		<div
-			class="tab combat {{tabs.combat.cssClass}}"
-			data-group="primary"
-			data-tab="combat"
-		>
-			{{> "systems/usr/templates/actor/parts/actor-combat.hbs"}}
-		</div>
+{{!-- Sheet Body --}}
+<section class="sheet-body">
+	{{!-- Biography Tab --}}
+	<div
+		class="tab biography {{tabs.bio.cssClass}}"
+		data-group="primary"
+		data-tab="bio"
+	>
+		{{> "systems/usr/templates/actor/parts/actor-biography.hbs"}}
+	</div>
 
-		{{!-- Knowledge Tab --}}
-		<div
-			class="tab features {{tabs.knowledge.cssClass}}"
-			data-group="primary"
-			data-tab="knowledge"
-		>
-			{{> "systems/usr/templates/actor/parts/actor-knowledge.hbs"}}
-		</div>
+	{{!-- Traits Tab --}}
+	<div
+		class="tab traits {{tabs.traits.cssClass}}"
+		data-group="primary"
+		data-tab="traits"
+	>
+		{{> "systems/usr/templates/actor/parts/actor-traits.hbs"}}
+	</div>
 
-		{{!-- Owned Items Tab --}}
-		<div
-			class="tab items {{tabs.items.cssClass}}"
-			data-group="primary"
-			data-tab="items"
-		>
-			{{> "systems/usr/templates/actor/parts/actor-items.hbs"}}
-		</div>
-	</section>
-</div>
+	{{!-- Combat Tab --}}
+	<div
+		class="tab combat {{tabs.combat.cssClass}}"
+		data-group="primary"
+		data-tab="combat"
+	>
+		{{> "systems/usr/templates/actor/parts/actor-combat.hbs"}}
+	</div>
+
+	{{!-- Knowledge Tab --}}
+	<div
+		class="tab features {{tabs.knowledge.cssClass}}"
+		data-group="primary"
+		data-tab="knowledge"
+	>
+		{{> "systems/usr/templates/actor/parts/actor-knowledge.hbs"}}
+	</div>
+
+	{{!-- Owned Items Tab --}}
+	<div
+		class="tab items {{tabs.items.cssClass}}"
+		data-group="primary"
+		data-tab="items"
+	>
+		{{> "systems/usr/templates/actor/parts/actor-items.hbs"}}
+	</div>
+</section>

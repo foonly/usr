@@ -57,7 +57,6 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		return Object.assign(context, {
 			trait: this.trait,
 			key: this.key,
-			cssClass: this.options.classes.join(" "),
 		});
 	}
 

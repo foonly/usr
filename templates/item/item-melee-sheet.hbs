@@ -1,60 +1,53 @@
-<div class="{{cssClass}}">
-	<header class="sheet-header">
-		<img
-			class="profile-img"
-			src="{{item.img}}"
-			data-edit="img"
-			title="{{item.name}}"
-		/>
-		<div class="header-fields">
-			<h1 class="charname">
-				<input
-					name="name"
-					type="text"
-					value="{{item.name}}"
-					placeholder="Name"
-				/>
-			</h1>
-		</div>
-	</header>
+<header class="sheet-header">
+	<img
+		class="profile-img"
+		src="{{item.img}}"
+		data-edit="img"
+		title="{{item.name}}"
+	/>
+	<div class="header-fields">
+		<h1 class="charname">
+			<input name="name" type="text" value="{{item.name}}" placeholder="Name" />
+		</h1>
+	</div>
+</header>
 
-	{{!-- Sheet Tab Navigation --}}
-	<nav class="sheet-tabs tabs">
-		<a
-			class="item {{tabs.description.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="description"
-			>Description</a
-		>
-		<a
-			class="item {{tabs.attributes.cssClass}}"
-			data-action="tab"
-			data-group="primary"
-			data-tab="attributes"
-			>Attributes</a
-		>
-	</nav>
+{{!-- Sheet Tab Navigation --}}
+<nav class="sheet-tabs tabs">
+	<a
+		class="item {{tabs.description.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="description"
+		>Description</a
+	>
+	<a
+		class="item {{tabs.attributes.cssClass}}"
+		data-action="tab"
+		data-group="primary"
+		data-tab="attributes"
+		>Attributes</a
+	>
+</nav>
 
-	{{!-- Sheet Body --}}
-	<section class="sheet-body">
-		{{!-- Description Tab --}}
-		<div
-			class="tab {{tabs.description.cssClass}}"
-			data-group="primary"
-			data-tab="description"
-		>
-			{{editor system.description target="system.description" rollData=rollData
-			button=true owner=owner editable=editable}}
-		</div>
+{{!-- Sheet Body --}}
+<section class="sheet-body">
+	{{!-- Description Tab --}}
+	<div
+		class="tab {{tabs.description.cssClass}}"
+		data-group="primary"
+		data-tab="description"
+	>
+		{{editor system.description target="system.description" rollData=rollData
+		button=true owner=owner editable=editable}}
+	</div>
 
-		{{!-- Attributes Tab --}}
-		<div
-			class="tab attributes {{tabs.attributes.cssClass}}"
-			data-group="primary"
-			data-tab="attributes"
-		>
-			{{!-- As you add new fields, add them in here! --}}
-		</div>
-	</section>
-</div>
+	{{!-- Attributes Tab --}}
+	<div
+		class="tab attributes {{tabs.attributes.cssClass}}"
+		data-group="primary"
+		data-tab="attributes"
+	>
+		{{!-- As you add new fields, add them in here! --}}
+	</div>
+</section>
