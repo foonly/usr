@@ -40,10 +40,23 @@
 		tbody tr:hover {
 			background: var(--usr-surface-hover);
 		}
+
+		th:nth-child(2),
+		th:nth-child(3),
+		td.trait-value,
+		td.trait-xp {
+			text-align: center;
+		}
+
+		th:nth-child(4),
+		td.trait-roll {
+			text-align: right;
+		}
 	}
 
 	.traits-table {
 		.trait-label {
+			width: 100%;
 			white-space: nowrap;
 		}
 
