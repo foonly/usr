@@ -37,7 +37,7 @@ export function usrRoll(data) {
 	}
 	const nr = Math.abs(data.difficulty);
 
-	new Roll(`${nr}d10`).evaluate().then((roll) => {
+	new Roll(`${nr}d10`).evaluate().then(async (roll) => {
 		const result = {
 			difficulty: data.difficulty,
 			skill: data.skill,
@@ -114,9 +114,10 @@ export function usrRoll(data) {
 		showRoll(roll, result, speaker, data.flavor);
 
 		if (!result.critical && data.trait && data.actor) {
+			const updatedTraits = foundry.utils.deepClone(traits);
 			let awarded = false;
 			if (data.trait) {
-				const trait = traits[data.trait];
+				const trait = updatedTraits[data.trait];
 				if (!trait) return;
 				if (data.spec && Array.isArray(trait.spec)) {
 					trait.spec.forEach((spec) => {
@@ -144,7 +145,7 @@ export function usrRoll(data) {
 					}
 				}
 			}
-			data.actor.update({ "system.traits": traits });
+			await data.actor.update({ "system.traits": updatedTraits });
 		}
 	});
 }
@@ -275,7 +276,8 @@ export function rollXp(data) {
 							flavor: label,
 							rollMode: game.settings.get("core", "rollMode"),
 						});
-						data.actor.update({ "system.traits": traits });
+						const updatedTraits = foundry.utils.deepClone(traits);
+						data.actor.update({ "system.traits": updatedTraits });
 					});
 				}
 			}
@@ -309,7 +311,8 @@ export function rollXp(data) {
 					flavor: label,
 					rollMode: game.settings.get("core", "rollMode"),
 				});
-				data.actor.update({ "system.traits": traits });
+				const updatedTraits = foundry.utils.deepClone(traits);
+				data.actor.update({ "system.traits": updatedTraits });
 			});
 		}
 	}

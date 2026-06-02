@@ -127,6 +127,8 @@
 		background: var(--usr-surface-2);
 		color: var(--usr-text);
 		text-decoration: none;
+		width: auto;
+		height: auto;
 
 		&:hover,
 		&:focus {
