@@ -1,3 +1,5 @@
+// Import data models.
+import * as models from "./data/_module.mjs";
 // Import document classes.
 import { usrActor } from "./documents/actor.mjs";
 import { usrItem } from "./documents/item.mjs";
@@ -23,6 +25,18 @@ Hooks.once("init", async function () {
 
 	// Add custom constants for configuration.
 	CONFIG.usr = usr;
+
+	// Register data models
+	CONFIG.Actor.dataModels = {
+		character: models.CharacterData,
+		npc: models.NpcData,
+	};
+	CONFIG.Item.dataModels = {
+		item: models.ItemData,
+		melee: models.MeleeData,
+		ranged: models.RangedData,
+		armor: models.ArmorData,
+	};
 
 	/**
 	 * Set an initiative formula for the system
