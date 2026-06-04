@@ -1,0 +1,52 @@
+<form class="usr action-selection">
+    <div class="flexrow">
+        <div class="flexcol">
+            <label>{{localize "USR.Stance"}}</label>
+            <select name="stance" class="stance-selector">
+                <option value="" {{#unless action.stance}}selected{{/unless}}>-- Select Stance --</option>
+                {{selectOptions stances selected=action.stance}}
+            </select>
+        </div>
+        <div class="flexcol">
+            <label>{{localize "USR.ActionType"}}</label>
+            <select name="type">
+                {{selectOptions types selected=action.type}}
+            </select>
+        </div>
+    </div>
+
+    <div class="flexcol movement-group">
+        <label>{{localize "USR.Movement"}}</label>
+        <select name="movement">
+            {{selectOptions movements selected=action.movement}}
+        </select>
+    </div>
+
+    <div class="flexcol target-group">
+        <label>{{localize "USR.Target"}}</label>
+        <div class="flexrow">
+            <select name="targetType">
+                <option value="combatant" {{#unless isCustomTarget}}selected{{/unless}}>{{localize "USR.Combatant"}}</option>
+                <option value="custom" {{#if isCustomTarget}}selected{{/if}}>{{localize "USR.Custom"}}</option>
+            </select>
+
+            {{#unless isCustomTarget}}
+            <select name="targetId">
+                <option value="">-- None --</option>
+                {{#each targets}}
+                <option value="{{this.id}}" {{#if (eq ../action.targetId this.id)}}selected{{/if}}>{{this.name}}</option>
+                {{/each}}
+            </select>
+            {{/unless}}
+
+            {{#if isCustomTarget}}
+            <input type="text" name="customTarget" value="{{action.targetName}}" placeholder="Custom Target...">
+            {{/if}}
+        </div>
+    </div>
+
+    <div class="flexcol">
+        <label>{{localize "USR.Description"}}</label>
+        <textarea name="description">{{action.description}}</textarea>
+    </div>
+</form>

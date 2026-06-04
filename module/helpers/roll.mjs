@@ -2,8 +2,12 @@ import { usr } from "./config.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
-export function usrRoll(data) {
-	const traits = data.actor?.system?.traits ?? [];
+export async function usrRoll(data) {
+	const traits = data.actor?.system?.traits;
+	if (!traits) {
+		console.error("USR | usrRoll: Actor has no traits:", data.actor);
+		return { roll: null, result: null };
+	}
 	data.specialization = Number.isFinite(data.specialization)
 		? data.specialization
 		: 0;
@@ -12,10 +16,14 @@ export function usrRoll(data) {
 	if (data.trait) {
 		const trait = traits[data.trait];
 		if (!trait) {
+			console.error(
+				`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
+				data.actor,
+			);
 			ui.notifications.warn(
 				`Could not find trait "${data.trait}" for this roll.`,
 			);
-			return;
+			return { roll: null, result: null };
 		}
 		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
 		if (data.spec && Array.isArray(trait.spec)) {
@@ -37,117 +45,120 @@ export function usrRoll(data) {
 	}
 	const nr = Math.abs(data.difficulty);
 
-	new Roll(`${nr}d10`).evaluate().then(async (roll) => {
-		const result = {
-			difficulty: data.difficulty,
-			skill: data.skill,
-			specialization: data.specialization,
-			type: "d10",
-			dice: [],
-			successes: 0,
-			critical: false,
-			formula: "",
-			total: "",
-		};
+	const roll = await new Roll(`${nr}d10`).evaluate();
+	const result = {
+		difficulty: data.difficulty,
+		skill: data.skill,
+		specialization: data.specialization,
+		type: "d10",
+		dice: [],
+		successes: 0,
+		critical: false,
+		formula: "",
+		total: "",
+	};
 
-		/* Start tens and ones at -1, because we start counting from the second one. */
-		let ones = -1;
-		let tens = -1;
-		let failed = false;
+	/* Start tens and ones at -1, because we start counting from the second one. */
+	let ones = -1;
+	let tens = -1;
+	let failed = false;
 
-		for (const die of roll.dice[0].results) {
-			result.dice.push({
-				value: die.result,
-				success: die.result <= result.skill,
-			});
-			if (result.difficulty < 0) {
-				if (die.result > result.skill) {
-					failed = true;
-				}
-			} else {
-				if (die.result <= result.skill) {
-					result.successes++;
-				}
+	for (const die of roll.dice[0].results) {
+		result.dice.push({
+			value: die.result,
+			success: die.result <= result.skill,
+		});
+		if (result.difficulty < 0) {
+			if (die.result > result.skill) {
+				failed = true;
 			}
-			if (die.result <= result.specialization) {
+		} else {
+			if (die.result <= result.skill) {
 				result.successes++;
 			}
-			if (die.result === 1) {
-				ones++;
-			}
-			if (die.result === 10) {
-				tens++;
-			}
 		}
+		if (die.result <= result.specialization) {
+			result.successes++;
+		}
+		if (die.result === 1) {
+			ones++;
+		}
+		if (die.result === 10) {
+			tens++;
+		}
+	}
 
-		if (ones > 0) {
-			result.successes += ones;
+	if (ones > 0) {
+		result.successes += ones;
+		result.critical = true;
+	}
+
+	if (tens > 0) {
+		result.successes -= tens;
+		if (result.successes < 0) {
+			result.successes = 0;
 			result.critical = true;
 		}
+	}
 
-		if (tens > 0) {
-			result.successes -= tens;
-			if (result.successes < 0) {
-				result.successes = 0;
-				result.critical = true;
-			}
+	if (result.difficulty < 0) {
+		if (failed) {
+			result.successes = 0;
+		} else {
+			result.successes++;
 		}
+	}
 
-		if (result.difficulty < 0) {
-			if (failed) {
-				result.successes = 0;
-			} else {
-				result.successes++;
-			}
-		}
+	result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
+	if (result.specialization > 0) {
+		result.formula += ` (${result.specialization})`;
+	}
+	result.total =
+		(result.critical ? "Critical " : "") +
+		(result.successes ? result.successes + " Successes" : "Fail");
 
-		result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
-		if (result.specialization > 0) {
-			result.formula += ` (${result.specialization})`;
-		}
-		result.total =
-			(result.critical ? "Critical " : "") +
-			(result.successes ? result.successes + " Successes" : "Fail");
+	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 
-		const speaker = ChatMessage.getSpeaker({ actor: data.actor });
-
+	if (data.createMessage !== false) {
 		showRoll(roll, result, speaker, data.flavor);
+	}
 
-		if (!result.critical && data.trait && data.actor) {
-			const updatedTraits = foundry.utils.deepClone(traits);
-			let awarded = false;
-			if (data.trait) {
-				const trait = updatedTraits[data.trait];
-				if (!trait) return;
-				if (data.spec && Array.isArray(trait.spec)) {
-					trait.spec.forEach((spec) => {
-						if (data.spec === spec.title) {
-							const specValue = Number.isFinite(spec.value) ? spec.value : 0;
-							const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
-							if (
-								specValue < 3 &&
-								(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
-							) {
-								awarded = true;
-								spec.roll = specRoll + 1;
-							}
+	if (!result.critical && data.trait && data.actor) {
+		const updatedTraits = foundry.utils.deepClone(traits);
+		let awarded = false;
+		if (data.trait) {
+			const trait = updatedTraits[data.trait];
+			if (!trait) return { roll, result };
+			if (data.spec && Array.isArray(trait.spec)) {
+				trait.spec.forEach((spec) => {
+					if (data.spec === spec.title) {
+						const specValue = Number.isFinite(spec.value) ? spec.value : 0;
+						const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
+						if (
+							specValue < 3 &&
+							(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
+						) {
+							awarded = true;
+							spec.roll = specRoll + 1;
 						}
-					});
-				}
-				if (!awarded) {
-					const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
-					const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
-					if (
-						traitValue < 7 &&
-						(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
-					) {
-						trait.roll = traitRoll + 1;
 					}
+				});
+			}
+			if (!awarded) {
+				const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
+				const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
+				if (
+					traitValue < 7 &&
+					(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
+				) {
+					trait.roll = traitRoll + 1;
 				}
 			}
-			await data.actor.update({ "system.traits": updatedTraits });
 		}
-	});
+		await data.actor.update({ "system.traits": updatedTraits });
+	}
+
+	return { roll, result };
 }
 
 export function showRoll(roll, result, speaker, flavor = "") {

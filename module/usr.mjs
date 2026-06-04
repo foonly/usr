@@ -3,9 +3,12 @@ import * as models from "./data/_module.mjs";
 // Import document classes.
 import { usrActor } from "./documents/actor.mjs";
 import { usrItem } from "./documents/item.mjs";
+import { usrCombat } from "./documents/combat.mjs";
+import { usrCombatant } from "./documents/combatant.mjs";
 // Import sheet classes.
 import { usrActorSheet } from "./sheets/actor-sheet.mjs";
 import { usrItemSheet } from "./sheets/item-sheet.mjs";
+import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
@@ -43,15 +46,22 @@ Hooks.once("init", async function () {
 	 * @type {String}
 	 */
 	CONFIG.Combat.initiative = {
-		formula: "1d20 + @abilities.dex.mod",
-		decimals: 2,
+		formula: "0",
+		decimals: 0,
+	};
+	CONFIG.Combat.initiativeIcon = {
+		icon: "/icons/svg/dice-target.svg",
+		hover: "/icons/svg/dice-target.svg",
 	};
 
 	// Define custom Document classes
 	CONFIG.Actor.documentClass = usrActor;
 	CONFIG.Item.documentClass = usrItem;
+	CONFIG.Combat.documentClass = usrCombat;
+	CONFIG.Combatant.documentClass = usrCombatant;
 
 	// Register sheet application classes
+	CONFIG.ui.combat = usrCombatTracker;
 	foundry.documents.collections.Actors.unregisterSheet(
 		"core",
 		foundry.applications.sheets.ActorSheet,

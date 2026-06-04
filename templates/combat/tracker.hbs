@@ -1,0 +1,78 @@
+<ol class="combat-tracker plain">
+    {{#each turns}}
+    <li class="combatant {{ css }} {{#if usrAction.acted}}acted{{/if}}" data-combatant-id="{{ id }}" data-action="activateCombatant">
+
+        {{!-- Image --}}
+        <img class="token-image" src="{{#if img}}{{img}}{{else}}icons/svg/mystery-man.svg{{/if}}" alt="{{ name }}" loading="lazy">
+
+        {{!-- Name & Controls --}}
+        <div class="token-name">
+            <strong class="name">{{ name }}</strong>
+
+            <div class="combatant-details">
+                {{#if usrAction.revealed}}
+                <span class="stance {{ usrAction.stance }}">{{ usrAction.stance }}</span>
+                {{#if (ne usrAction.stance "defensive")}}
+                <i class="action-type fa-solid {{#if (eq usrAction.type "melee")}}fa-swords{{else}}fa-bow-arrow{{/if}}" title="{{ usrAction.type }}"></i>
+                {{/if}}
+                {{#if usrTargetName}}
+                <span class="target">→ {{ usrTargetName }}</span>
+                {{/if}}
+                {{else}}
+                <span class="action-status {{#if hasUsrAction}}ready{{/if}}">
+                    {{#if hasUsrAction}}Ready{{else}}Deciding...{{/if}}
+                </span>
+                {{/if}}
+            </div>
+
+            <div class="combatant-controls">
+                {{#if @root.user.isGM}}
+                <button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash {{#if hidden}}active{{/if}}"
+                        data-action="toggleHidden" data-tooltip aria-label="{{ localize (ifThen hidden "COMBATANT.Show" "COMBATANT.Hide") }}"></button>
+                <button type="button" class="inline-control combatant-control icon fa-solid fa-skull {{#if isDefeated}}active{{/if}}"
+                        data-action="toggleDefeated" data-tooltip
+                        aria-label="{{ localize (ifThen isDefeated "COMBATANT.UnmarkDefeated" "COMBATANT.MarkDefeated") }}"></button>
+                {{/if}}
+
+                {{#if (and isOwner (eq @root.phase 1))}}
+                <button type="button" class="inline-control combatant-control icon fa-solid fa-comment-dots"
+                        data-action="selectAction" data-tooltip="USR.SelectAction"
+                        aria-label="{{ localize "USR.SelectAction" }}"></button>
+                {{/if}}
+
+                {{#if (and @root.user.isGM (eq @root.phase 3))}}
+                <button type="button" class="inline-control combatant-control icon fa-solid fa-check-circle {{#if usrAction.acted}}active{{/if}}"
+                        data-action="toggleActed" data-tooltip="USR.ToggleActed"
+                        aria-label="{{ localize "USR.ToggleActed" }}"></button>
+                {{/if}}
+
+                <div class="token-effects" data-tooltip-html="{{ effects.tooltip }}">
+                    {{#each effects.icons}}
+                    <img class="token-effect" src="{{ img }}" alt="{{ name }}">
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+
+        {{!-- Initiative / Status --}}
+        <div class="token-initiative">
+            {{#if (eq @root.phase 1)}}
+                {{#if hasUsrAction}}
+                <i class="fa-solid fa-check successes" title="Action Defined"></i>
+                {{/if}}
+            {{else}}
+                {{#if (and (eq @root.phase 2) isOwner (not initiative) (ne usrAction.stance "defensive"))}}
+                <button type="button" class="combatant-control roll" data-action="rollInitiative" data-tooltip
+                        aria-label="{{ localize "COMBAT.InitiativeRoll" }}"
+                        style="--initiative-icon: url('/icons/svg/dice-target.svg'); --initiative-icon-hover: url('/icons/svg/dice-target.svg');"></button>
+                {{else}}
+                    <span class="successes" title="Successes">{{ initiative }}</span>
+                    {{#if usrAction.status}}
+                    <span class="status {{ usrAction.status }}">{{ usrAction.status }}</span>
+                    {{/if}}
+                {{/if}}
+            {{/if}}
+        </div>
+    </li>
+    {{/each}}
+</ol>
