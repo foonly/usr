@@ -1,6 +1,6 @@
 # USR System: Core Rules (v2.0 Draft)
 
-## 1. Core Mechanics
+## Core Mechanics
 
 ### The Dice System
 
@@ -25,7 +25,7 @@ USR uses **D10s** for all checks. The number of dice rolled depends on the **Dif
 
 ---
 
-## 2. Character Traits
+## Character Traits
 
 ### Primary Traits
 
@@ -36,7 +36,7 @@ Characters are defined by several traits, ranging from 1 to 7.
 
 ### Specializations
 
-Skills can have **Specializations**. A Specialization has its own value (max 3). When rolling a skill, if the result is also $\le$ Specialization Value, it counts as a second success for that die.
+Skills can have **Specializations**. A Specialization has its own value (max 3, and must be under the skill value). When rolling a skill, if the result is also lower or equal to the Specialization Value, it counts as a second success for that die.
 
 ### Knowledge Skills
 
@@ -48,7 +48,7 @@ Languages are tracked for both **Speaking** and **Writing**, ranked as **None**,
 
 ---
 
-## 3. Damage & Health
+## Damage & Health
 
 ### Damage Monitor
 
@@ -72,7 +72,7 @@ Damage is tracked in a 12-box monitor. As boxes fill, the character suffers cumu
 
 ### Resisting Damage
 
-When taking damage, a character rolls D10s equal to the damage amount. The goal is to roll $\le$ their **Resistance** for that wound type.
+When taking damage, a character rolls D10s equal to the damage amount. The goal is to roll lower or equal to their **Resistance** for that wound type.
 
 - **Resistance:** Derived from **Fortitude**:
   - **Stun:** 90% of Fortitude (rounded up)
@@ -92,31 +92,16 @@ Characters use **Healing Points (HP)** to clear damage boxes.
 
 ---
 
-## 4. Fate & Chips
+## Fate & Fate Chips
 
 Characters use **Chips** (White, Green, Blue, Red, Black) to influence fate.
 
 - **Gaining Chips:** Roll $X$ D6. If any die rolls **higher** than your current total number of chips, you gain a random chip.
 
+How the chips are used is up to every group, feel free to define your own effects for them. But below are some examples:
 
-
----
-
-## 5. Combat
-
-### Position
-
-Combat uses a **Position Monitor** (Value 0 to 5, default 4).
-
-- **Position Utility:** Position represents tactical advantage. GMs may allow "selling" position for bonus dice or initiative. Every defense performed typically reduces position.
-
-### Initiative
-
-Roll dice based on stance/situation. **Add only the highest die** to your Initiative trait. Every "10" rolled beyond the first grants a +5 bonus.
-
-### Defense
-
-- **Melee Defense:** Stance/Skill Dice + Weapon Defense Rating - Attacker's Successes.
-- **Dodge:** Skill Dice - Attacker's Successes.
-
----
+- **White:** Re-roll your last roll.
+- **Green:** Re-roll your last roll with an extra die, but only one success counts.
+- **Blue:** Roll an additional die if adding to an completed roll. Or two additional dice if adding to an upcoming roll.
+- **Red:** Negate taken damage.
+- **Black:** Gain position. In combat your position monitor is maxed out. Outside of combat, the GM will decide the effect.
