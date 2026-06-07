@@ -56,15 +56,39 @@ export async function usrRoll(data) {
 	if (data.skill <= data.specialization) {
 		data.specialization = data.skill - 1;
 	}
-	// Since difficulty goes from down from 1 to -2, a difficulty of 0 or -1 should be converted to -2.
-	if (data.difficulty < 1 && data.difficulty > -2) {
-		data.difficulty = -2;
+	const damageMod = data.actor.system.damage?.modifier ?? 0;
+	if (damageMod < -9) {
+		const speaker = ChatMessage.getSpeaker({ actor: data.actor });
+		const result = {
+			formula: `Difficulty: ${data.difficulty} (Incapacitated)`,
+			total: "Automatic Fail (Incapacitated)",
+			dice: [],
+			successes: 0,
+			damageModifier: damageMod,
+		};
+		if (data.createMessage !== false) {
+			showRoll(null, result, speaker, data.flavor);
+		}
+		return { roll: null, result };
 	}
-	const nr = Math.abs(data.difficulty);
 
+	// Apply damage penalty to difficulty (number of dice)
+	const originalDifficulty = data.difficulty;
+	if (damageMod < 0) {
+		const diffSequence = [6, 5, 4, 3, 2, 1, -2, -3, -4, -5, -6, -7];
+		let currentIndex = diffSequence.indexOf(originalDifficulty);
+		if (currentIndex === -1) currentIndex = 2; // Default to Normal (Index 2)
+
+		const penalty = Math.abs(damageMod);
+		const newIndex = Math.min(diffSequence.length - 1, currentIndex + penalty);
+		data.difficulty = diffSequence[newIndex];
+	}
+
+	const nr = Math.abs(data.difficulty);
 	const roll = await new Roll(`${nr}d10`).evaluate();
 	const result = {
 		difficulty: data.difficulty,
+		originalDifficulty: originalDifficulty,
 		skill: data.skill,
 		specialization: data.specialization,
 		type: "d10",
@@ -73,6 +97,7 @@ export async function usrRoll(data) {
 		critical: false,
 		formula: "",
 		total: "",
+		damageModifier: damageMod,
 	};
 
 	/* Start tens and ones at -1, because we start counting from the second one. */
@@ -126,10 +151,16 @@ export async function usrRoll(data) {
 		}
 	}
 
-	result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
+	if (result.damageModifier < 0) {
+		result.formula = `Difficulty: ${result.difficulty} (${result.originalDifficulty}${result.damageModifier}) / Skill: ${result.skill}`;
+	} else {
+		result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
+	}
+
 	if (result.specialization > 0) {
 		result.formula += ` (${result.specialization})`;
 	}
+
 	result.total =
 		(result.critical ? "Critical " : "") +
 		(result.successes ? result.successes + " Successes" : "Fail");
@@ -137,11 +168,30 @@ export async function usrRoll(data) {
 	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 
 	if (data.createMessage !== false) {
-		showRoll(roll, result, speaker, data.flavor);
+		let flavor = data.flavor || "";
+		if (data.spec) {
+			const specLabelKey =
+				usr.meleeSpecializations[data.spec] ||
+				usr.rangedSpecializations[data.spec];
+			if (specLabelKey) {
+				const specLabel = game.i18n.localize(specLabelKey);
+				// If flavor already starts with weapon name, insert specialization
+				if (flavor.includes("(") && flavor.includes(")")) {
+					flavor = flavor.replace("(", `(${specLabel} - `);
+				} else {
+					flavor = `${flavor} (${specLabel})`;
+				}
+			}
+		}
+		if (result.damageModifier < 0 && result.damageModifier >= -9) {
+			flavor += ` (${result.damageModifier} Damage Penalty)`;
+		}
+		showRoll(roll, result, speaker, flavor);
 	}
 
 	// Handle damage roll if it's a weapon and has successes
 	if (
+		result.successes > 0 &&
 		data.item &&
 		(data.item.type === "melee" || data.item.type === "ranged")
 	) {
@@ -149,7 +199,16 @@ export async function usrRoll(data) {
 			? data.item
 			: data.actor.items.get(data.item._id || data.item.id);
 		if (item) {
-			await rollDamage(data.actor, item);
+			console.log("USR | Found weapon, triggering damage roll for", item.name);
+			try {
+				await rollDamage(data.actor, item);
+			} catch (err) {
+				console.error("USR | Damage roll failed:", err);
+			}
+		} else {
+			console.warn(
+				"USR | Item ID was provided but no item was found on the actor.",
+			);
 		}
 	}
 
@@ -192,6 +251,7 @@ export async function usrRoll(data) {
 }
 
 export async function rollDamage(actor, item) {
+	console.log("USR | rollDamage starting for", item.name);
 	const roll = await new Roll("2d10").evaluate();
 	const total = roll.total;
 	let location = null;

@@ -342,7 +342,17 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			const item = this.actor.items.get(itemId);
 			if (item) return item.roll();
 		} else if (dataset.rollUsr) {
-			const item = dataset.itemId ? this.actor.items.get(dataset.itemId) : null;
+			let itemId = dataset.itemId;
+			if (!itemId) {
+				itemId = element.closest(".item")?.dataset.itemId;
+			}
+			const item = itemId ? this.actor.items.get(itemId) : null;
+			console.log(
+				"USR | _onRoll captured click. ItemId:",
+				itemId,
+				"Item found:",
+				!!item,
+			);
 			usrRoll({
 				actor: this.actor,
 				item: item,

@@ -37,31 +37,11 @@
 		</section>
 	</div>
 
-	<h3 class="section-header">Combat Traits</h3>
-	<table class="traits-table combat-traits">
-		<thead>
-			<tr>
-				<th>Trait</th>
-				<th>Value</th>
-				<th>XP</th>
-				<th>Roll</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{> "systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.initiative key="initiative" }} {{>
-			"systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.melee key="melee" }} {{>
-			"systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.ranged key="ranged" }}
-		</tbody>
-	</table>
-
 	<section class="combat-weapons">
 		<h3 class="section-header">Weapons</h3>
 		<div class="weapon-cards">
 			{{#each melee as |item id|}}
-			<div class="weapon-card melee-card item" data-item-id="{{item._id}}">
+			<div class="weapon-card melee-card item" data-item-id="{{_id}}">
 				<div class="card-header">
 					<img
 						src="{{item.img}}"
@@ -97,7 +77,7 @@
 				</button>
 			</div>
 			{{/each}} {{#each ranged as |item id|}}
-			<div class="weapon-card ranged-card item" data-item-id="{{item._id}}">
+			<div class="weapon-card ranged-card item" data-item-id="{{_id}}">
 				<div class="card-header">
 					<img
 						src="{{item.img}}"
@@ -137,10 +117,10 @@
 							<button
 								class="range-roll rollable"
 								data-roll-usr="{{dice}}"
-								data-label="{{../item.name}} ({{localize label}})"
+								data-label="{{../name}} ({{localize label}})"
 								data-trait="ranged"
-								data-spec="{{../item.system.specialization}}"
-								data-item-id="{{../item._id}}"
+								data-spec="{{../system.specialization}}"
+								data-item-id="{{../_id}}"
 							>
 								<span class="range-label">{{localize label}} ({{dice}}D)</span>
 								<span class="range-value">{{value}}</span>
@@ -155,10 +135,10 @@
 							<button
 								class="range-roll rollable"
 								data-roll-usr="{{dice}}"
-								data-label="{{../item.name}} ({{localize label}} - Aimed)"
+								data-label="{{../name}} ({{localize label}} - Aimed)"
 								data-trait="ranged"
-								data-spec="{{../item.system.specialization}}"
-								data-item-id="{{../item._id}}"
+								data-spec="{{../system.specialization}}"
+								data-item-id="{{../_id}}"
 							>
 								<span class="range-label">{{localize label}} ({{dice}}D)</span>
 								<span class="range-value">{{value}}</span>
@@ -171,4 +151,24 @@
 			{{/each}}
 		</div>
 	</section>
+
+	<h3 class="section-header">Combat Traits</h3>
+	<table class="traits-table combat-traits">
+		<thead>
+			<tr>
+				<th>Trait</th>
+				<th>Value</th>
+				<th>XP</th>
+				<th>Roll</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{> "systems/usr/templates/actor/parts/actor-trait.hbs"
+			trait=system.traits.initiative key="initiative" }} {{>
+			"systems/usr/templates/actor/parts/actor-trait.hbs"
+			trait=system.traits.melee key="melee" }} {{>
+			"systems/usr/templates/actor/parts/actor-trait.hbs"
+			trait=system.traits.ranged key="ranged" }}
+		</tbody>
+	</table>
 </section>
