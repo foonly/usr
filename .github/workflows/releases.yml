@@ -12,9 +12,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - uses: pnpm/action-setup@v2
-      - run: make
       - run: zip -r usr.zip * -x "versionSync.mjs" "scss/*" "node_modules/*" "package*.json" "pnpm-*" @
       - uses: ncipollo/release-action@v1
         with:
