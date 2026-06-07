@@ -1,4 +1,4 @@
-# Character Generation & Advancement
+# USR System: Character Generation & Advancement (v2.0 Draft)
 
 ### Experience (XP)
 

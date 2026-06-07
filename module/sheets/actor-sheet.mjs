@@ -79,6 +79,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 		const actorData = this.actor.toObject(false);
+		// Add derived data for the sheet
+		actorData.system.damage = this.actor.system.damage;
+
 		const items = this.actor.items.map((item) => {
 			const data = item.toObject(false);
 			data.data = data.system;
@@ -152,6 +155,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		const gear = [];
 		const melee = [];
 		const ranged = [];
+		const armor = [];
 
 		for (const item of context.items) {
 			item.img ||= CONST.DEFAULT_TOKEN;
@@ -160,13 +164,30 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			} else if (item.type === "melee") {
 				melee.push(item);
 			} else if (item.type === "ranged") {
+				// Prepare range tables for combat cards
+				const acc = Math.clamp(item.system.accuracy, 1, 7) - 1;
+				item.rangeTables = {
+					normal: usr.rangeTables.normal[acc].map((val, i) => ({
+						label: usr.rangeLabels.normal[i],
+						dice: usr.rangeDice.normal[i],
+						value: val,
+					})),
+					aimed: usr.rangeTables.aimed[acc].map((val, i) => ({
+						label: usr.rangeLabels.aimed[i],
+						dice: usr.rangeDice.aimed[i],
+						value: val,
+					})),
+				};
 				ranged.push(item);
+			} else if (item.type === "armor") {
+				armor.push(item);
 			}
 		}
 
 		context.gear = gear;
 		context.melee = melee;
 		context.ranged = ranged;
+		context.armor = armor;
 	}
 
 	/* -------------------------------------------- */
@@ -321,8 +342,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			const item = this.actor.items.get(itemId);
 			if (item) return item.roll();
 		} else if (dataset.rollUsr) {
+			const item = dataset.itemId ? this.actor.items.get(dataset.itemId) : null;
 			usrRoll({
 				actor: this.actor,
+				item: item,
 				difficulty: Number.parseInt(dataset.rollUsr, 10),
 				trait: dataset.trait ?? "",
 				spec: dataset.spec ?? "",

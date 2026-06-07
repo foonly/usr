@@ -74,6 +74,7 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 		Object.assign(context, {
 			item: itemData,
 			system: itemData.system,
+			config: CONFIG.usr,
 			flags: itemData.flags,
 			owner: this.item.isOwner,
 			rollData,

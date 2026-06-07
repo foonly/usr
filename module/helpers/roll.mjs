@@ -27,8 +27,25 @@ export async function usrRoll(data) {
 		}
 		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
 		if (data.spec && Array.isArray(trait.spec)) {
+			// Find specialization by title (case insensitive) or by translating the internal key
+			const targetTitle = data.spec.toLowerCase();
+			const translatedTitle =
+				usr.meleeSpecializations[data.spec] ||
+				usr.rangedSpecializations[data.spec]
+					? game.i18n
+							.localize(
+								usr.meleeSpecializations[data.spec] ||
+									usr.rangedSpecializations[data.spec],
+							)
+							.toLowerCase()
+					: "";
+
 			trait.spec.forEach((spec) => {
-				if (data.spec === spec.title) {
+				const specTitle = spec.title.toLowerCase();
+				if (
+					targetTitle === specTitle ||
+					(translatedTitle && translatedTitle === specTitle)
+				) {
 					data.specialization = Number.isFinite(spec.value) ? spec.value : 0;
 				}
 			});
@@ -123,6 +140,19 @@ export async function usrRoll(data) {
 		showRoll(roll, result, speaker, data.flavor);
 	}
 
+	// Handle damage roll if it's a weapon and has successes
+	if (
+		data.item &&
+		(data.item.type === "melee" || data.item.type === "ranged")
+	) {
+		const item = data.item.toObject
+			? data.item
+			: data.actor.items.get(data.item._id || data.item.id);
+		if (item) {
+			await rollDamage(data.actor, item);
+		}
+	}
+
 	if (!result.critical && data.trait && data.actor) {
 		const updatedTraits = foundry.utils.deepClone(traits);
 		let awarded = false;
@@ -159,6 +189,64 @@ export async function usrRoll(data) {
 	}
 
 	return { roll, result };
+}
+
+export async function rollDamage(actor, item) {
+	const roll = await new Roll("2d10").evaluate();
+	const total = roll.total;
+	let location = null;
+	let lethalityKey = "l";
+
+	if (item.type === "melee") {
+		location = usr.hitLocationMelee.find((l) => l.roll.includes(total));
+		const baseLethality = item.system.lethality; // stun, light, moderate, serious, deadly
+		const lethalityMap = {
+			stun: 0,
+			light: 1,
+			moderate: 2,
+			serious: 3,
+			deadly: 4,
+		};
+		const lethalityReverse = ["x", "l", "m", "s", "d"]; // wounds keys
+
+		let lethIndex = lethalityMap[baseLethality] ?? 1;
+		if (location) lethIndex += location.lethality;
+		lethIndex = Math.clamp(lethIndex, 0, 4);
+		lethalityKey = lethalityReverse[lethIndex];
+	} else {
+		location = usr.hitLocationRanged.find((l) => l.roll.includes(total));
+		const mod = item.system.lethalityModifier ?? 0;
+		const lethalityMap = { x: 0, l: 1, m: 2, s: 3, d: 4 };
+		const lethalityReverse = ["x", "l", "m", "s", "d"];
+
+		let lethIndex = lethalityMap[location?.lethality ?? "l"];
+		lethIndex += mod;
+		lethIndex = Math.clamp(lethIndex, 0, 4);
+		lethalityKey = lethalityReverse[lethIndex];
+	}
+
+	const result = {
+		item: item.toObject ? item.toObject(false) : item,
+		location: location?.label ?? "Unknown",
+		lethality: usr.wounds[lethalityKey]?.label ?? "Unknown",
+		lethalityKey: lethalityKey,
+		damage: item.system.damage,
+		dice: roll.dice[0].results.map((r) => r.result),
+		total: total,
+	};
+
+	const content = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/helpers/damage-roll.hbs",
+		result,
+	);
+
+	const messageData = {
+		content,
+		speaker: ChatMessage.getSpeaker({ actor }),
+		flavor: `${item.name} - Damage & Location`,
+	};
+
+	return ChatMessage.create(messageData);
 }
 
 export function showRoll(roll, result, speaker, flavor = "") {

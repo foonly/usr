@@ -225,14 +225,50 @@
 		border: 1px solid var(--usr-border);
 		border-radius: 10px;
 		background: var(--usr-surface-1);
+		overflow: hidden;
 	}
 
 	.damage-resistance-table {
 		margin: 0;
+		width: 100%;
+		border-collapse: collapse;
 
-		th,
+		tbody {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0.2rem 1rem;
+		}
+
+		tr {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0.25rem 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+			&:first-child {
+				grid-column: 1 / -1;
+				border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+				margin-bottom: 0.2rem;
+			}
+		}
+
 		td {
-			text-align: center;
+			padding: 0;
+			border: none;
+
+			&.res-label {
+				color: var(--usr-text-muted);
+				font-weight: 700;
+				font-size: 0.75rem;
+				text-transform: uppercase;
+			}
+
+			&.res-value {
+				color: var(--usr-text-strong);
+				font-size: 1rem;
+				font-weight: 700;
+			}
 		}
 	}
 
@@ -247,11 +283,13 @@
 	.damage-monitor {
 		display: grid;
 		grid-template-columns: repeat(12, 1fr);
-		grid-template-rows: repeat(2, auto);
+		grid-template-rows: repeat(2, 30px);
 		border: 1px solid var(--usr-border);
 		border-radius: 10px;
 		overflow: hidden;
 		background: var(--usr-surface-1);
+		min-height: 60px;
+		width: 100%;
 
 		.mod {
 			background-color: rgba(184, 157, 116, 0.22);
@@ -259,6 +297,10 @@
 			color: var(--usr-text-muted);
 			text-align: center;
 			padding: 4px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.9rem;
 		}
 
 		.val {
@@ -266,7 +308,74 @@
 			text-align: center;
 			padding: 4px;
 			border: 1px solid var(--usr-border);
-			min-height: 24px;
+			min-height: 30px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: bold;
+
+			&.x {
+				background-color: rgba(127, 140, 141, 0.3);
+			}
+			&.l {
+				background-color: rgba(46, 204, 113, 0.3);
+			}
+			&.m {
+				background-color: rgba(241, 196, 15, 0.3);
+			}
+			&.s {
+				background-color: rgba(230, 126, 34, 0.3);
+			}
+			&.d {
+				background-color: rgba(192, 57, 43, 0.3);
+			}
+		}
+	}
+
+	.damage-roll {
+		.damage-details {
+			margin-top: 0.5rem;
+			padding: 0.5rem;
+			background: rgba(0, 0, 0, 0.2);
+			border-radius: 4px;
+			display: flex;
+			flex-direction: column;
+			gap: 0.2rem;
+		}
+
+		.detail-row {
+			display: flex;
+			justify-content: space-between;
+			font-size: 0.9rem;
+
+			.label {
+				color: var(--usr-text-muted);
+			}
+			.value {
+				font-weight: bold;
+				&.lethality-x {
+					color: #7f8c8d;
+				}
+				&.lethality-l {
+					color: #2ecc71;
+				}
+				&.lethality-m {
+					color: #f1c40f;
+				}
+				&.lethality-s {
+					color: #e67e22;
+				}
+				&.lethality-d {
+					color: #e74c3c;
+				}
+			}
+		}
+
+		.damage-total {
+			margin-top: 0.5rem;
+			color: var(--usr-text-strong);
+			border-top: 1px solid var(--usr-border);
+			padding-top: 0.5rem;
 		}
 	}
 

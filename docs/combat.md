@@ -1,4 +1,4 @@
-# Combat
+# USR System: Combat Rules (v2.0 Draft)
 
 ## Position
 
@@ -64,7 +64,7 @@ Roll dice based on stance/situation. **Add only the highest die** to your Initia
 |    6     |        80        |        150        |       300       |        700         |
 |    7     |       100        |        180        |       400       |        900         |
 
-## Weapons
+## Weapons & Armour
 
 ### Ranged Weapons
 
@@ -77,7 +77,7 @@ Roll dice based on stance/situation. **Add only the highest die** to your Initia
 ### Melee Weapons
 
 - **Damage:** 1 to ~8. This is the amount of damage the weapon makes.
-- **Lethality:** Stun, Light, Moderate, Deadly. The lethality of the damage the weapon causes.
+- **Lethality:** Stun, Light, Moderate, Serious, Deadly. The lethality of the damage the weapon causes.
 - **Quickness:** 0 to ~6. Speed and nibleness of the weapon.
 - **Impact:** 0 to ~4. The force of the weapons impact.
 - **Defence Bonus:** 0 to 3. The bonus to defence when using this weapon.

@@ -1,5 +1,7 @@
 # USR System: 1.0 reference
 
+This is only here for historical reference. We use the 2.0 draft for the implemented system.
+
 ## 1. Core Mechanics
 
 ### The Dice System
