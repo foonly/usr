@@ -69,6 +69,7 @@
 				font-size: 0.5em;
 				content: "*";
 			}
+
 			&.rolls-2::after {
 				vertical-align: super;
 				font-size: 0.5em;
@@ -96,9 +97,11 @@
 
 		.trait-specialization {
 			font-size: 0.9em;
+
 			.trait-label {
 				padding-left: 2rem;
 			}
+
 			.trait-value {
 				font-size: 1.5em;
 			}
@@ -188,9 +191,11 @@
 		color: #000;
 		font-weight: bold;
 		text-align: center;
+
 		&.d6 {
 			background-image: url("/icons/svg/d6-grey.svg");
 		}
+
 		&.d10 {
 			background-image: url("/icons/svg/d10-grey.svg");
 		}
@@ -317,15 +322,19 @@
 			&.x {
 				background-color: rgba(127, 140, 141, 0.3);
 			}
+
 			&.l {
 				background-color: rgba(46, 204, 113, 0.3);
 			}
+
 			&.m {
 				background-color: rgba(241, 196, 15, 0.3);
 			}
+
 			&.s {
 				background-color: rgba(230, 126, 34, 0.3);
 			}
+
 			&.d {
 				background-color: rgba(192, 57, 43, 0.3);
 			}
@@ -351,20 +360,26 @@
 			.label {
 				color: var(--usr-text-muted);
 			}
+
 			.value {
 				font-weight: bold;
+
 				&.lethality-x {
 					color: #7f8c8d;
 				}
+
 				&.lethality-l {
 					color: #2ecc71;
 				}
+
 				&.lethality-m {
 					color: #f1c40f;
 				}
+
 				&.lethality-s {
 					color: #e67e22;
 				}
+
 				&.lethality-d {
 					color: #e74c3c;
 				}

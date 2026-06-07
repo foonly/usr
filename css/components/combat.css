@@ -12,12 +12,15 @@
 			.stance {
 				text-transform: capitalize;
 				font-weight: bold;
+
 				&.aggressive {
 					color: #c0392b;
 				}
+
 				&.neutral {
 					color: #2980b9;
 				}
+
 				&.defensive {
 					color: #27ae60;
 				}
@@ -81,18 +84,22 @@
 					background: #27ae60;
 					color: white;
 				}
+
 				&.loss {
 					background: #c0392b;
 					color: white;
 				}
+
 				&.tie {
 					background: #f39c12;
 					color: white;
 				}
+
 				&.failed {
 					background: #7f8c8d;
 					color: white;
 				}
+
 				&.defensive {
 					background: #bdc3c7;
 					color: black;

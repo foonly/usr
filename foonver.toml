@@ -1,0 +1,3 @@
+changelog = true
+push = true
+versionSync = ["system.json"]

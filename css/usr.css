@@ -1,15 +1,14 @@
-// Import utilities.
-@use "global/window";
-@use "global/grid";
-@use "global/flex";
+@import "global/window.css";
+@import "global/grid.css";
+@import "global/flex.css";
 
-@use "components/forms";
-@use "components/combat";
-@use "components/char";
-@use "components/trait-sheet";
-@use "components/weapon-cards";
+@import "components/forms.css";
+@import "components/combat.css";
+@import "components/char.css";
+@import "components/trait-sheet.css";
+@import "components/weapon-cards.css";
 
-// Add custom fonts by visiting and search https://fonts.google.com
+/* Add custom fonts by visiting and search https://fonts.google.com */
 @import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
 
 :root {
