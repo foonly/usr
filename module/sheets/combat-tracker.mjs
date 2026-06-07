@@ -46,11 +46,6 @@ export class usrCombatTracker
 		context.phaseName = phaseNames[context.phase];
 
 		if (partId === "tracker") {
-			context.initiativeIcon = CONFIG.Combat.initiativeIcon;
-			console.log(
-				"USR Combat Tracker | Initiative Icon from CONFIG:",
-				context.initiativeIcon,
-			);
 			for (const t of context.turns || []) {
 				const combatant = combat.combatants.get(t.id);
 				if (!combatant) continue;
