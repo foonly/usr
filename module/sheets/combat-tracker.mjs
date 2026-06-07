@@ -108,12 +108,17 @@ export class usrCombatTracker
 			.filter((c) => c.id !== combatantId)
 			.map((c) => ({ id: c.id, name: c.name }));
 
+		const isCustomTarget = action.targetId?.startsWith("custom:");
+		if (isCustomTarget) {
+			action.customTargetName = action.targetId.replace("custom:", "");
+		}
+
 		const content = await foundry.applications.handlebars.renderTemplate(
 			"systems/usr/templates/combat/action-selection.hbs",
 			{
 				action,
 				targets,
-				isCustomTarget: action.targetId?.startsWith("custom:"),
+				isCustomTarget,
 				stances: {
 					aggressive: "Aggressive",
 					neutral: "Neutral",
@@ -179,18 +184,31 @@ export class usrCombatTracker
 		dialog.render(true).then(() => {
 			const html = dialog.element;
 			const stanceSelector = html.querySelector(".stance-selector");
+			const typeSelector = html.querySelector('select[name="targetType"]');
 			const movementSelector = html.querySelector('select[name="movement"]');
 			const targetGroup = html.querySelector(".target-group");
+			const combatantSelector = html.querySelector(".target-id-selector");
+			const customInput = html.querySelector(".custom-target-input");
 			const fastOption = movementSelector.querySelector('option[value="fast"]');
 
 			const updateForm = () => {
 				const stance = stanceSelector.value;
+				const targetType = typeSelector.value;
 
 				// Handle Target Visibility
 				if (stance === "defensive") {
 					targetGroup.style.display = "none";
 				} else {
 					targetGroup.style.display = "flex";
+				}
+
+				// Handle Target Type Toggling
+				if (targetType === "custom") {
+					combatantSelector.style.display = "none";
+					customInput.style.display = "block";
+				} else {
+					combatantSelector.style.display = "block";
+					customInput.style.display = "none";
 				}
 
 				// Handle Fast Movement Availability
@@ -205,6 +223,7 @@ export class usrCombatTracker
 			};
 
 			stanceSelector.addEventListener("change", updateForm);
+			typeSelector.addEventListener("change", updateForm);
 			updateForm(); // Initial call
 		});
 	}

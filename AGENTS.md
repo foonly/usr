@@ -13,7 +13,7 @@ The project follows the standard Foundry VTT system structure, utilizing modern 
   - `sheets/`: Custom sheet classes (`actor-sheet.mjs`, `item-sheet.mjs`) extending `foundry.applications.sheets.ActorSheet/ItemSheet`.
   - `helpers/`: Utility functions and configuration constants.
 - `usr/templates/`: Handlebars (`.hbs`) files defining the HTML structure of character sheets and other UI elements.
-- `usr/scss/` & `usr/css/`: Styling for the system.
+- `usr/css/`: Styling for the system.
 - `usr/lang/`: Localization files (English provided in `en.json`).
 - `usr/docs/`: Documentation for the USR system rules (Core Rules, Combat, Character Generation).
 - `usr/system.json`: The manifest file that tells Foundry how to load the system.
@@ -25,26 +25,12 @@ The project follows the standard Foundry VTT system structure, utilizing modern 
 - [Foundry VTT](https://foundryvtt.com/) installed.
 - [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) installed.
 
-### Setup
-
-The project uses a `Makefile` to simplify development tasks, particularly linking the development folder to your Foundry Data directory.
-
-1.  Configure the `Makefile` with your Foundry Data path if necessary.
-2.  Install dependencies:
-    ```bash
-    pnpm install
-    ```
-3.  Link the system to your Foundry installation:
-    ```bash
-    make link
-    ```
-
 ### Key Technologies
 
 - **Foundry VTT API**: Specifically compatible with v12 and v14.
 - **DataModels**: Used for structured data validation and default values.
 - **Handlebars**: Templating engine for UI.
-- **SCSS**: CSS preprocessor for manageable styles.
+- **CSS**: Modern CSS with variables, nesting and imports.
 - **ES Modules**: Modern JavaScript module system.
 
 ## Core Concepts

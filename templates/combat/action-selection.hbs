@@ -30,18 +30,14 @@
                 <option value="custom" {{#if isCustomTarget}}selected{{/if}}>{{localize "USR.Custom"}}</option>
             </select>
 
-            {{#unless isCustomTarget}}
-            <select name="targetId">
+            <select name="targetId" class="target-id-selector" {{#if isCustomTarget}}style="display: none;"{{/if}}>
                 <option value="">-- None --</option>
                 {{#each targets}}
                 <option value="{{this.id}}" {{#if (eq ../action.targetId this.id)}}selected{{/if}}>{{this.name}}</option>
                 {{/each}}
             </select>
-            {{/unless}}
 
-            {{#if isCustomTarget}}
-            <input type="text" name="customTarget" value="{{action.targetName}}" placeholder="Custom Target...">
-            {{/if}}
+            <input type="text" name="customTarget" class="custom-target-input" {{#unless isCustomTarget}}style="display: none;"{{/unless}} value="{{action.customTargetName}}" placeholder="Custom Target...">
         </div>
     </div>
 
