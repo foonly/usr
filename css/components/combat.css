@@ -1,0 +1,131 @@
+.combat-tracker {
+	.combatant {
+		&.acted {
+			opacity: 0.6;
+			background: rgba(0, 0, 0, 0.2);
+		}
+
+		.combatant-details {
+			font-size: 0.8rem;
+			color: var(--color-text-dark-secondary);
+
+			.stance {
+				text-transform: capitalize;
+				font-weight: bold;
+
+				&.aggressive {
+					color: #c0392b;
+				}
+
+				&.neutral {
+					color: #2980b9;
+				}
+
+				&.defensive {
+					color: #27ae60;
+				}
+			}
+
+			.target {
+				margin-left: 5px;
+				font-style: italic;
+			}
+
+			.action-status {
+				&.ready {
+					color: #27ae60;
+				}
+			}
+
+			.action-type {
+				margin-left: 4px;
+				font-size: 0.9rem;
+				vertical-align: middle;
+			}
+		}
+
+		.token-initiative {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 2px;
+
+			.combatant-control.roll {
+				background-image: var(--initiative-icon);
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
+				border: none;
+				width: 24px;
+				height: 24px;
+				cursor: pointer;
+				opacity: 0.7;
+
+				&:hover {
+					opacity: 1;
+					background-image: var(--initiative-icon-hover);
+				}
+			}
+
+			.successes {
+				font-weight: bold;
+				font-size: 1.1rem;
+				color: var(--color-text-dark-primary);
+			}
+
+			.status {
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				padding: 1px 4px;
+				border-radius: 3px;
+
+				&.win {
+					background: #27ae60;
+					color: white;
+				}
+
+				&.loss {
+					background: #c0392b;
+					color: white;
+				}
+
+				&.tie {
+					background: #f39c12;
+					color: white;
+				}
+
+				&.failed {
+					background: #7f8c8d;
+					color: white;
+				}
+
+				&.defensive {
+					background: #bdc3c7;
+					color: black;
+				}
+			}
+		}
+	}
+}
+
+.phase-indicator {
+	font-size: 0.75rem;
+	color: var(--color-text-dark-secondary);
+	font-weight: normal;
+}
+
+.usr.action-selection {
+	select,
+	textarea,
+	input {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	label {
+		font-weight: bold;
+		margin-bottom: 4px;
+		display: block;
+	}
+}

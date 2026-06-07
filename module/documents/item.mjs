@@ -1,3 +1,6 @@
+// Import helper/utility classes and constants.
+import { usrRoll } from "../helpers/roll.mjs";
+
 /**
  * Extend the basic Item with some very simple modifications.
  * @extends {Item}
@@ -24,6 +27,24 @@ export class usrItem extends Item {
 	 */
 	async roll() {
 		const item = this;
+		const actor = this.actor;
+		if (!actor) return;
+
+		// Handle weapons
+		if (item.type === "melee" || item.type === "ranged") {
+			const trait = item.type === "melee" ? "melee" : "ranged";
+			const spec = item.system.specialization || "";
+			const label = `${item.name} (${item.type === "melee" ? "Melee" : "Ranged"} Attack)`;
+
+			return usrRoll({
+				actor,
+				item,
+				trait,
+				spec,
+				flavor: label,
+				difficulty: 4, // Default to Normal
+			});
+		}
 
 		// Initialize chat data.
 		const speaker = ChatMessage.getSpeaker({ actor: this.actor });

@@ -2,8 +2,12 @@ import { usr } from "./config.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
-export function usrRoll(data) {
-	const traits = data.actor?.system?.traits ?? [];
+export async function usrRoll(data) {
+	const traits = data.actor?.system?.traits;
+	if (!traits) {
+		console.error("USR | usrRoll: Actor has no traits:", data.actor);
+		return { roll: null, result: null };
+	}
 	data.specialization = Number.isFinite(data.specialization)
 		? data.specialization
 		: 0;
@@ -12,15 +16,36 @@ export function usrRoll(data) {
 	if (data.trait) {
 		const trait = traits[data.trait];
 		if (!trait) {
+			console.error(
+				`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
+				data.actor,
+			);
 			ui.notifications.warn(
 				`Could not find trait "${data.trait}" for this roll.`,
 			);
-			return;
+			return { roll: null, result: null };
 		}
 		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
 		if (data.spec && Array.isArray(trait.spec)) {
+			// Find specialization by title (case insensitive) or by translating the internal key
+			const targetTitle = data.spec.toLowerCase();
+			const translatedTitle =
+				usr.meleeSpecializations[data.spec] ||
+				usr.rangedSpecializations[data.spec]
+					? game.i18n
+							.localize(
+								usr.meleeSpecializations[data.spec] ||
+									usr.rangedSpecializations[data.spec],
+							)
+							.toLowerCase()
+					: "";
+
 			trait.spec.forEach((spec) => {
-				if (data.spec === spec.title) {
+				const specTitle = spec.title.toLowerCase();
+				if (
+					targetTitle === specTitle ||
+					(translatedTitle && translatedTitle === specTitle)
+				) {
 					data.specialization = Number.isFinite(spec.value) ? spec.value : 0;
 				}
 			});
@@ -31,123 +56,255 @@ export function usrRoll(data) {
 	if (data.skill <= data.specialization) {
 		data.specialization = data.skill - 1;
 	}
-	// Since difficulty goes from down from 1 to -2, a difficulty of 0 or -1 should be converted to -2.
-	if (data.difficulty < 1 && data.difficulty > -2) {
-		data.difficulty = -2;
-	}
-	const nr = Math.abs(data.difficulty);
-
-	new Roll(`${nr}d10`).evaluate().then(async (roll) => {
+	const damageMod = data.actor.system.damage?.modifier ?? 0;
+	if (damageMod < -9) {
+		const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 		const result = {
-			difficulty: data.difficulty,
-			skill: data.skill,
-			specialization: data.specialization,
-			type: "d10",
+			formula: `Difficulty: ${data.difficulty} (Incapacitated)`,
+			total: "Automatic Fail (Incapacitated)",
 			dice: [],
 			successes: 0,
-			critical: false,
-			formula: "",
-			total: "",
+			damageModifier: damageMod,
 		};
+		if (data.createMessage !== false) {
+			showRoll(null, result, speaker, data.flavor);
+		}
+		return { roll: null, result };
+	}
 
-		/* Start tens and ones at -1, because we start counting from the second one. */
-		let ones = -1;
-		let tens = -1;
-		let failed = false;
+	// Apply damage penalty to difficulty (number of dice)
+	const originalDifficulty = data.difficulty;
+	if (damageMod < 0) {
+		const diffSequence = [6, 5, 4, 3, 2, 1, -2, -3, -4, -5, -6, -7];
+		let currentIndex = diffSequence.indexOf(originalDifficulty);
+		if (currentIndex === -1) currentIndex = 2; // Default to Normal (Index 2)
 
-		for (const die of roll.dice[0].results) {
-			result.dice.push({
-				value: die.result,
-				success: die.result <= result.skill,
-			});
-			if (result.difficulty < 0) {
-				if (die.result > result.skill) {
-					failed = true;
-				}
-			} else {
-				if (die.result <= result.skill) {
-					result.successes++;
-				}
+		const penalty = Math.abs(damageMod);
+		const newIndex = Math.min(diffSequence.length - 1, currentIndex + penalty);
+		data.difficulty = diffSequence[newIndex];
+	}
+
+	const nr = Math.abs(data.difficulty);
+	const roll = await new Roll(`${nr}d10`).evaluate();
+	const result = {
+		difficulty: data.difficulty,
+		originalDifficulty: originalDifficulty,
+		skill: data.skill,
+		specialization: data.specialization,
+		type: "d10",
+		dice: [],
+		successes: 0,
+		critical: false,
+		formula: "",
+		total: "",
+		damageModifier: damageMod,
+	};
+
+	/* Start tens and ones at -1, because we start counting from the second one. */
+	let ones = -1;
+	let tens = -1;
+	let failed = false;
+
+	for (const die of roll.dice[0].results) {
+		result.dice.push({
+			value: die.result,
+			success: die.result <= result.skill,
+		});
+		if (result.difficulty < 0) {
+			if (die.result > result.skill) {
+				failed = true;
 			}
-			if (die.result <= result.specialization) {
+		} else {
+			if (die.result <= result.skill) {
 				result.successes++;
 			}
-			if (die.result === 1) {
-				ones++;
-			}
-			if (die.result === 10) {
-				tens++;
-			}
 		}
+		if (die.result <= result.specialization) {
+			result.successes++;
+		}
+		if (die.result === 1) {
+			ones++;
+		}
+		if (die.result === 10) {
+			tens++;
+		}
+	}
 
-		if (ones > 0) {
-			result.successes += ones;
+	if (ones > 0) {
+		result.successes += ones;
+		result.critical = true;
+	}
+
+	if (tens > 0) {
+		result.successes -= tens;
+		if (result.successes < 0) {
+			result.successes = 0;
 			result.critical = true;
 		}
+	}
 
-		if (tens > 0) {
-			result.successes -= tens;
-			if (result.successes < 0) {
-				result.successes = 0;
-				result.critical = true;
-			}
+	if (result.difficulty < 0) {
+		if (failed) {
+			result.successes = 0;
+		} else {
+			result.successes++;
 		}
+	}
 
-		if (result.difficulty < 0) {
-			if (failed) {
-				result.successes = 0;
-			} else {
-				result.successes++;
-			}
-		}
-
+	if (result.damageModifier < 0) {
+		result.formula = `Difficulty: ${result.difficulty} (${result.originalDifficulty}${result.damageModifier}) / Skill: ${result.skill}`;
+	} else {
 		result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
-		if (result.specialization > 0) {
-			result.formula += ` (${result.specialization})`;
-		}
-		result.total =
-			(result.critical ? "Critical " : "") +
-			(result.successes ? result.successes + " Successes" : "Fail");
+	}
 
-		const speaker = ChatMessage.getSpeaker({ actor: data.actor });
+	if (result.specialization > 0) {
+		result.formula += ` (${result.specialization})`;
+	}
 
-		showRoll(roll, result, speaker, data.flavor);
+	result.total =
+		(result.critical ? "Critical " : "") +
+		(result.successes ? result.successes + " Successes" : "Fail");
 
-		if (!result.critical && data.trait && data.actor) {
-			const updatedTraits = foundry.utils.deepClone(traits);
-			let awarded = false;
-			if (data.trait) {
-				const trait = updatedTraits[data.trait];
-				if (!trait) return;
-				if (data.spec && Array.isArray(trait.spec)) {
-					trait.spec.forEach((spec) => {
-						if (data.spec === spec.title) {
-							const specValue = Number.isFinite(spec.value) ? spec.value : 0;
-							const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
-							if (
-								specValue < 3 &&
-								(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
-							) {
-								awarded = true;
-								spec.roll = specRoll + 1;
-							}
-						}
-					});
-				}
-				if (!awarded) {
-					const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
-					const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
-					if (
-						traitValue < 7 &&
-						(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
-					) {
-						trait.roll = traitRoll + 1;
-					}
+	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
+
+	if (data.createMessage !== false) {
+		let flavor = data.flavor || "";
+		if (data.spec) {
+			const specLabelKey =
+				usr.meleeSpecializations[data.spec] ||
+				usr.rangedSpecializations[data.spec];
+			if (specLabelKey) {
+				const specLabel = game.i18n.localize(specLabelKey);
+				// If flavor already starts with weapon name, insert specialization
+				if (flavor.includes("(") && flavor.includes(")")) {
+					flavor = flavor.replace("(", `(${specLabel} - `);
+				} else {
+					flavor = `${flavor} (${specLabel})`;
 				}
 			}
-			await data.actor.update({ "system.traits": updatedTraits });
 		}
-	});
+		if (result.damageModifier < 0 && result.damageModifier >= -9) {
+			flavor += ` (${result.damageModifier} Damage Penalty)`;
+		}
+		showRoll(roll, result, speaker, flavor);
+	}
+
+	// Handle damage roll if it's a weapon and has successes
+	if (
+		result.successes > 0 &&
+		data.item &&
+		(data.item.type === "melee" || data.item.type === "ranged")
+	) {
+		const item = data.item.toObject
+			? data.item
+			: data.actor.items.get(data.item._id || data.item.id);
+		if (item) {
+			try {
+				await rollDamage(data.actor, item);
+			} catch (err) {
+				console.error("USR | Damage roll failed:", err);
+			}
+		} else {
+			console.warn(
+				"USR | Item ID was provided but no item was found on the actor.",
+			);
+		}
+	}
+
+	if (!result.critical && data.trait && data.actor) {
+		const updatedTraits = foundry.utils.deepClone(traits);
+		let awarded = false;
+		if (data.trait) {
+			const trait = updatedTraits[data.trait];
+			if (!trait) return { roll, result };
+			if (data.spec && Array.isArray(trait.spec)) {
+				trait.spec.forEach((spec) => {
+					if (data.spec === spec.title) {
+						const specValue = Number.isFinite(spec.value) ? spec.value : 0;
+						const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
+						if (
+							specValue < 3 &&
+							(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
+						) {
+							awarded = true;
+							spec.roll = specRoll + 1;
+						}
+					}
+				});
+			}
+			if (!awarded) {
+				const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
+				const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
+				if (
+					traitValue < 7 &&
+					(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
+				) {
+					trait.roll = traitRoll + 1;
+				}
+			}
+		}
+		await data.actor.update({ "system.traits": updatedTraits });
+	}
+
+	return { roll, result };
+}
+
+export async function rollDamage(actor, item) {
+	const roll = await new Roll("2d10").evaluate();
+	const total = roll.total;
+	let location = null;
+	let lethalityKey = "l";
+
+	if (item.type === "melee") {
+		location = usr.hitLocationMelee.find((l) => l.roll.includes(total));
+		const baseLethality = item.system.lethality; // stun, light, moderate, serious, deadly
+		const lethalityMap = {
+			stun: 0,
+			light: 1,
+			moderate: 2,
+			serious: 3,
+			deadly: 4,
+		};
+		const lethalityReverse = ["x", "l", "m", "s", "d"]; // wounds keys
+
+		let lethIndex = lethalityMap[baseLethality] ?? 1;
+		if (location) lethIndex += location.lethality;
+		lethIndex = Math.clamp(lethIndex, 0, 4);
+		lethalityKey = lethalityReverse[lethIndex];
+	} else {
+		location = usr.hitLocationRanged.find((l) => l.roll.includes(total));
+		const mod = item.system.lethalityModifier ?? 0;
+		const lethalityMap = { x: 0, l: 1, m: 2, s: 3, d: 4 };
+		const lethalityReverse = ["x", "l", "m", "s", "d"];
+
+		let lethIndex = lethalityMap[location?.lethality ?? "l"];
+		lethIndex += mod;
+		lethIndex = Math.clamp(lethIndex, 0, 4);
+		lethalityKey = lethalityReverse[lethIndex];
+	}
+
+	const result = {
+		item: item.toObject ? item.toObject(false) : item,
+		location: location?.label ?? "Unknown",
+		lethality: usr.wounds[lethalityKey]?.label ?? "Unknown",
+		lethalityKey: lethalityKey,
+		damage: item.system.damage,
+		dice: roll.dice[0].results.map((r) => r.result),
+		total: total,
+	};
+
+	const content = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/helpers/damage-roll.hbs",
+		result,
+	);
+
+	const messageData = {
+		content,
+		speaker: ChatMessage.getSpeaker({ actor }),
+		flavor: `${item.name} - Damage & Location`,
+	};
+
+	return ChatMessage.create(messageData);
 }
 
 export function showRoll(roll, result, speaker, flavor = "") {

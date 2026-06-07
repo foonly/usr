@@ -56,6 +56,53 @@
 		data-group="primary"
 		data-tab="attributes"
 	>
-		{{!-- As you add new fields, add them in here! --}}
+		<div class="form-group">
+			<label>{{localize "USR.Weight"}}</label>
+			<input type="number" name="system.weight" value="{{system.weight}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Damage"}}</label>
+			<input type="number" name="system.damage" value="{{system.damage}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.WeaponType"}}</label>
+			<select name="system.specialization">
+				{{selectOptions
+					config.meleeSpecializations
+					selected=system.specialization
+					localize=true
+				}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Lethality"}}</label>
+			<select name="system.lethality">
+				{{selectOptions
+					config.lethalityTypes
+					selected=system.lethality
+					localize=true
+				}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Quickness"}}</label>
+			<input type="number" name="system.quickness" value="{{system.quickness}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Impact"}}</label>
+			<input type="number" name="system.impact" value="{{system.impact}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.DefenseBonus"}}</label>
+			<input
+				type="number"
+				name="system.defenseBonus"
+				value="{{system.defenseBonus}}"
+			/>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Reach"}}</label>
+			<input type="number" name="system.reach" value="{{system.reach}}" />
+		</div>
 	</div>
 </section>

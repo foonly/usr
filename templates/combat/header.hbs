@@ -1,0 +1,70 @@
+<header class="combat-tracker-header">
+
+    {{!-- Encounter Controls --}}
+    {{#if user.isGM}}
+    <nav class="encounters {{ css }}" aria-label="{{ localize "COMBAT.NavLabel" }}">
+
+        {{!-- Tabbed Display --}}
+        {{#if combats.length}}
+        <button type="button" class="inline-control icon fa-solid fa-plus" data-action="createCombat"
+                data-tooltip aria-label="{{ localize "COMBAT.Create" }}"></button>
+        {{#each combats}}
+        <button type="button" class="inline-control {{#if active}}active{{/if}}" data-action="cycleCombat"
+                data-combat-id="{{ id }}" {{#if name}}data-tooltip aria-label="{{name}}"{{/if}}>
+            {{ label }}
+        </button>
+        {{/each}}
+        <button type="button" class="inline-control icon fa-solid fa-gear" data-action="trackerSettings"
+                data-tooltip aria-label="{{ localize "COMBAT.Settings" }}"></button>
+
+        {{!-- No Combats --}}
+        {{else}}
+        <button type="button" class="combat-control-lg" data-action="createCombat">
+            <i class="fa-solid fa-plus" inert></i>
+            <span>{{ localize "COMBAT.Create" }}</span>
+        </button>
+
+        {{/if}}
+    </nav>
+    {{/if}}
+
+    {{!-- Encounter Name --}}
+    {{#if combat.name}}
+    <h2 class="encounter-name">{{ combat.name }}</h2>
+    {{/if}}
+
+    <div class="encounter-controls {{#if hasCombat}}combat{{/if}}">
+
+        {{!-- Bulk Rolls --}}
+        <div class="control-buttons left flexrow">
+            {{#if (and user.isGM (eq phase 2))}}
+            <button type="button" class="inline-control combat-control icon fa-solid fa-dice" data-action="rollAll"
+                    {{#unless combat.turns.length}}disabled{{/unless}} data-tooltip="USR.RollInitiativeAll"
+                    aria-label="{{ localize "USR.RollInitiativeAll" }}"></button>
+            {{/if}}
+        </div>
+
+        {{!-- Combat Status & Phase --}}
+        <div class="encounter-title flexcol">
+            <strong>
+                {{#if combat.round}}
+                {{ localize "COMBAT.Round" round=combat.round }}
+                {{else}}
+                {{ localize "COMBAT.NotStarted" }}
+                {{/if}}
+            </strong>
+            {{#if (and hasCombat combat.round)}}
+            <span class="phase-indicator">Phase {{ phase }}: {{ phaseName }}</span>
+            {{/if}}
+        </div>
+
+        {{!-- Combat Controls --}}
+        <div class="control-buttons right flexrow">
+            <div class="spacer"></div>
+            <button type="button" class="encounter-context-menu inline-control combat-control icon fa-solid fa-ellipsis-vertical"
+                    {{#unless (and user.isGM hasCombat)}}disabled{{/unless}}></button>
+        </div>
+
+    </div>
+
+</header>

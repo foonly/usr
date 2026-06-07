@@ -4,13 +4,17 @@
  * @return {Promise}
  */
 export const preloadHandlebarsTemplates = async function () {
-  return foundry.applications.handlebars.loadTemplates([
-    // Actor partials.
-    "systems/usr/templates/actor/parts/actor-biography.hbs",
-    "systems/usr/templates/actor/parts/actor-combat.hbs",
-    "systems/usr/templates/actor/parts/actor-traits.hbs",
-    "systems/usr/templates/actor/parts/actor-trait.hbs",
-    "systems/usr/templates/actor/parts/actor-knowledge.hbs",
-    "systems/usr/templates/actor/parts/actor-items.hbs",
-  ]);
+	return foundry.applications.handlebars.loadTemplates([
+		// Actor partials.
+		"systems/usr/templates/actor/parts/actor-biography.hbs",
+		"systems/usr/templates/actor/parts/actor-combat.hbs",
+		"systems/usr/templates/actor/parts/actor-traits.hbs",
+		"systems/usr/templates/actor/parts/actor-trait.hbs",
+		"systems/usr/templates/actor/parts/actor-knowledge.hbs",
+		"systems/usr/templates/actor/parts/actor-items.hbs",
+
+		// Helper partials
+		"systems/usr/templates/helpers/roll.hbs",
+		"systems/usr/templates/helpers/damage-roll.hbs",
+	]);
 };

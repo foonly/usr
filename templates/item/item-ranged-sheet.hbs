@@ -56,6 +56,63 @@
 		data-group="primary"
 		data-tab="attributes"
 	>
-		{{!-- As you add new fields, add them in here! --}}
+		<div class="form-group">
+			<label>{{localize "USR.Weight"}}</label>
+			<input type="number" name="system.weight" value="{{system.weight}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Damage"}}</label>
+			<input type="number" name="system.damage" value="{{system.damage}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.WeaponType"}}</label>
+			<select name="system.specialization">
+				{{selectOptions
+					config.rangedSpecializations
+					selected=system.specialization
+					localize=true
+				}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Accuracy"}}</label>
+			<input
+				type="number"
+				name="system.accuracy"
+				value="{{system.accuracy}}"
+				min="1"
+				max="7"
+			/>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Penetration"}}</label>
+			<input
+				type="number"
+				name="system.penetration"
+				value="{{system.penetration}}"
+			/>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.LethalityModifier"}}</label>
+			<input
+				type="number"
+				name="system.lethalityModifier"
+				value="{{system.lethalityModifier}}"
+				min="-4"
+				max="2"
+			/>
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Shots"}}</label>
+			<input type="number" name="system.shots" value="{{system.shots}}" min="1" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Reload"}}</label>
+			<input type="number" name="system.reload" value="{{system.reload}}" min="1" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Ammo"}}</label>
+			<input type="number" name="system.ammo" value="{{system.ammo}}" min="0" />
+		</div>
 	</div>
 </section>

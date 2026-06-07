@@ -1,5 +1,6 @@
 <section class="combat-overview">
 	<h3 class="section-header">Damage Monitor</h3>
+	{{#if system.damage.monitor}}
 	<div class="damage-monitor">
 		{{#each system.damage.monitor}}
 		<div class="mod">{{modifier}}</div>
@@ -7,24 +8,21 @@
 		<div class="val {{value}}">{{value}}</div>
 		{{/each}}
 	</div>
+	{{/if}}
 
 	<div class="combat-summary grid grid-2col">
 		<section class="combat-card">
 			<h4 class="subsection-header">Resistance</h4>
 			<table class="damage-resistance-table">
-				<thead>
-					<tr>
-						{{#each system.damage.resistance as |value type|}}
-						<th>{{type}}</th>
-						{{/each}}
-					</tr>
-				</thead>
 				<tbody>
+					{{#each system.damage.resistance as |value type|}}
 					<tr>
-						{{#each system.damage.resistance as |value type|}}
-						<td>{{value}}</td>
-						{{/each}}
+						<td class="res-label">
+							{{localize (concat "USR.DamageResistance" type)}}
+						</td>
+						<td class="res-value">{{value}}</td>
 					</tr>
+					{{/each}}
 				</tbody>
 			</table>
 		</section>
@@ -38,6 +36,127 @@
 			</div>
 		</section>
 	</div>
+
+	<section class="combat-weapons">
+		<h3 class="section-header">Weapons</h3>
+		<div class="weapon-cards">
+			{{#each melee as |item id|}}
+			<div class="weapon-card melee-card item" data-item-id="{{_id}}">
+				<div class="card-header">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="32"
+						height="32"
+					/>
+					<h4 class="weapon-name">{{item.name}}</h4>
+					<div class="weapon-controls">
+						<a
+							class="item-control item-edit"
+							title="Edit Item"
+							data-item-id="{{_id}}"
+							><i class="fas fa-edit"></i
+						></a>
+					</div>
+				</div>
+				<div class="card-stats">
+					<div class="stat">
+						<span class="label">{{localize "USR.Damage"}}:</span>
+						<span class="value"
+							>{{item.system.damage}} ({{item.system.lethality}})</span
+						>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.DefenseBonus"}}:</span>
+						<span class="value">{{item.system.defenseBonus}}</span>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.Reach"}}:</span>
+						<span class="value">{{item.system.reach}}</span>
+					</div>
+				</div>
+				<button class="rollable weapon-roll" data-roll-type="item">
+					<i class="fas fa-dice"></i> {{localize "USR.Actions"}}
+				</button>
+			</div>
+			{{/each}} {{#each ranged as |item id|}}
+			<div class="weapon-card ranged-card item" data-item-id="{{_id}}">
+				<div class="card-header">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="32"
+						height="32"
+					/>
+					<h4 class="weapon-name">{{item.name}}</h4>
+					<div class="weapon-controls">
+						<a
+							class="item-control item-edit"
+							title="Edit Item"
+							data-item-id="{{_id}}"
+							><i class="fas fa-edit"></i
+						></a>
+					</div>
+				</div>
+				<div class="card-stats">
+					<div class="stat">
+						<span class="label">{{localize "USR.Damage"}}:</span>
+						<span class="value">{{item.system.damage}}</span>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.Penetration"}}:</span>
+						<span class="value">{{item.system.penetration}}</span>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.Shots"}}:</span>
+						<span class="value"
+							>{{item.system.ammo}}/{{item.system.shots}}</span
+						>
+					</div>
+				</div>
+
+				<div class="range-tables">
+					<div class="range-group">
+						<div class="group-label">{{localize "USR.Normal"}}</div>
+						<div class="range-grid">
+							{{#each item.rangeTables.normal}}
+							<button
+								class="range-roll rollable"
+								data-roll-usr="{{dice}}"
+								data-label="{{../name}} ({{localize label}})"
+								data-trait="ranged"
+								data-spec="{{../system.specialization}}"
+								data-item-id="{{../_id}}"
+							>
+								<span class="range-label">{{localize label}} ({{dice}}D)</span>
+								<span class="range-value">{{value}}</span>
+							</button>
+							{{/each}}
+						</div>
+					</div>
+					<div class="range-group">
+						<div class="group-label">{{localize "USR.Aimed"}}</div>
+						<div class="range-grid">
+							{{#each item.rangeTables.aimed}}
+							<button
+								class="range-roll rollable"
+								data-roll-usr="{{dice}}"
+								data-label="{{../name}} ({{localize label}} - Aimed)"
+								data-trait="ranged"
+								data-spec="{{../system.specialization}}"
+								data-item-id="{{../_id}}"
+							>
+								<span class="range-label">{{localize label}} ({{dice}}D)</span>
+								<span class="range-value">{{value}}</span>
+							</button>
+							{{/each}}
+						</div>
+					</div>
+				</div>
+			</div>
+			{{/each}}
+		</div>
+	</section>
 
 	<h3 class="section-header">Combat Traits</h3>
 	<table class="traits-table combat-traits">
