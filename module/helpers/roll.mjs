@@ -199,7 +199,6 @@ export async function usrRoll(data) {
 			? data.item
 			: data.actor.items.get(data.item._id || data.item.id);
 		if (item) {
-			console.log("USR | Found weapon, triggering damage roll for", item.name);
 			try {
 				await rollDamage(data.actor, item);
 			} catch (err) {
@@ -251,7 +250,6 @@ export async function usrRoll(data) {
 }
 
 export async function rollDamage(actor, item) {
-	console.log("USR | rollDamage starting for", item.name);
 	const roll = await new Roll("2d10").evaluate();
 	const total = roll.total;
 	let location = null;
