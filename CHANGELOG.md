@@ -26,8 +26,13 @@
 - restructure core rules and add character progression (ae414b2)
 - add USR System core rules documentation (cd5f2d1)
 
+#### Continuous Integration
+
+- github: remove unnecessary build steps from release workflow (568e1d2)
+
 #### Maintenance
 
+- build: revert version to 0.4.5 (112bbb4)
 - build: rename versionSync to version-sync in foonver.toml (d623e8e)
 - build: remove SASS compilation and Makefile (ed46b9d)
 
