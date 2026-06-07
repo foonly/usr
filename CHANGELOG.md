@@ -1,6 +1,45 @@
 # Changelog
 
-## 0.4.0 (2026-06-03)
+## 0.5.0 (2026-06-07)
+
+#### Features
+
+- combat: implement dynamic custom target toggling in action selection (faf27b6)
+- roll: implement damage penalties and improve weapon roll handling (4c8863c)
+- items: implement expanded weapon and armor data models (a81b35b)
+- combat: implement USR phase-based combat tracker (fd1bbef)
+
+#### Bug Fixes
+
+- combat: add missing item ID to combat weapon edit buttons and remove debug logs (3459ce4)
+
+#### Refactor
+
+- roll: remove debug console logs from roll and sheet logic (dfe904e)
+- data: migrate templates to DataModels (42e57ec)
+
+#### Documentation
+
+- update README with project details and compatibility info (ea5f4ba)
+- combat: add hitlocation and range tables and weapon definitions (a65f1e7)
+- refactor combat documentation (09552a6)
+- restructure core rules and add character progression (ae414b2)
+- add USR System core rules documentation (cd5f2d1)
+
+#### Maintenance
+
+- build: rename versionSync to version-sync in foonver.toml (d623e8e)
+- build: remove SASS compilation and Makefile (ed46b9d)
+
+### v0.4.3 (2026-06-03)
+
+#### Maintenance
+
+- version: bump version to 0.4.2 (7182fb0)
+
+### v0.4.1 (2026-06-03)
+
+## v0.4.0 (2026-06-03)
 
 #### Features
 
