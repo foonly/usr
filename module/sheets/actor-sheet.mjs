@@ -362,6 +362,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		const data = foundry.utils.deepClone(header.dataset);
 		const typeLabel = (type ?? "item").toString();
 		const prettyType = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1);
+
 		const itemData = {
 			name: `New ${prettyType}`,
 			type: type ?? "item",

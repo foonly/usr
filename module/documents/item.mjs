@@ -21,6 +21,26 @@ export class usrItem extends Item {
 	}
 
 	/**
+	 * Handle attack and defend
+	 * @param {Event} event   The originating click event
+	 * @private
+	 */
+	async _preCreate(data, options, user) {
+		await super._preCreate(data, options, user);
+
+		// Assign default icons based on item type
+		const imgMap = {
+			melee: "icons/weapons/swords/shortsword-guard.webp",
+			ranged: "icons/weapons/bows/shortbow-recurve.webp",
+			armor: "icons/equipment/chest/breastplate-layered-steel.webp",
+		};
+
+		if (!data.img || data.img === CONST.DEFAULT_TOKEN) {
+			this.updateSource({ img: imgMap[data.type] });
+		}
+	}
+
+	/**
 	 * Handle clickable rolls.
 	 * @param {Event} event   The originating click event
 	 * @private
