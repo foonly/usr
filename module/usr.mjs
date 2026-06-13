@@ -317,26 +317,26 @@ async function resolveInteraction(
 	const defenseSuccesses = defenseRoll?.successes ?? 0;
 	const netSuccesses = attackData.attackSuccesses - defenseSuccesses;
 
-	// Prepare updated data
-	const finalAttackData = foundry.utils.deepClone(attackData);
-	finalAttackData.resolved = true;
-	finalAttackData.defenseSuccesses = defenseSuccesses;
-	finalAttackData.defenseRoll = defenseRoll;
-	finalAttackData.netSuccesses = netSuccesses;
+	// Prepare updated data for the summary message
+	const summaryData = foundry.utils.deepClone(attackData);
+	summaryData.resolved = true;
+	summaryData.defenseSuccesses = defenseSuccesses;
+	summaryData.netSuccesses = netSuccesses;
+	summaryData.roll = defenseRoll; // Show defense roll at the top
 
 	const updatedContent = await foundry.applications.handlebars.renderTemplate(
 		"systems/usr/templates/chat/combat-interaction.hbs",
-		finalAttackData,
+		summaryData,
 	);
 
-	// 1. Create a NEW summary message since sockets are unreliable for updating original messages
+	// 1. Create a NEW summary message sent by the DEFENDER
 	const summaryMessageData = {
 		content: updatedContent,
-		speaker: ChatMessage.getSpeaker({ actor: attacker }),
+		speaker: ChatMessage.getSpeaker({ actor: target }),
 		flavor: "Combat Result",
 		flags: {
 			usr: {
-				attackData: finalAttackData,
+				attackData: summaryData,
 			},
 		},
 	};

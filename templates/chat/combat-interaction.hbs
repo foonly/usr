@@ -4,7 +4,7 @@
 	data-target-id="{{target.id}}"
 >
 	{{#if roll}}
-	<div class="usr dice-roll attack-roll">
+	<div class="usr dice-roll">
 		<div class="dice-result">
 			<div class="dice-formula">{{ roll.formula }}</div>
 			<div class="dice-tooltip">
@@ -55,49 +55,12 @@
 		</div>
 	</div>
 
-	{{#if defenseRoll}}
-	<div class="usr dice-roll defense-roll">
-		<div class="dice-result">
-			<div class="dice-formula">{{ defenseRoll.formula }}</div>
-			<div class="dice-tooltip">
-				<section class="tooltip-part">
-					<div class="dice">
-						<header class="part-header flexrow">
-							<span class="part-formula"
-								>{{ defenseRoll.dice.length }}{{ defenseRoll.type }}</span
-							>
-							<span class="part-total">{{defenseRoll.successes}}</span>
-						</header>
-						<ol class="dice-rolls">
-							{{#each defenseRoll.dice}}
-							<li
-								class="roll die {{ ../defenseRoll.type }}{{#if success }} success{{/if}}"
-							>
-								{{ value }}
-							</li>
-							{{/each}}
-						</ol>
-					</div>
-				</section>
-			</div>
-			<h4 class="dice-total">{{ defenseRoll.total }}</h4>
-		</div>
-	</div>
-	{{/if}}
-
 	<div class="interaction-details">
 		<p>
 			<strong>{{item.name}}</strong> Attack:
 			<span class="success-count attacker-successes">{{attackSuccesses}}</span>
 			Successes
 		</p>
-		{{#if resolved}}
-		<p>
-			<strong>Defense:</strong>
-			<span class="success-count target-successes">{{defenseSuccesses}}</span>
-			Successes
-		</p>
-		{{/if}}
 	</div>
 
 	{{#unless resolved}}
