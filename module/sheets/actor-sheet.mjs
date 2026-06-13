@@ -156,6 +156,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		const melee = [];
 		const ranged = [];
 		const armor = [];
+		const equippedMelee = [];
+		const equippedRanged = [];
+		const equippedArmor = [];
 
 		for (const item of context.items) {
 			item.img ||= CONST.DEFAULT_TOKEN;
@@ -163,7 +166,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				gear.push(item);
 			} else if (item.type === "melee") {
 				melee.push(item);
+				if (item.system.equipped) equippedMelee.push(item);
 			} else if (item.type === "ranged") {
+				ranged.push(item);
+				if (item.system.equipped) equippedRanged.push(item);
 				// Prepare range tables for combat cards
 				const acc = Math.clamp(item.system.accuracy, 1, 7) - 1;
 				item.rangeTables = {
@@ -178,9 +184,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 						value: val,
 					})),
 				};
-				ranged.push(item);
 			} else if (item.type === "armor") {
 				armor.push(item);
+				if (item.system.equipped) equippedArmor.push(item);
 			}
 		}
 
@@ -188,6 +194,36 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		context.melee = melee;
 		context.ranged = ranged;
 		context.armor = armor;
+		context.equippedMelee = equippedMelee;
+		context.equippedRanged = equippedRanged;
+		context.equippedArmor = equippedArmor;
+
+		// Prepare Unarmed Attack
+		const fortitude = context.system.traits.fortitude.value;
+		const meleeTrait = context.system.traits.melee;
+		let spec = "";
+
+		// Check for Unarmed specialization
+		if (meleeTrait?.spec) {
+			const unarmedSpec = meleeTrait.spec.find(
+				(s) => s.title.toLowerCase() === "unarmed",
+			);
+			if (unarmedSpec) spec = unarmedSpec.title;
+		}
+
+		context.unarmed = {
+			name: game.i18n.localize("USR.Unarmed"),
+			img: "icons/skills/melee/unarmed-punch-fist.webp",
+			type: "melee",
+			system: {
+				damage: Math.round(fortitude * 0.75),
+				lethality: "stun",
+				defenseBonus: 0,
+				reach: 0,
+				specialization: spec,
+			},
+			isUnarmed: true,
+		};
 	}
 
 	/* -------------------------------------------- */
@@ -301,6 +337,15 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			await item?.delete();
 		});
 
+		on(".item-toggle-equipped", async (event) => {
+			event.preventDefault();
+			const element = event.currentTarget;
+			const item = this.actor.items.get(element.dataset.itemId);
+			if (item) {
+				await item.update({ "system.equipped": !item.system.equipped });
+			}
+		});
+
 		on(".effect-control", (event) => onManageActiveEffect(event, this.actor));
 	}
 
@@ -344,6 +389,71 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				dataset.rollType === "defend")
 		) {
 			const itemId = element.closest(".item")?.dataset.itemId;
+			if (itemId === "unarmed") {
+				const fortitude = this.actor.system.traits.fortitude.value;
+				const meleeTrait = this.actor.system.traits.melee;
+				let spec = "";
+
+				// Check for Unarmed specialization
+				if (meleeTrait?.spec) {
+					const unarmedSpec = meleeTrait.spec.find(
+						(s) => s.title.toLowerCase() === "unarmed",
+					);
+					if (unarmedSpec) spec = unarmedSpec.title;
+				}
+
+				const unarmedData = {
+					name: game.i18n.localize("USR.Unarmed"),
+					type: "melee",
+					system: {
+						damage: Math.round(fortitude * 0.75),
+						lethality: "stun",
+						defenseBonus: 0,
+						reach: 0,
+						specialization: spec,
+					},
+					id: "unarmed",
+				};
+
+				if (dataset.rollType === "attack") {
+					return usrRoll({
+						actor: this.actor,
+						trait: "melee",
+						spec: spec,
+						flavor: `${unarmedData.name} Attack`,
+						difficulty: 4,
+						item: unarmedData,
+					});
+				} else if (dataset.rollType === "defend") {
+					let difficulty = 4;
+					let flavor = `${unarmedData.name} (Defend)`;
+					if (game.combat) {
+						const combatant = game.combat.combatants.find(
+							(c) => c.actorId === this.actor.id,
+						);
+						const stance = combatant?.getFlag("usr", "action.stance");
+						if (stance === "aggressive") difficulty = 3;
+						else if (stance === "neutral" || stance === "defensive")
+							difficulty = 4;
+
+						if (stance) {
+							const stanceLabel =
+								stance.charAt(0).toUpperCase() + stance.slice(1);
+							flavor += ` [${stanceLabel} Stance]`;
+						}
+					}
+
+					return usrRoll({
+						actor: this.actor,
+						item: unarmedData,
+						trait: "melee",
+						spec: spec,
+						flavor: flavor,
+						difficulty: difficulty,
+						skipDamage: true,
+					});
+				}
+			}
 			const item = this.actor.items.get(itemId);
 			if (item) return item.roll({ rollType: dataset.rollType });
 		} else if (dataset.rollUsr) {

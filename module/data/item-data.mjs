@@ -9,6 +9,7 @@ class BaseItemData extends foundry.abstract.TypeDataModel {
 			weight: new fields.NumberField({ initial: 0, min: 0 }),
 			description: new fields.HTMLField({ initial: "" }),
 			formula: new fields.StringField({ initial: "" }),
+			equipped: new fields.BooleanField({ initial: false }),
 		};
 	}
 }

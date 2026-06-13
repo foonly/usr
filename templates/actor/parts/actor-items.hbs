@@ -34,6 +34,7 @@
 <table class="items-table">
 	<thead>
 		<tr>
+			<th>Eq</th>
 			<th>{{localize "USR.Item"}}</th>
 			<th>{{localize "USR.Damage"}}</th>
 			<th>{{localize "USR.Specialization"}}</th>
@@ -48,6 +49,17 @@
 	<tbody>
 		{{#each melee as |item id|}}
 		<tr class="item draggable" data-item-id="{{item._id}}">
+			<td class="equipped-toggle">
+				<a
+					class="item-control item-toggle-equipped"
+					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
+					data-item-id="{{item._id}}"
+				>
+					<i
+						class="fas {{#if item.system.equipped}}fa-check-square{{else}}fa-square{{/if}}"
+					></i>
+				</a>
+			</td>
 			<td>
 				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
 				{{item.name}}
@@ -90,6 +102,7 @@
 <table class="items-table">
 	<thead>
 		<tr>
+			<th>Eq</th>
 			<th>{{localize "USR.Item"}}</th>
 			<th>{{localize "USR.Damage"}}</th>
 			<th>{{localize "USR.Specialization"}}</th>
@@ -105,6 +118,17 @@
 	<tbody>
 		{{#each ranged as |item id|}}
 		<tr class="item draggable" data-item-id="{{item._id}}">
+			<td class="equipped-toggle">
+				<a
+					class="item-control item-toggle-equipped"
+					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
+					data-item-id="{{item._id}}"
+				>
+					<i
+						class="fas {{#if item.system.equipped}}fa-check-square{{else}}fa-square{{/if}}"
+					></i>
+				</a>
+			</td>
 			<td>
 				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
 				{{item.name}}
@@ -148,6 +172,7 @@
 <table class="items-table">
 	<thead>
 		<tr>
+			<th>Eq</th>
 			<th>{{localize "USR.Item"}}</th>
 			<th>{{localize "USR.Cover"}}</th>
 			<th>{{localize "USR.Impact"}}</th>
@@ -159,6 +184,17 @@
 	<tbody>
 		{{#each armor as |item id|}}
 		<tr class="item draggable" data-item-id="{{item._id}}">
+			<td class="equipped-toggle">
+				<a
+					class="item-control item-toggle-equipped"
+					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
+					data-item-id="{{item._id}}"
+				>
+					<i
+						class="fas {{#if item.system.equipped}}fa-check-square{{else}}fa-square{{/if}}"
+					></i>
+				</a>
+			</td>
 			<td>
 				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
 				{{item.name}}

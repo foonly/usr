@@ -115,5 +115,6 @@
 	"USR.BoostNone": "None",
 	"USR.BoostPosition": "Position Boost (+1)",
 	"USR.BoostInitiative": "Initiative Boost (+Dice)",
-	"USR.BoostAmount": "Boost Amount"
+	"USR.BoostAmount": "Boost Amount",
+	"USR.Unarmed": "Unarmed"
 }

@@ -1,0 +1,68 @@
+<div
+	class="combat-interaction"
+	data-attacker-id="{{attacker.id}}"
+	data-target-id="{{target.id}}"
+>
+	<div class="interaction-header">
+		<div class="attacker">
+			<img
+				src="{{attacker.img}}"
+				title="{{attacker.name}}"
+				width="32"
+				height="32"
+			/>
+			<span>{{attacker.name}}</span>
+		</div>
+		<div class="vs">VS</div>
+		<div class="target">
+			<img
+				src="{{target.img}}"
+				title="{{target.name}}"
+				width="32"
+				height="32"
+			/>
+			<span>{{target.name}}</span>
+		</div>
+	</div>
+
+	<div class="interaction-details">
+		<p>
+			<strong>{{item.name}}</strong> Attack:
+			<span class="success-count attacker-successes">{{attackSuccesses}}</span>
+			Successes
+		</p>
+		<p>
+			Defense Successes:
+			<span class="success-count target-successes">{{defenseSuccesses}}</span>
+		</p>
+	</div>
+
+	{{#unless resolved}}
+	<div class="interaction-controls">
+		<div class="defense-options">
+			<h5>Defend with:</h5>
+			<div class="defense-buttons">
+				{{#each defenseWeapons}}
+				<button
+					class="defend-button"
+					data-item-id="{{id}}"
+					title="Defense Bonus: {{defenseBonus}}"
+				>
+					<img src="{{img}}" width="20" height="20" /> {{name}}
+				</button>
+				{{/each}}
+			</div>
+		</div>
+
+		<div class="resolve-options">
+			<button class="resolve-damage-button">
+				<i class="fas fa-sword"></i> Resolve Damage
+			</button>
+		</div>
+	</div>
+	{{else}}
+	<div class="interaction-status">
+		<p>Resolved</p>
+	</div>
+	{{/unless}}
+</div>

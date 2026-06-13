@@ -123,12 +123,12 @@ usr.rangeDice = {
 usr.hitLocationMelee = [
 	{ roll: [2], label: "Head A", diceCost: -3, lethality: 2 },
 	{ roll: [3], label: "Head B", diceCost: -3, lethality: 1 },
-	{ roll: [4], label: "Arms A", diceCost: -2, lethality: -1 },
-	{ roll: [5, 6, 7], label: "Arms B", diceCost: -2, lethality: -2 },
-	{ roll: [8, 9, 10, 11, 12], label: "Torso A", diceCost: -1, lethality: 0 },
-	{ roll: [13, 14], label: "Torso B", diceCost: -1, lethality: -1 },
-	{ roll: [15, 16, 17, 18], label: "Legs B", diceCost: -2, lethality: -2 },
-	{ roll: [19, 20], label: "Legs A", diceCost: -2, lethality: -1 },
+	{ roll: [4], label: "Arms B", diceCost: -2, lethality: -2 },
+	{ roll: [5, 6, 7], label: "Arms A", diceCost: -2, lethality: -1 },
+	{ roll: [8, 9, 10, 11, 12], label: "Torso A", diceCost: -1, lethality: 1 },
+	{ roll: [13, 14], label: "Torso B", diceCost: -1, lethality: 0 },
+	{ roll: [15, 16, 17, 18], label: "Legs B", diceCost: -2, lethality: -1 },
+	{ roll: [19, 20], label: "Legs A", diceCost: -2, lethality: 0 },
 ];
 
 usr.hitLocationRanged = [

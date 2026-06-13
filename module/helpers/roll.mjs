@@ -196,18 +196,42 @@ export async function usrRoll(data) {
 		data.skipDamage !== true &&
 		(data.item.type === "melee" || data.item.type === "ranged")
 	) {
-		const item = data.item.toObject
-			? data.item
-			: data.actor.items.get(data.item._id || data.item.id);
+		let item = data.item;
+		if (!item.system && data.actor) {
+			item = data.actor.items.get(data.item._id || data.item.id);
+		}
+
 		if (item) {
 			try {
-				await rollDamage(data.actor, item);
+				const isMelee = item.type === "melee";
+				const target = game.user.targets.first();
+
+				// If in combat and melee, check for target
+				if (game.combat?.active && isMelee) {
+					if (!target) {
+						ui.notifications.warn("Please select a target for melee attacks.");
+						return { roll, result };
+					}
+
+					// Create interactive defense message
+					return await createCombatInteraction(
+						data.actor,
+						target.actor,
+						item,
+						result,
+					);
+				} else {
+					// Ranged or out of combat: resolve immediately
+					// Add successes to damage
+					const bonusDamage = result.successes;
+					await rollDamage(data.actor, item, bonusDamage);
+				}
 			} catch (err) {
 				console.error("USR | Damage roll failed:", err);
 			}
 		} else {
 			console.warn(
-				"USR | Item ID was provided but no item was found on the actor.",
+				"USR | Item was provided but no item was found on the actor.",
 			);
 		}
 	}
@@ -250,7 +274,7 @@ export async function usrRoll(data) {
 	return { roll, result };
 }
 
-export async function rollDamage(actor, item) {
+export async function rollDamage(actor, item, bonusDamage = 0) {
 	const roll = await new Roll("2d10").evaluate();
 	const total = roll.total;
 	let location = null;
@@ -284,12 +308,16 @@ export async function rollDamage(actor, item) {
 		lethalityKey = lethalityReverse[lethIndex];
 	}
 
+	const finalDamage = item.system.damage + bonusDamage;
+
 	const result = {
 		item: item.toObject ? item.toObject(false) : item,
 		location: location?.label ?? "Unknown",
 		lethality: usr.wounds[lethalityKey]?.label ?? "Unknown",
 		lethalityKey: lethalityKey,
-		damage: item.system.damage,
+		damage: finalDamage,
+		baseDamage: item.system.damage,
+		bonusDamage: bonusDamage,
 		dice: roll.dice[0].results.map((r) => r.result),
 		total: total,
 	};
@@ -303,6 +331,74 @@ export async function rollDamage(actor, item) {
 		content,
 		speaker: ChatMessage.getSpeaker({ actor }),
 		flavor: `${item.name} - Damage & Location`,
+	};
+
+	return ChatMessage.create(messageData);
+}
+
+export async function createCombatInteraction(
+	attacker,
+	target,
+	item,
+	attackResult,
+) {
+	const defenseWeapons = target.items
+		.filter((i) => i.type === "melee" && i.system.equipped)
+		.map((i) => ({
+			id: i.id,
+			name: i.name,
+			img: i.img,
+			defenseBonus: i.system.defenseBonus,
+		}));
+
+	// Add Unarmed to defense options
+	defenseWeapons.push({
+		id: "unarmed",
+		name: game.i18n.localize("USR.Unarmed"),
+		img: "icons/skills/melee/unarmed-punch-fist.webp",
+		defenseBonus: 0,
+	});
+
+	const data = {
+		attacker: {
+			id: attacker.id,
+			uuid: attacker.uuid,
+			name: attacker.name,
+			img: attacker.img,
+		},
+		target: {
+			id: target.id,
+			uuid: target.uuid,
+			name: target.name,
+			img: target.img,
+		},
+		item: {
+			id: item.id || item._id,
+			name: item.name,
+			img: item.img,
+			type: item.type,
+			system: item.system.toObject ? item.system.toObject() : item.system,
+		},
+		attackSuccesses: attackResult.successes,
+		defenseSuccesses: 0,
+		defenseWeapons,
+		resolved: false,
+	};
+
+	const content = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/chat/combat-interaction.hbs",
+		data,
+	);
+
+	const messageData = {
+		content,
+		speaker: ChatMessage.getSpeaker({ actor: attacker }),
+		flavor: "Melee Attack - Waiting for Defense",
+		flags: {
+			usr: {
+				attackData: data,
+			},
+		},
 	};
 
 	return ChatMessage.create(messageData);

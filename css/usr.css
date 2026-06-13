@@ -7,6 +7,7 @@
 @import "components/char.css";
 @import "components/trait-sheet.css";
 @import "components/weapon-cards.css";
+@import "components/chat.css";
 
 /* Add custom fonts by visiting and search https://fonts.google.com */
 @import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");

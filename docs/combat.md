@@ -86,12 +86,12 @@ If the character is in aggressive stance, they can pay position to perform extra
 | :---: | :------- | :-------: | :-------: |
 |   2   | Head A   |    -3     |    +2     |
 |   3   | Head B   |    -3     |    +1     |
-|   4   | Arms A   |    -2     |    -1     |
-|  5-7  | Arms B   |    -2     |    -2     |
-| 8-12  | Torso A  |    -1     |    +0     |
-| 13-14 | Torso B  |    -1     |    -1     |
-| 15-18 | Legs B   |    -2     |    -2     |
-| 19-20 | Legs A   |    -2     |    -1     |
+|   4   | Arms B   |    -2     |    -2     |
+|  5-7  | Arms A   |    -2     |    -1     |
+| 8-12  | Torso A  |    -1     |    +1     |
+| 13-14 | Torso B  |    -1     |    +0     |
+| 15-18 | Legs B   |    -2     |    -1     |
+| 19-20 | Legs A   |    -2     |    +0     |
 
 ### Ranged Hitlocation Table (2D10)
 

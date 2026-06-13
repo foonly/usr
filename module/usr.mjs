@@ -12,6 +12,7 @@ import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
+import { usrRoll, rollDamage } from "./helpers/roll.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -24,6 +25,8 @@ Hooks.once("init", async function () {
 		usrActor,
 		usrItem,
 		rollItemMacro,
+		usrRoll,
+		rollDamage,
 	};
 
 	// Add custom constants for configuration.
@@ -79,6 +82,103 @@ Hooks.once("init", async function () {
 
 	// Preload Handlebars templates.
 	return preloadHandlebarsTemplates();
+});
+
+/* -------------------------------------------- */
+/*  Chat Hooks                                  */
+/* -------------------------------------------- */
+
+Hooks.on("renderChatMessageHTML", (message, html, data) => {
+	const interaction = html.querySelector(".combat-interaction");
+	if (!interaction) return;
+
+	const attackData = message.getFlag("usr", "attackData");
+	if (!attackData || attackData.resolved) return;
+
+	const attacker = fromUuidSync(attackData.attacker.uuid);
+	const target = fromUuidSync(attackData.target.uuid);
+
+	// Defend Buttons
+	html.querySelectorAll(".defend-button").forEach((button) => {
+		button.addEventListener("click", async (event) => {
+			event.preventDefault();
+			if (!target.isOwner && !game.user.isGM) {
+				return ui.notifications.warn("You do not own this target.");
+			}
+
+			const itemId = button.dataset.itemId;
+			let defenseSuccesses = 0;
+
+			if (itemId === "unarmed") {
+				// Base defense roll for Unarmed
+				const rollResult = await game.usr.usrRoll({
+					actor: target,
+					trait: "melee",
+					difficulty: 4,
+					flavor: "Defense (Unarmed)",
+					skipDamage: true,
+				});
+				defenseSuccesses = rollResult.result.successes;
+			} else {
+				const item = target.items.get(itemId);
+				if (item) {
+					const rollResult = await item.rollDefend();
+					defenseSuccesses = rollResult.result.successes;
+				}
+			}
+
+			// Update message flag
+			await message.setFlag(
+				"usr",
+				"attackData.defenseSuccesses",
+				defenseSuccesses,
+			);
+
+			// Re-render message content
+			const content = await foundry.applications.handlebars.renderTemplate(
+				"systems/usr/templates/chat/combat-interaction.hbs",
+				message.getFlag("usr", "attackData"),
+			);
+			await message.update({ content });
+		});
+	});
+
+	// Resolve Button
+	const resolveButton = html.querySelector(".resolve-damage-button");
+	if (resolveButton) {
+		resolveButton.addEventListener("click", async (event) => {
+			event.preventDefault();
+			if (!attacker.isOwner && !game.user.isGM) {
+				return ui.notifications.warn("You do not own the attacker.");
+			}
+
+			const currentData = message.getFlag("usr", "attackData");
+			const netSuccesses =
+				currentData.attackSuccesses - currentData.defenseSuccesses;
+
+			if (netSuccesses > 0) {
+				const weapon =
+					attacker.items.get(currentData.item.id) || currentData.item;
+				await game.usr.rollDamage(attacker, weapon, netSuccesses);
+			} else {
+				ChatMessage.create({
+					speaker: ChatMessage.getSpeaker({ actor: target }),
+					content: `${target.name} successfully defended against the attack!`,
+				});
+			}
+
+			// Mark as resolved
+			const updatedData = foundry.utils.deepClone(currentData);
+			updatedData.resolved = true;
+			await message.setFlag("usr", "attackData", updatedData);
+
+			const content = await foundry.applications.handlebars.renderTemplate(
+				"systems/usr/templates/chat/combat-interaction.hbs",
+				updatedData,
+			);
+			await message.update({ content });
+		});
+	}
 });
 
 /* -------------------------------------------- */
@@ -180,6 +280,11 @@ Handlebars.registerHelper("concat", function () {
 
 Handlebars.registerHelper("toLowerCase", function (str) {
 	return str.toLowerCase();
+});
+
+Handlebars.registerHelper("capitalize", function (str) {
+	if (typeof str !== "string") return "";
+	return str.charAt(0).toUpperCase() + str.slice(1);
 });
 
 /* -------------------------------------------- */

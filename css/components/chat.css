@@ -1,0 +1,83 @@
+.combat-interaction {
+    border: 1px solid var(--usr-border);
+    padding: var(--usr-padding-md);
+    background: var(--usr-surface-2);
+    border-radius: 4px;
+}
+
+.interaction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--usr-border);
+    padding-bottom: var(--usr-padding-sm);
+    margin-bottom: var(--usr-padding-md);
+}
+
+.interaction-header .attacker,
+.interaction-header .target {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.interaction-header img {
+    border-radius: 50%;
+    border: 1px solid var(--usr-accent);
+}
+
+.interaction-header .vs {
+    font-weight: bold;
+    font-family: var(--usr-font-primary);
+    color: var(--usr-accent);
+}
+
+.interaction-details {
+    text-align: center;
+    margin-bottom: var(--usr-padding-md);
+}
+
+.success-count {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--usr-accent);
+}
+
+.defense-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 4px;
+    margin-bottom: var(--usr-padding-md);
+}
+
+.defend-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.8em;
+    padding: 2px 4px;
+}
+
+.resolve-options {
+    border-top: 1px solid var(--usr-border);
+    padding-top: var(--usr-padding-md);
+}
+
+.resolve-damage-button {
+    width: 100%;
+    background: var(--usr-accent);
+    color: white;
+    font-weight: bold;
+}
+
+.resolve-damage-button:hover {
+    filter: brightness(1.1);
+}
+
+.interaction-status {
+    text-align: center;
+    font-style: italic;
+    color: var(--usr-text-muted);
+}

@@ -40,7 +40,49 @@
 	<section class="combat-weapons">
 		<h3 class="section-header">Weapons</h3>
 		<div class="weapon-cards">
-			{{#each melee as |item id|}}
+			{{!-- Unarmed Attack --}}
+			<div
+				class="weapon-card melee-card item unarmed-card"
+				data-item-id="unarmed"
+			>
+				<div class="card-header">
+					<img
+						src="{{unarmed.img}}"
+						title="{{unarmed.name}}"
+						width="32"
+						height="32"
+					/>
+					<h4 class="weapon-name">{{unarmed.name}}</h4>
+					<div class="weapon-controls"></div>
+				</div>
+				<div class="card-stats">
+					<div class="stat">
+						<span class="label">{{localize "USR.Damage"}}:</span>
+						<span class="value"
+							>{{unarmed.system.damage}} ({{localize
+							"USR.LethalityStun"}})</span
+						>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.DefenseBonus"}}:</span>
+						<span class="value">{{unarmed.system.defenseBonus}}</span>
+					</div>
+					<div class="stat">
+						<span class="label">{{localize "USR.Reach"}}:</span>
+						<span class="value">{{unarmed.system.reach}}</span>
+					</div>
+				</div>
+				<div class="card-buttons">
+					<button class="rollable weapon-roll" data-roll-type="attack">
+						<i class="fa-solid fa-swords"></i> {{localize "USR.Attack"}}
+					</button>
+					<button class="rollable weapon-roll" data-roll-type="defend">
+						<i class="fa-solid fa-shield-halved"></i> {{localize "USR.Defend"}}
+					</button>
+				</div>
+			</div>
+
+			{{#each equippedMelee as |item id|}}
 			<div class="weapon-card melee-card item" data-item-id="{{_id}}">
 				<div class="card-header">
 					<img
@@ -51,6 +93,12 @@
 					/>
 					<h4 class="weapon-name">{{item.name}}</h4>
 					<div class="weapon-controls">
+						<a
+							class="item-control item-toggle-equipped"
+							title="Unequip"
+							data-item-id="{{_id}}"
+							><i class="fas fa-shield-slash"></i
+						></a>
 						<a
 							class="item-control item-edit"
 							title="Edit Item"
@@ -63,7 +111,8 @@
 					<div class="stat">
 						<span class="label">{{localize "USR.Damage"}}:</span>
 						<span class="value"
-							>{{item.system.damage}} ({{item.system.lethality}})</span
+							>{{item.system.damage}} ({{localize (concat "USR.Lethality"
+							(capitalize item.system.lethality))}})</span
 						>
 					</div>
 					<div class="stat">
@@ -84,7 +133,7 @@
 					</button>
 				</div>
 			</div>
-			{{/each}} {{#each ranged as |item id|}}
+			{{/each}} {{#each equippedRanged as |item id|}}
 			<div class="weapon-card ranged-card item" data-item-id="{{_id}}">
 				<div class="card-header">
 					<img
@@ -95,6 +144,12 @@
 					/>
 					<h4 class="weapon-name">{{item.name}}</h4>
 					<div class="weapon-controls">
+						<a
+							class="item-control item-toggle-equipped"
+							title="Unequip"
+							data-item-id="{{_id}}"
+							><i class="fas fa-shield-slash"></i
+						></a>
 						<a
 							class="item-control item-edit"
 							title="Edit Item"

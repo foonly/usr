@@ -1,8 +1,6 @@
 <div class="dice-roll damage-roll">
 	<div class="dice-result">
-		<div class="dice-formula">
-			Hit Location (2d10)
-		</div>
+		<div class="dice-formula">Hit Location (2d10)</div>
 		<div class="dice-tooltip">
 			<section class="tooltip-part">
 				<div class="dice">
@@ -29,11 +27,9 @@
 			</div>
 			<div class="detail-row">
 				<span class="label">Damage:</span>
-				<span class="value">{{damage}}</span>
+				<span class="value">{{damage}} ({{baseDamage}} + {{bonusDamage}})</span>
 			</div>
 		</div>
-		<div class="dice-total damage-total">
-			{{damage}} {{lethality}} Damage
-		</div>
+		<div class="dice-total damage-total">{{damage}} {{lethality}} Damage</div>
 	</div>
 </div>
