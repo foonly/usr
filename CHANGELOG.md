@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.8.0 (2026-06-14)
+### 0.8.1 (2026-06-14)
+
+#### Styles
+
+- css: improve dark theme styling for chat interface (1c8f527)
+
+## v0.8.0 (2026-06-14)
 
 #### Features
 
