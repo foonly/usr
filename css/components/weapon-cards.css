@@ -88,6 +88,16 @@
 			}
 		}
 
+		.card-buttons {
+			display: flex;
+			gap: 0.5rem;
+
+			.weapon-roll {
+				flex: 1;
+				width: auto;
+			}
+		}
+
 		.range-tables {
 			display: flex;
 			flex-direction: column;

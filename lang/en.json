@@ -109,6 +109,8 @@
 	"USR.MovementFast": "Fast",
 	"USR.DecreasePosition": "Decrease Position",
 	"USR.IncreasePosition": "Increase Position",
+	"USR.Attack": "Attack",
+	"USR.Defend": "Defend",
 	"USR.Boost": "Boost Options",
 	"USR.BoostNone": "None",
 	"USR.BoostPosition": "Position Boost (+1)",

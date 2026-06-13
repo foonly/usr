@@ -11,7 +11,7 @@ In this phase, all participants determine their plan for the round.
 - **Stance Selection:** Choose between Aggressive, Neutral, or Defensive.
 - **Targeting:** Select a target combatant from the list or enter a custom target.
 - **Movement:** Specify movement speed (None, Slow, or Fast).
-- **Stance Effects:** Aggressive stances allow Fast movement and easier initiative (Difficulty 6), while Neutral stances limit movement to Slow and have standard initiative (Difficulty 4). Defensive stances focus on protection and do not roll for initiative.
+- **Stance Effects:** Aggressive stances allow Fast movement and easier initiative (Difficulty 6), while Neutral stances limit movement to Slow and have standard initiative (Difficulty 4). Defensive stances focus on protection and roll a harder (Difficulty 2) initiative.
 
 ### Phase 2: Resolve Initiative
 
@@ -46,7 +46,7 @@ In the first phase the combatants choose their stance out of 3 possibilities. Th
 
 ### Argressive Stance
 
-In aggressive stance the character prioritizes mobility and offensive actions over defense. Aggressive stance gives the character a higher initiative roll of 6 dice, but roll 2 dice for defence.
+In aggressive stance the character prioritizes mobility and offensive actions over defense. Aggressive stance gives the character a higher initiative roll of 6 dice, but roll 3 dice for defence.
 
 ### Neutral Stance
 
@@ -54,7 +54,7 @@ In neutral stance the character balances mobility and defense, with a standard i
 
 ### Defensive Stance
 
-In defensive stance the character focuses on defense. Defensive stance rolls 2 dice for initiative, but get a +2 position increase in the beginning of the turn. Defensive stance rolls 6 dice for defence. Defensive stance can perform defensive actions without paying position. Attacks from defensive stance always has a -1 modifier. (Attacks are rolled with 3 instead of 4 dice)
+In defensive stance the character focuses on defense. Defensive stance rolls 2 dice for initiative, but get a +2 position increase in the beginning of the turn. Defensive stance rolls 4 dice for defence. Defensive stance can perform defensive actions without paying position. Attacks from defensive stance always has a -1 modifier. (Attacks are rolled with 3 instead of 4 dice)
 
 ## Position
 
@@ -70,22 +70,15 @@ By reducing position, the character can add on die to the initiative roll per po
 
 ### Defensive actions
 
-Position can be reduced to perform extra defensive actions. So as long as the character has position, they can perform defensive actions.
+Position can be reduced to perform extra defensive actions. So as long as the character has position, they can perform defensive actions. Defensive actions can also be boosted by paying one position per extra die.
 
 ### Attacks
 
 If the character is in aggressive stance, they can pay position to perform extra attacks. A character can't attack the same target twice in one round, but if previous attack rolls against a target have failed (a failed roll, not a defended against attack), that target can be attacked.
 
-### Reducing attack successes
-
-If, after an attacker has attacked the character, and the character has optinally defended against the attack, the attacker's successes are reduced by paying position on a 1 to 1 basis. This is done until the attack has no successes, or the character has no position. If the attack has no more successes, the attack ends there. Otherwise the attack is resolved for damage.
-
-This step is not optional, but is not performed if the attack target is in aggressive stance.
-
 ## Defense
 
-- **Melee Defense:** Stance/Skill Dice + Weapon Defense Rating - Attacker's Successes.
-- **Dodge:** Skill Dice - Attacker's Successes.
+- **Melee Defense:** Stance/Skill Dice + Weapon Defense Rating.
 
 ### Melee Hitlocation Table (2D10)
 

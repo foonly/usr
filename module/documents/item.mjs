@@ -25,10 +25,16 @@ export class usrItem extends Item {
 	 * @param {Event} event   The originating click event
 	 * @private
 	 */
-	async roll() {
+	async roll(options = {}) {
 		const item = this;
 		const actor = this.actor;
 		if (!actor) return;
+
+		// Handle attack and defend
+		if (options.rollType === "attack" || options.rollType === "defend") {
+			if (options.rollType === "attack") return this.roll();
+			return this.rollDefend();
+		}
 
 		// Handle weapons
 		if (item.type === "melee" || item.type === "ranged") {
@@ -89,5 +95,46 @@ export class usrItem extends Item {
 			});
 			return roll;
 		}
+	}
+
+	/**
+	 * Handle defense rolls.
+	 */
+	async rollDefend() {
+		const item = this;
+		const actor = this.actor;
+		if (!actor) return;
+
+		const trait = item.type === "melee" ? "melee" : "ranged";
+		const spec = item.system.specialization || "";
+		let label = `${item.name} (Defend)`;
+
+		let difficulty = 4; // Default
+		if (game.combat) {
+			const combatant = game.combat.combatants.find(
+				(c) => c.actorId === actor.id,
+			);
+			const stance = combatant?.getFlag("usr", "action.stance");
+			if (stance === "aggressive") difficulty = 3;
+			else if (stance === "neutral" || stance === "defensive") difficulty = 4;
+
+			if (stance) {
+				const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
+				label += ` [${stanceLabel} Stance]`;
+			}
+		}
+
+		// Add defense bonus of the weapon to the difficulty
+		difficulty += item.system.defenseBonus || 0;
+
+		return usrRoll({
+			actor,
+			item,
+			trait,
+			spec,
+			flavor: label,
+			difficulty: difficulty,
+			skipDamage: true,
+		});
 	}
 }

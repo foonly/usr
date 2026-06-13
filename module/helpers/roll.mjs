@@ -193,6 +193,7 @@ export async function usrRoll(data) {
 	if (
 		result.successes > 0 &&
 		data.item &&
+		data.skipDamage !== true &&
 		(data.item.type === "melee" || data.item.type === "ranged")
 	) {
 		const item = data.item.toObject

@@ -75,9 +75,14 @@
 						<span class="value">{{item.system.reach}}</span>
 					</div>
 				</div>
-				<button class="rollable weapon-roll" data-roll-type="item">
-					<i class="fas fa-dice"></i> {{localize "USR.Actions"}}
-				</button>
+				<div class="card-buttons">
+					<button class="rollable weapon-roll" data-roll-type="attack">
+						<i class="fa-solid fa-swords"></i> {{localize "USR.Attack"}}
+					</button>
+					<button class="rollable weapon-roll" data-roll-type="defend">
+						<i class="fa-solid fa-shield-halved"></i> {{localize "USR.Defend"}}
+					</button>
+				</div>
 			</div>
 			{{/each}} {{#each ranged as |item id|}}
 			<div class="weapon-card ranged-card item" data-item-id="{{_id}}">

@@ -337,10 +337,15 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		const element = event.currentTarget;
 		const dataset = element.dataset;
 
-		if (dataset.rollType && dataset.rollType === "item") {
+		if (
+			dataset.rollType &&
+			(dataset.rollType === "item" ||
+				dataset.rollType === "attack" ||
+				dataset.rollType === "defend")
+		) {
 			const itemId = element.closest(".item")?.dataset.itemId;
 			const item = this.actor.items.get(itemId);
-			if (item) return item.roll();
+			if (item) return item.roll({ rollType: dataset.rollType });
 		} else if (dataset.rollUsr) {
 			let itemId = dataset.itemId;
 			if (!itemId) {
