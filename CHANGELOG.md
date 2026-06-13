@@ -1,6 +1,19 @@
 # Changelog
 
-## 0.6.0 (2026-06-13)
+## 0.7.0 (2026-06-13)
+
+#### Features
+
+- combat: implement tactical defense mechanics (1063b5f)
+- item: assign default icons based on item type (0388b43)
+- combat: implement interactive combat flow (37239d7)
+- combat: implement active defense and attack actions (906d8ce)
+
+#### Bug Fixes
+
+- combat: update target management and hook synchronization (d404ad6)
+
+## v0.6.0 (2026-06-13)
 
 #### Features
 
