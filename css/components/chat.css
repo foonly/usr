@@ -7,6 +7,14 @@
 	color: var(--usr-text);
 	font-family: var(--usr-font-primary);
 
+	/* When nested, remove outer styling */
+	& .usr.dice-roll {
+		background: transparent;
+		border: none;
+		padding: 0;
+		margin-bottom: var(--usr-padding-md);
+	}
+
 	h1,
 	h2,
 	h3,
@@ -134,5 +142,12 @@
 			text-transform: uppercase;
 			letter-spacing: 1px;
 		}
+	}
+
+	.resolved-placeholder {
+		text-align: center;
+		font-style: italic;
+		color: var(--usr-text-muted);
+		padding: var(--usr-padding-sm);
 	}
 }

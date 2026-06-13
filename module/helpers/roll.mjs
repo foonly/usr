@@ -168,7 +168,22 @@ export async function usrRoll(data) {
 	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 	let flavor = data.flavor || "";
 
-	if (data.createMessage !== false) {
+	// Determine if we should suppress the default roll message because a combat interaction will be created
+	let willCreateInteraction = false;
+	const isMelee =
+		data.item?.type === "melee" ||
+		(data.item &&
+			!data.item.type &&
+			data.flavor?.toLowerCase().includes("melee"));
+
+	if (data.actor && data.item && data.skipDamage !== true) {
+		const target = game.user.targets.first();
+		if (isMelee && target) {
+			willCreateInteraction = true;
+		}
+	}
+
+	if (data.createMessage !== false && !willCreateInteraction) {
 		if (data.spec) {
 			const specLabelKey =
 				usr.meleeSpecializations[data.spec] ||
@@ -189,13 +204,8 @@ export async function usrRoll(data) {
 		showRoll(roll, result, speaker, flavor);
 	}
 
-	// Handle damage roll if it's a weapon and has successes
-	if (
-		result.successes > 0 &&
-		data.item &&
-		data.skipDamage !== true &&
-		(data.item.type === "melee" || data.item.type === "ranged")
-	) {
+	// Handle combat interaction or damage roll
+	if (data.item && data.skipDamage !== true) {
 		let item = data.item;
 		if (!item.system && data.actor) {
 			item = data.actor.items.get(data.item._id || data.item.id);
@@ -203,11 +213,10 @@ export async function usrRoll(data) {
 
 		if (item) {
 			try {
-				const isMelee = item.type === "melee";
 				const target = game.user.targets.first();
 
 				// Melee attack flow
-				if (isMelee) {
+				if (item.type === "melee") {
 					if (target) {
 						return await createCombatInteraction(
 							data.actor,
@@ -217,23 +226,19 @@ export async function usrRoll(data) {
 							flavor,
 						);
 					} else if (game.combat?.active) {
-						// If in combat but no target, warn
 						ui.notifications.warn("Please select a target for melee attacks.");
 						return { roll, result };
 					}
 				}
 
-				// Ranged, untargeted melee, or out-of-combat untargeted: resolve immediately
-				// Add successes to damage
-				const bonusDamage = result.successes;
-				await rollDamage(data.actor, item, bonusDamage);
+				// Ranged or out-of-combat untargeted: resolve immediately if hit
+				if (result.successes > 0) {
+					const bonusDamage = result.successes;
+					await rollDamage(data.actor, item, bonusDamage);
+				}
 			} catch (err) {
 				console.error("USR | Damage roll failed:", err);
 			}
-		} else {
-			console.warn(
-				"USR | Item was provided but no item was found on the actor.",
-			);
 		}
 	}
 
@@ -392,8 +397,9 @@ export async function createCombatInteraction(
 		},
 		attackSuccesses: attackResult.successes,
 		defenseSuccesses: 0,
+		netSuccesses: attackResult.successes,
 		defenseWeapons,
-		resolved: false,
+		resolved: attackResult.successes === 0,
 		roll: attackResult, // Include full roll result for dice display
 	};
 

@@ -155,8 +155,8 @@ export class usrItem extends Item {
 			spec,
 			flavor: label,
 			difficulty: difficulty,
-			diceBonus: options.diceBonus || 0,
 			skipDamage: true,
+			...options,
 		});
 	}
 }

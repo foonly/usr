@@ -182,7 +182,6 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 							}
 
 							// Execute Roll
-							let defenseSuccesses = 0;
 							let rollResult;
 
 							if (itemId === "unarmed") {
@@ -201,13 +200,15 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 									diceBonus: diceBonus,
 									flavor: "Defense (Unarmed)",
 									skipDamage: true,
+									createMessage: false,
 								});
-								defenseSuccesses = rollResult.result.successes;
 							} else {
 								const item = target.items.get(itemId);
 								if (item) {
-									rollResult = await item.rollDefend({ diceBonus });
-									defenseSuccesses = rollResult.result.successes;
+									rollResult = await item.rollDefend({
+										diceBonus,
+										createMessage: false,
+									});
 								}
 							}
 
@@ -226,7 +227,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 							await resolveInteraction(
 								message,
 								attackData,
-								defenseSuccesses,
+								rollResult?.result,
 								target,
 								attacker,
 							);
@@ -241,7 +242,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 							await resolveInteraction(
 								message,
 								attackData,
-								0,
+								null,
 								target,
 								attacker,
 							);
@@ -304,16 +305,23 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 async function resolveInteraction(
 	attackMsg,
 	attackData,
-	defenseSuccesses,
+	defenseRoll,
 	target,
 	attacker,
 ) {
+	console.log("USR | Resolving Combat Interaction", {
+		attackData,
+		defenseRoll,
+	});
+
+	const defenseSuccesses = defenseRoll?.successes ?? 0;
 	const netSuccesses = attackData.attackSuccesses - defenseSuccesses;
 
-	// Prepare updated attack message data
+	// Prepare updated data
 	const finalAttackData = foundry.utils.deepClone(attackData);
 	finalAttackData.resolved = true;
 	finalAttackData.defenseSuccesses = defenseSuccesses;
+	finalAttackData.defenseRoll = defenseRoll;
 	finalAttackData.netSuccesses = netSuccesses;
 
 	const updatedContent = await foundry.applications.handlebars.renderTemplate(
@@ -321,21 +329,25 @@ async function resolveInteraction(
 		finalAttackData,
 	);
 
-	const updateData = {
+	// 1. Create a NEW summary message since sockets are unreliable for updating original messages
+	const summaryMessageData = {
 		content: updatedContent,
-		"flags.usr.attackData.resolved": true,
-		"flags.usr.attackData.defenseSuccesses": defenseSuccesses,
-		"flags.usr.attackData.netSuccesses": netSuccesses,
+		speaker: ChatMessage.getSpeaker({ actor: attacker }),
+		flavor: "Combat Result",
+		flags: {
+			usr: {
+				attackData: finalAttackData,
+			},
+		},
 	};
+	await ChatMessage.create(summaryMessageData);
 
-	// Update the original message (Directly if owner/GM, otherwise via socket)
+	// 2. We can still TRY to update the original message to hide the button if we are the owner
+	// but we don't rely on it for the result.
 	if (attackMsg.isOwner || game.user.isGM) {
-		await attackMsg.update(updateData);
-	} else {
-		game.socket.emit("system.usr", {
-			type: "updateChatMessage",
-			messageId: attackMsg.id,
-			updateData,
+		await attackMsg.update({
+			"flags.usr.attackData.resolved": true,
+			content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
 		});
 	}
 
