@@ -73,11 +73,29 @@
 			align-items: center;
 			gap: 2px;
 			font-size: 0.9em;
+			width: 80px;
 
 			img {
 				border-radius: 50%;
 				border: 1px solid var(--usr-accent);
 				background: var(--usr-surface-1);
+				margin-bottom: 4px;
+			}
+
+			.name {
+				font-weight: bold;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				width: 100%;
+				text-align: center;
+			}
+
+			.success-count {
+				font-size: 1.5em;
+				font-weight: bold;
+				color: var(--usr-accent);
+				margin-top: 2px;
 			}
 		}
 	}
@@ -86,12 +104,8 @@
 		text-align: center;
 		margin-bottom: var(--usr-padding-md);
 		font-size: 1.1em;
-
-		.success-count {
-			font-size: 1.3em;
-			font-weight: bold;
-			color: var(--usr-accent);
-		}
+		border-top: 1px solid var(--usr-border);
+		padding-top: var(--usr-padding-sm);
 	}
 
 	.defense-trigger {
