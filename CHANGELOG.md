@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.5.0 (2026-06-07)
+## 0.6.0 (2026-06-13)
+
+#### Features
+
+- combat: implement defensive stance initiative rolls (d0ac3f9)
+- combat: implement position tracker and combat phase UI (97cb407)
+
+## v0.5.0 (2026-06-07)
 
 #### Features
 
