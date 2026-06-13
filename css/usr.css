@@ -45,7 +45,7 @@
 }
 
 /* Explicit Light Theme Overrides */
-.theme-light {
+body.theme-light {
 	--usr-text: #2f2d29;
 	--usr-text-muted: #5b564d;
 	--usr-text-strong: #191813;
@@ -58,7 +58,7 @@
 }
 
 /* Explicit Dark Theme Overrides (if needed for specificity) */
-.theme-dark {
+body.theme-dark {
 	--usr-text: #e7e2d9;
 	--usr-text-muted: #b9b1a3;
 	--usr-text-strong: #f6f1e8;

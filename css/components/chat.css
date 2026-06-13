@@ -1,3 +1,60 @@
+.chat-message {
+	transition: background 0.2s ease;
+
+	body.theme-dark & {
+		background: var(--usr-surface-1);
+		border-color: var(--usr-border);
+		color: var(--usr-text);
+
+		.message-header {
+			color: var(--usr-text-strong);
+			border-bottom: 1px solid var(--usr-border);
+			margin-bottom: var(--usr-padding-sm);
+
+			.message-sender {
+				color: inherit;
+			}
+		}
+
+		.message-metadata {
+			color: var(--usr-text-muted);
+		}
+
+		.flavor-text {
+			color: var(--usr-text-strong);
+			font-style: italic;
+			margin-bottom: var(--usr-padding-sm);
+		}
+
+		.message-delete {
+			color: var(--usr-text-muted);
+			&:hover {
+				color: #ff4444;
+			}
+		}
+	}
+}
+
+body.theme-dark #chat-log {
+	background: none;
+}
+
+body.theme-dark #sidebar {
+	background: var(--usr-c-dark);
+	border-left: 1px solid var(--usr-border);
+}
+
+body.theme-dark #chat-controls {
+	background: var(--usr-c-dark);
+	border-top: 1px solid var(--usr-border);
+
+	#chat-form textarea {
+		background: var(--usr-surface-2);
+		color: var(--usr-text);
+		border: 1px solid var(--usr-border);
+	}
+}
+
 .chat-message .usr.dice-roll,
 .chat-message .usr.combat-interaction {
 	background: var(--usr-surface-2);
@@ -43,10 +100,10 @@
 	}
 
 	.dice-rolls .roll.die {
-		color: var(--usr-text-strong);
+		color: var(--usr-c-black);
+		font-weight: bold;
 		&.success {
-			color: var(--usr-accent);
-			font-weight: bold;
+			color: var(--usr-c-black);
 		}
 	}
 }
