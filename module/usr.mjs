@@ -92,171 +92,259 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 	const interaction = html.querySelector(".combat-interaction");
 	if (!interaction) return;
 
-	const attackData = message.getFlag("usr", "attackData");
+	const attackData =
+		message.getFlag("usr", "attackData") ||
+		message.getFlag("usr", "defenseData");
 	if (!attackData || attackData.resolved) return;
 
 	const attacker = fromUuidSync(attackData.attacker.uuid);
 	const target = fromUuidSync(attackData.target.uuid);
 
-	// Defend Buttons
-	html.querySelectorAll(".defend-button").forEach((button) => {
-		button.addEventListener("click", async (event) => {
+	// Defend Button (Opens Dialog)
+	const defendButton = html.querySelector(".open-defense-dialog");
+	if (defendButton) {
+		// Only show to target or GM
+		if (!target.isOwner && !game.user.isGM) {
+			defendButton.style.display = "none";
+		}
+
+		defendButton.addEventListener("click", async (event) => {
 			event.preventDefault();
-			if (!target.isOwner && !game.user.isGM) {
-				return ui.notifications.warn("You do not own this target.");
-			}
 
-			const currentAttackData = message.getFlag("usr", "attackData");
-			const targetData = currentAttackData.target;
-			const itemId = button.dataset.itemId;
+			const defenseWeapons = target.items
+				.filter((i) => i.type === "melee" && i.system.equipped)
+				.map((i) => ({
+					id: i.id,
+					name: i.name,
+					img: i.img,
+					defenseBonus: i.system.defenseBonus,
+				}));
 
-			let diceBonus = 0;
-			let positionCost = 0;
-			let actionType = "main";
-			let isExtra = false;
+			defenseWeapons.push({
+				id: "unarmed",
+				name: game.i18n.localize("USR.Unarmed"),
+				img: "icons/skills/melee/unarmed-punch-fist.webp",
+				defenseBonus: -1,
+			});
 
-			// Combat specific logic
-			if (targetData.inCombat) {
-				const settings = html.querySelector(".defense-settings");
-				actionType =
-					settings.querySelector('input[name="actionType"]:checked')?.value ||
+			const combatant = game.combat?.combatants.find(
+				(c) => c.actorId === target.id,
+			);
+			const inCombat = !!game.combat?.active && !!combatant;
+
+			const templateData = {
+				...attackData,
+				target: {
+					...attackData.target,
+					inCombat,
+					position: combatant?.getFlag("usr", "position") ?? 4,
+					acted: combatant?.getFlag("usr", "action.acted") ?? false,
+					stance: combatant?.getFlag("usr", "action.stance") ?? "neutral",
+				},
+				defenseWeapons,
+			};
+
+			const { DialogV2 } = foundry.applications.api;
+			const content = await foundry.applications.handlebars.renderTemplate(
+				"systems/usr/templates/dialog/defense-setup.hbs",
+				templateData,
+			);
+
+			const dialog = new DialogV2({
+				window: { title: `Select Defense for ${target.name}` },
+				content,
+				classes: ["usr", "defense-dialog"],
+				buttons: [
+					{
+						action: "defend",
+						label: "Perform Defense",
+						class: "defend",
+						default: true,
+						callback: async (event, button, dialog) => {
+							const formData = new foundry.applications.ux.FormDataExtended(
+								dialog.element.querySelector("form"),
+							).object;
+							const itemId = formData.defenseItem;
+							const diceBonus = parseInt(formData.boostDice || "0", 10);
+							const actionType = formData.actionType || "main";
+
+							let positionCost = diceBonus;
+							if (
+								actionType === "extra" &&
+								templateData.target.stance !== "defensive"
+							) {
+								positionCost += 1;
+							}
+
+							if (inCombat && positionCost > templateData.target.position) {
+								ui.notifications.warn("Not enough position!");
+								return;
+							}
+
+							// Execute Roll
+							let defenseSuccesses = 0;
+							let rollResult;
+
+							if (itemId === "unarmed") {
+								let difficulty = 3;
+								if (inCombat) {
+									const stance = templateData.target.stance;
+									if (stance === "aggressive") difficulty = 2;
+									else if (stance === "neutral") difficulty = 3;
+									else if (stance === "defensive") difficulty = 4;
+								}
+
+								rollResult = await game.usr.usrRoll({
+									actor: target,
+									trait: "melee",
+									difficulty: difficulty - 1,
+									diceBonus: diceBonus,
+									flavor: "Defense (Unarmed)",
+									skipDamage: true,
+								});
+								defenseSuccesses = rollResult.result.successes;
+							} else {
+								const item = target.items.get(itemId);
+								if (item) {
+									rollResult = await item.rollDefend({ diceBonus });
+									defenseSuccesses = rollResult.result.successes;
+								}
+							}
+
+							// Handle Combatant updates
+							if (inCombat && combatant) {
+								const updates = {
+									"flags.usr.position":
+										templateData.target.position - positionCost,
+								};
+								if (actionType !== "extra")
+									updates["flags.usr.action.acted"] = true;
+								await combatant.update(updates);
+							}
+
+							// Create Defense Message and Resolve
+							await resolveInteraction(
+								message,
+								attackData,
+								defenseSuccesses,
+								target,
+								attacker,
+							);
+							dialog.close();
+						},
+					},
+					{
+						action: "skip",
+						label: "Skip Defense",
+						class: "skip",
+						callback: async (event, button, dialog) => {
+							await resolveInteraction(
+								message,
+								attackData,
+								0,
+								target,
+								attacker,
+							);
+							dialog.close();
+						},
+					},
+				],
+			});
+
+			await dialog.render({ force: true });
+
+			// Add interactivity after render
+			const html = dialog.element;
+			const slider = html.querySelector(".boost-dice-slider");
+			const valueDisplay = html.querySelector(".boost-value");
+			const actionRadios = html.querySelectorAll('input[name="actionType"]');
+			const maxPosition = templateData.target.position;
+			const stance = templateData.target.stance;
+
+			const updateSlider = () => {
+				const actionType =
+					html.querySelector('input[name="actionType"]:checked')?.value ||
 					"main";
-				const boostDice = parseInt(
-					settings.querySelector(".boost-dice")?.value || "0",
-					10,
-				);
+				let currentMax = maxPosition;
 
-				isExtra = actionType === "extra";
-				positionCost = boostDice;
-				diceBonus = boostDice;
-
-				// Extra action cost
-				if (isExtra && targetData.stance !== "defensive") {
-					positionCost += 1;
+				// Extra action cost (1 Position) unless in defensive stance
+				if (actionType === "extra" && stance !== "defensive") {
+					currentMax = Math.max(0, maxPosition - 1);
 				}
 
-				if (positionCost > targetData.position) {
-					return ui.notifications.warn(
-						`You do not have enough position (${targetData.position}) for this action (Cost: ${positionCost}).`,
-					);
-				}
-
-				// Apply costs to combatant
-				const combatant = game.combat.combatants.find(
-					(c) => c.actorId === target.id,
-				);
-				if (combatant) {
-					const updates = {
-						"flags.usr.position": targetData.position - positionCost,
-					};
-					if (!isExtra) {
-						updates["flags.usr.action.acted"] = true;
+				if (slider) {
+					slider.max = currentMax;
+					if (parseInt(slider.value, 10) > currentMax) {
+						slider.value = currentMax;
 					}
-					await combatant.update(updates);
-				}
-			}
-
-			let defenseSuccesses = 0;
-
-			if (itemId === "unarmed") {
-				// Base defense roll for Unarmed
-				let difficulty = 3; // Default (Neutral/Out of combat)
-				if (targetData.inCombat) {
-					const stance = targetData.stance;
-					if (stance === "aggressive") difficulty = 2;
-					else if (stance === "neutral") difficulty = 3;
-					else if (stance === "defensive") difficulty = 4;
+					if (valueDisplay) valueDisplay.textContent = slider.value;
 				}
 
-				const rollResult = await game.usr.usrRoll({
-					actor: target,
-					trait: "melee",
-					difficulty: difficulty - 1,
-					diceBonus: diceBonus,
-					flavor: "Defense (Unarmed)",
-					skipDamage: true,
-				});
-				defenseSuccesses = rollResult.result.successes;
-			} else {
-				const item = target.items.get(itemId);
-				if (item) {
-					const rollResult = await item.rollDefend({ diceBonus });
-					defenseSuccesses = rollResult.result.successes;
-				}
-			}
+				// Update max label if it exists
+				const maxLabel = html.querySelector(".slider-labels span:last-child");
+				if (maxLabel) maxLabel.textContent = `Max (${currentMax})`;
+			};
 
-			// Update message flag
-			await message.setFlag(
-				"usr",
-				"attackData.defenseSuccesses",
-				defenseSuccesses,
-			);
-
-			// Re-render message content with updated data
-			const updatedAttackData = foundry.utils.deepClone(
-				message.getFlag("usr", "attackData"),
-			);
-
-			// Refresh target state for UI if in combat
-			if (targetData.inCombat) {
-				const combatant = game.combat.combatants.find(
-					(c) => c.actorId === target.id,
-				);
-				updatedAttackData.target.position = combatant.getFlag(
-					"usr",
-					"position",
-				);
-				updatedAttackData.target.acted = combatant.getFlag(
-					"usr",
-					"action.acted",
-				);
-			}
-
-			const content = await foundry.applications.handlebars.renderTemplate(
-				"systems/usr/templates/chat/combat-interaction.hbs",
-				updatedAttackData,
-			);
-			await message.update({ content });
-		});
-	});
-
-	// Resolve Button
-	const resolveButton = html.querySelector(".resolve-damage-button");
-	if (resolveButton) {
-		resolveButton.addEventListener("click", async (event) => {
-			event.preventDefault();
-			if (!attacker.isOwner && !game.user.isGM) {
-				return ui.notifications.warn("You do not own the attacker.");
-			}
-
-			const currentData = message.getFlag("usr", "attackData");
-			const netSuccesses =
-				currentData.attackSuccesses - currentData.defenseSuccesses;
-
-			if (netSuccesses > 0) {
-				const weapon =
-					attacker.items.get(currentData.item.id) || currentData.item;
-				await game.usr.rollDamage(attacker, weapon, netSuccesses);
-			} else {
-				ChatMessage.create({
-					speaker: ChatMessage.getSpeaker({ actor: target }),
-					content: `${target.name} successfully defended against the attack!`,
+			if (slider) {
+				slider.addEventListener("input", (e) => {
+					if (valueDisplay) valueDisplay.textContent = e.target.value;
 				});
 			}
 
-			// Mark as resolved
-			const updatedData = foundry.utils.deepClone(currentData);
-			updatedData.resolved = true;
-			await message.setFlag("usr", "attackData", updatedData);
+			actionRadios.forEach((radio) => {
+				radio.addEventListener("change", updateSlider);
+			});
 
-			const content = await foundry.applications.handlebars.renderTemplate(
-				"systems/usr/templates/chat/combat-interaction.hbs",
-				updatedData,
-			);
-			await message.update({ content });
+			// Initial run
+			updateSlider();
 		});
 	}
 });
+
+async function resolveInteraction(
+	attackMsg,
+	attackData,
+	defenseSuccesses,
+	target,
+	attacker,
+) {
+	const netSuccesses = attackData.attackSuccesses - defenseSuccesses;
+
+	// Prepare updated attack message data
+	const finalAttackData = foundry.utils.deepClone(attackData);
+	finalAttackData.resolved = true;
+	finalAttackData.defenseSuccesses = defenseSuccesses;
+	finalAttackData.netSuccesses = netSuccesses;
+
+	const updatedContent = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/chat/combat-interaction.hbs",
+		finalAttackData,
+	);
+
+	const updateData = {
+		content: updatedContent,
+		"flags.usr.attackData.resolved": true,
+		"flags.usr.attackData.defenseSuccesses": defenseSuccesses,
+		"flags.usr.attackData.netSuccesses": netSuccesses,
+	};
+
+	// Update the original message (Directly if owner/GM, otherwise via socket)
+	if (attackMsg.isOwner || game.user.isGM) {
+		await attackMsg.update(updateData);
+	} else {
+		game.socket.emit("system.usr", {
+			type: "updateChatMessage",
+			messageId: attackMsg.id,
+			updateData,
+		});
+	}
+
+	// Auto-roll damage in a SEPARATE message only if hit
+	if (netSuccesses > 0) {
+		const weapon = attacker.items.get(attackData.item.id) || attackData.item;
+		await game.usr.rollDamage(attacker, weapon, netSuccesses);
+	}
+}
 
 /* -------------------------------------------- */
 /*  Combat & Token Hooks                        */
@@ -373,6 +461,25 @@ Handlebars.registerHelper("eq", function (a, b) {
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
+	console.log("USR | Ready hook fired");
+
+	// Register socket listener for message updates (required for non-owners to update attack messages)
+	game.socket.on("system.usr", async (request) => {
+		if (request.type === "updateChatMessage") {
+			const message = game.messages.get(request.messageId);
+			if (!message) return;
+
+			// Handle update if we are the owner or an active GM
+			const isOwner = game.user.id === message.author.id;
+			const activeGM = game.users.activeGM;
+			const isActiveGM = game.user.isGM && game.user.id === activeGM?.id;
+
+			if (isOwner || isActiveGM) {
+				await message.update(request.updateData);
+			}
+		}
+	});
+
 	// Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
 	Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
 });

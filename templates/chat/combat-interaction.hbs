@@ -3,6 +3,36 @@
 	data-attacker-id="{{attacker.id}}"
 	data-target-id="{{target.id}}"
 >
+	{{#if roll}}
+	<div class="usr dice-roll">
+		<div class="dice-result">
+			<div class="dice-formula">{{ roll.formula }}</div>
+			<div class="dice-tooltip">
+				<section class="tooltip-part">
+					<div class="dice">
+						<header class="part-header flexrow">
+							<span class="part-formula"
+								>{{ roll.dice.length }}{{ roll.type }}</span
+							>
+							<span class="part-total">{{roll.successes}}</span>
+						</header>
+						<ol class="dice-rolls">
+							{{#each roll.dice}}
+							<li
+								class="roll die {{ ../roll.type }}{{#if success }} success{{/if}}"
+							>
+								{{ value }}
+							</li>
+							{{/each}}
+						</ol>
+					</div>
+				</section>
+			</div>
+			<h4 class="dice-total">{{ roll.total }}</h4>
+		</div>
+	</div>
+	{{/if}}
+
 	<div class="interaction-header">
 		<div class="attacker">
 			<img
@@ -31,63 +61,31 @@
 			<span class="success-count attacker-successes">{{attackSuccesses}}</span>
 			Successes
 		</p>
+		{{#if resolved}}
 		<p>
 			Defense Successes:
 			<span class="success-count target-successes">{{defenseSuccesses}}</span>
 		</p>
+		{{/if}}
 	</div>
 
 	{{#unless resolved}}
 	<div class="interaction-controls">
-		{{#if target.inCombat}}
-		<div class="defense-settings">
-			<div class="form-group action-type">
-				<label>Action Type:</label>
-				<div class="form-fields">
-					<label class="radio-label">
-						<input type="radio" name="actionType" value="main" {{#if target.acted}}disabled{{else}}checked{{/if}}>
-						Main Action
-					</label>
-					<label class="radio-label">
-						<input type="radio" name="actionType" value="extra" {{#if target.acted}}checked{{/if}} {{#unless target.position}}{{#unless (eq target.stance "defensive")}}disabled{{/unless}}{{/unless}}>
-						Extra Action {{#unless (eq target.stance "defensive")}}(1 Pos){{/unless}}
-					</label>
-				</div>
-			</div>
-			<div class="form-group dice-boost">
-				<label>Position Boost (+Dice):</label>
-				<div class="form-fields">
-					<input type="number" class="boost-dice" value="0" min="0" max="{{target.position}}">
-					<span class="max-pos">/ {{target.position}} Pos</span>
-				</div>
-			</div>
-		</div>
-		{{/if}}
-
-		<div class="defense-options">
-			<h5>Defend with:</h5>
-			<div class="defense-buttons">
-				{{#each defenseWeapons}}
-				<button
-					class="defend-button"
-					data-item-id="{{id}}"
-					title="Defense Bonus: {{defenseBonus}}"
-				>
-					<img src="{{img}}" width="20" height="20" /> {{name}}
-				</button>
-				{{/each}}
-			</div>
-		</div>
-
-		<div class="resolve-options">
-			<button class="resolve-damage-button">
-				<i class="fas fa-sword"></i> Resolve Damage
+		<div class="defense-trigger">
+			<button class="open-defense-dialog">
+				<i class="fas fa-shield-alt"></i> Defend
 			</button>
 		</div>
 	</div>
 	{{else}}
-	<div class="interaction-status">
-		<p>Resolved</p>
+	<div class="interaction-status resolved-status">
+		<p
+			class="{{#if (gt netSuccesses 0)}}status-hit{{else}}status-defended{{/if}}"
+		>
+			{{#if (gt netSuccesses 0)}}
+			<i class="fas fa-sword"></i> HIT! {{netSuccesses}} net successes. {{else}}
+			<i class="fas fa-shield-check"></i> DEFENDED! {{/if}}
+		</p>
 	</div>
 	{{/unless}}
 </div>

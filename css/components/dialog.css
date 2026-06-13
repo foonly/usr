@@ -1,0 +1,153 @@
+.defense-dialog {
+    --usr-dialog-bg: var(--usr-surface-2);
+    --usr-dialog-accent: var(--usr-accent);
+    --usr-dialog-text: var(--usr-text);
+    --usr-dialog-border: var(--usr-border);
+
+    font-family: var(--usr-font-primary);
+}
+
+.defense-dialog .dialog-content {
+    padding: 15px;
+    background: var(--usr-surface-1);
+}
+
+.defense-dialog .dialog-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--usr-dialog-border);
+    padding-bottom: 10px;
+}
+
+.defense-dialog .dialog-header p {
+    margin: 5px 0;
+}
+
+.defense-dialog .dialog-section {
+    margin-bottom: 20px;
+}
+
+.defense-dialog .section-header {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    color: var(--usr-text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.defense-dialog .button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.defense-dialog .button-label {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+    text-align: center;
+}
+
+.defense-dialog .button-label input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.defense-dialog .button-label span {
+    display: block;
+    padding: 10px;
+    background: var(--usr-surface-3);
+    border: 1px solid var(--usr-dialog-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.defense-dialog .button-label:hover span {
+    background: var(--usr-surface-hover);
+}
+
+.defense-dialog .button-label input:checked + span {
+    background: var(--usr-dialog-accent);
+    color: var(--usr-surface-1);
+    border-color: var(--usr-dialog-accent);
+    font-weight: bold;
+}
+
+.defense-dialog .button-label.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.defense-dialog .position-slider {
+    padding: 0 10px;
+}
+
+.defense-dialog .boost-dice-slider {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.defense-dialog .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: var(--usr-text-muted);
+}
+
+.defense-dialog .boost-value {
+    color: var(--usr-dialog-accent);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.defense-dialog .select-wrapper select {
+    width: 100%;
+    background: var(--usr-surface-3);
+    color: var(--usr-text);
+    border: 1px solid var(--usr-dialog-border);
+    padding: 8px;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+/* Style the buttons provided by DialogV2 */
+.defense-dialog .dialog-buttons {
+    padding: 10px 15px 15px;
+    gap: 10px;
+}
+
+.defense-dialog .dialog-buttons button {
+    font-family: var(--usr-font-primary);
+    text-transform: uppercase;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.defense-dialog .dialog-buttons button.defend {
+    background: transparent;
+    border: 1px solid var(--usr-dialog-accent);
+    color: var(--usr-dialog-accent);
+}
+
+.defense-dialog .dialog-buttons button.defend:hover {
+    background: var(--usr-dialog-accent);
+    color: var(--usr-surface-1);
+}
+
+.defense-dialog .dialog-buttons button.skip {
+    background: transparent;
+    border: 1px solid var(--usr-text-muted);
+    color: var(--usr-text-muted);
+}
+
+.defense-dialog .dialog-buttons button.skip:hover {
+    background: var(--usr-text-muted);
+    color: var(--usr-surface-1);
+}

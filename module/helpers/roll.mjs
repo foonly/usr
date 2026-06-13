@@ -166,9 +166,9 @@ export async function usrRoll(data) {
 		(result.successes ? result.successes + " Successes" : "Fail");
 
 	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
+	let flavor = data.flavor || "";
 
 	if (data.createMessage !== false) {
-		let flavor = data.flavor || "";
 		if (data.spec) {
 			const specLabelKey =
 				usr.meleeSpecializations[data.spec] ||
@@ -209,12 +209,12 @@ export async function usrRoll(data) {
 				// Melee attack flow
 				if (isMelee) {
 					if (target) {
-						// Create interactive defense message if target is selected
 						return await createCombatInteraction(
 							data.actor,
 							target.actor,
 							item,
 							result,
+							flavor,
 						);
 					} else if (game.combat?.active) {
 						// If in combat but no target, warn
@@ -342,6 +342,7 @@ export async function createCombatInteraction(
 	target,
 	item,
 	attackResult,
+	flavor,
 ) {
 	const defenseWeapons = target.items
 		.filter((i) => i.type === "melee" && i.system.equipped)
@@ -393,6 +394,7 @@ export async function createCombatInteraction(
 		defenseSuccesses: 0,
 		defenseWeapons,
 		resolved: false,
+		roll: attackResult, // Include full roll result for dice display
 	};
 
 	const content = await foundry.applications.handlebars.renderTemplate(
@@ -403,7 +405,7 @@ export async function createCombatInteraction(
 	const messageData = {
 		content,
 		speaker: ChatMessage.getSpeaker({ actor: attacker }),
-		flavor: "Melee Attack - Waiting for Defense",
+		flavor: flavor || "Melee Attack - Waiting for Defense",
 		flags: {
 			usr: {
 				attackData: data,

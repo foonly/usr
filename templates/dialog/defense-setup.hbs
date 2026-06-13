@@ -1,0 +1,53 @@
+<div class="usr defense-dialog-content">
+    <div class="dialog-header">
+        <p><strong>{{attacker.name}}</strong> is attacking with <strong>{{item.name}}</strong>!</p>
+        <p>Attack Successes: <span class="success-count">{{attackSuccesses}}</span></p>
+    </div>
+
+    {{#if target.inCombat}}
+    <section class="dialog-section">
+        <header class="section-header">Action Type</header>
+        <div class="button-group action-type">
+            <label class="button-label {{#if target.acted}}disabled{{/if}}">
+                <input type="radio" name="actionType" value="main" {{#if target.acted}}disabled{{else}}checked{{/if}}>
+                <span>Main Action</span>
+            </label>
+            <label class="button-label {{#unless target.position}}{{#unless (eq target.stance "defensive")}}disabled{{/unless}}{{/unless}}">
+                <input type="radio" name="actionType" value="extra" {{#if (or target.acted (eq target.stance "defensive"))}}checked{{/if}} {{#unless target.position}}{{#unless (eq target.stance "defensive")}}disabled{{/unless}}{{/unless}}>
+                <span>Extra Action {{#unless (eq target.stance "defensive")}}(1 Pos){{/unless}}</span>
+            </label>
+        </div>
+    </section>
+
+    <section class="dialog-section">
+        <header class="section-header">Position Boost (+Dice)</header>
+        <div class="boost-options">
+            <div class="position-slider">
+                <input type="range" name="boostDice" class="boost-dice-slider" value="0" min="0" max="{{target.position}}" step="1">
+                <div class="slider-labels">
+                    <span>None</span>
+                    <span class="boost-value">0</span>
+                    <span>Max ({{target.position}})</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    {{/if}}
+
+    <section class="dialog-section">
+        <header class="section-header">Defend With</header>
+        <div class="select-wrapper">
+            <select name="defenseItem" class="defense-item">
+                {{#each defenseWeapons}}
+                <option value="{{id}}">{{name}} (Bonus: {{defenseBonus}})</option>
+                {{/each}}
+            </select>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Simple script to update the boost value display if possible,
+    // though for DialogV2 it's better to handle in the render hook if we were subclassing.
+    // For now we'll rely on the slider's natural behavior or basic CSS.
+</script>
