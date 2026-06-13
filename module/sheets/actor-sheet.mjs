@@ -218,7 +218,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			system: {
 				damage: Math.round(fortitude * 0.75),
 				lethality: "stun",
-				defenseBonus: 0,
+				defenseBonus: -1,
 				reach: 0,
 				specialization: spec,
 			},
@@ -409,7 +409,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 					system: {
 						damage: Math.round(fortitude * 0.75),
 						lethality: "stun",
-						defenseBonus: 0,
+						defenseBonus: -1,
 						reach: 0,
 						specialization: spec,
 					},
@@ -426,16 +426,16 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 						item: unarmedData,
 					});
 				} else if (dataset.rollType === "defend") {
-					let difficulty = 4;
+					let difficulty = 3; // Default (Neutral/Out of combat)
 					let flavor = `${unarmedData.name} (Defend)`;
 					if (game.combat) {
 						const combatant = game.combat.combatants.find(
 							(c) => c.actorId === this.actor.id,
 						);
 						const stance = combatant?.getFlag("usr", "action.stance");
-						if (stance === "aggressive") difficulty = 3;
-						else if (stance === "neutral" || stance === "defensive")
-							difficulty = 4;
+						if (stance === "aggressive") difficulty = 2;
+						else if (stance === "neutral") difficulty = 3;
+						else if (stance === "defensive") difficulty = 4;
 
 						if (stance) {
 							const stanceLabel =
@@ -450,7 +450,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 						trait: "melee",
 						spec: spec,
 						flavor: flavor,
-						difficulty: difficulty,
+						difficulty: difficulty - 1,
 						skipDamage: true,
 					});
 				}

@@ -120,7 +120,7 @@ export class usrItem extends Item {
 	/**
 	 * Handle defense rolls.
 	 */
-	async rollDefend() {
+	async rollDefend(options = {}) {
 		const item = this;
 		const actor = this.actor;
 		if (!actor) return;
@@ -129,14 +129,15 @@ export class usrItem extends Item {
 		const spec = item.system.specialization || "";
 		let label = `${item.name} (Defend)`;
 
-		let difficulty = 4; // Default
+		let difficulty = 3; // Default (Neutral/Out of combat)
 		if (game.combat) {
 			const combatant = game.combat.combatants.find(
 				(c) => c.actorId === actor.id,
 			);
 			const stance = combatant?.getFlag("usr", "action.stance");
-			if (stance === "aggressive") difficulty = 3;
-			else if (stance === "neutral" || stance === "defensive") difficulty = 4;
+			if (stance === "aggressive") difficulty = 2;
+			else if (stance === "neutral") difficulty = 3;
+			else if (stance === "defensive") difficulty = 4;
 
 			if (stance) {
 				const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
@@ -154,6 +155,7 @@ export class usrItem extends Item {
 			spec,
 			flavor: label,
 			difficulty: difficulty,
+			diceBonus: options.diceBonus || 0,
 			skipDamage: true,
 		});
 	}

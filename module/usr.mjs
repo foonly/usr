@@ -106,15 +106,73 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 				return ui.notifications.warn("You do not own this target.");
 			}
 
+			const currentAttackData = message.getFlag("usr", "attackData");
+			const targetData = currentAttackData.target;
 			const itemId = button.dataset.itemId;
+
+			let diceBonus = 0;
+			let positionCost = 0;
+			let actionType = "main";
+			let isExtra = false;
+
+			// Combat specific logic
+			if (targetData.inCombat) {
+				const settings = html.querySelector(".defense-settings");
+				actionType =
+					settings.querySelector('input[name="actionType"]:checked')?.value ||
+					"main";
+				const boostDice = parseInt(
+					settings.querySelector(".boost-dice")?.value || "0",
+					10,
+				);
+
+				isExtra = actionType === "extra";
+				positionCost = boostDice;
+				diceBonus = boostDice;
+
+				// Extra action cost
+				if (isExtra && targetData.stance !== "defensive") {
+					positionCost += 1;
+				}
+
+				if (positionCost > targetData.position) {
+					return ui.notifications.warn(
+						`You do not have enough position (${targetData.position}) for this action (Cost: ${positionCost}).`,
+					);
+				}
+
+				// Apply costs to combatant
+				const combatant = game.combat.combatants.find(
+					(c) => c.actorId === target.id,
+				);
+				if (combatant) {
+					const updates = {
+						"flags.usr.position": targetData.position - positionCost,
+					};
+					if (!isExtra) {
+						updates["flags.usr.action.acted"] = true;
+					}
+					await combatant.update(updates);
+				}
+			}
+
 			let defenseSuccesses = 0;
 
 			if (itemId === "unarmed") {
 				// Base defense roll for Unarmed
+				let difficulty = 3; // Default (Neutral/Out of combat)
+				if (targetData.inCombat) {
+					const stance = targetData.stance;
+					if (stance === "aggressive") difficulty = 2;
+					else if (stance === "neutral") difficulty = 3;
+					else if (stance === "defensive") difficulty = 4;
+				}
+
 				const rollResult = await game.usr.usrRoll({
 					actor: target,
 					trait: "melee",
-					difficulty: 4,
+					difficulty: difficulty - 1,
+					diceBonus: diceBonus,
 					flavor: "Defense (Unarmed)",
 					skipDamage: true,
 				});
@@ -122,7 +180,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 			} else {
 				const item = target.items.get(itemId);
 				if (item) {
-					const rollResult = await item.rollDefend();
+					const rollResult = await item.rollDefend({ diceBonus });
 					defenseSuccesses = rollResult.result.successes;
 				}
 			}
@@ -134,10 +192,29 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 				defenseSuccesses,
 			);
 
-			// Re-render message content
+			// Re-render message content with updated data
+			const updatedAttackData = foundry.utils.deepClone(
+				message.getFlag("usr", "attackData"),
+			);
+
+			// Refresh target state for UI if in combat
+			if (targetData.inCombat) {
+				const combatant = game.combat.combatants.find(
+					(c) => c.actorId === target.id,
+				);
+				updatedAttackData.target.position = combatant.getFlag(
+					"usr",
+					"position",
+				);
+				updatedAttackData.target.acted = combatant.getFlag(
+					"usr",
+					"action.acted",
+				);
+			}
+
 			const content = await foundry.applications.handlebars.renderTemplate(
 				"systems/usr/templates/chat/combat-interaction.hbs",
-				message.getFlag("usr", "attackData"),
+				updatedAttackData,
 			);
 			await message.update({ content });
 		});
@@ -285,6 +362,10 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 Handlebars.registerHelper("capitalize", function (str) {
 	if (typeof str !== "string") return "";
 	return str.charAt(0).toUpperCase() + str.slice(1);
+});
+
+Handlebars.registerHelper("eq", function (a, b) {
+	return a === b;
 });
 
 /* -------------------------------------------- */

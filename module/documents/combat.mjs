@@ -21,6 +21,7 @@ export class usrCombat extends Combat {
 		// If the round is changing, reset combatant flags for the new round
 		if ("round" in changed && changed.round > this.round) {
 			const updates = this.combatants.map((c) => {
+				const currentAction = c.getFlag("usr", "action") || {};
 				return {
 					_id: c.id,
 					"flags.usr.action": {
@@ -29,7 +30,7 @@ export class usrCombat extends Combat {
 						status: null,
 						stance: "",
 						type: "melee",
-						targetId: "",
+						targetId: currentAction.targetId || "",
 						movement: "none",
 						description: "",
 						boostType: "none",

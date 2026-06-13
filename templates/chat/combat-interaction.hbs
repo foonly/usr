@@ -1,5 +1,5 @@
 <div
-	class="combat-interaction"
+	class="usr combat-interaction"
 	data-attacker-id="{{attacker.id}}"
 	data-target-id="{{target.id}}"
 >
@@ -39,6 +39,31 @@
 
 	{{#unless resolved}}
 	<div class="interaction-controls">
+		{{#if target.inCombat}}
+		<div class="defense-settings">
+			<div class="form-group action-type">
+				<label>Action Type:</label>
+				<div class="form-fields">
+					<label class="radio-label">
+						<input type="radio" name="actionType" value="main" {{#if target.acted}}disabled{{else}}checked{{/if}}>
+						Main Action
+					</label>
+					<label class="radio-label">
+						<input type="radio" name="actionType" value="extra" {{#if target.acted}}checked{{/if}} {{#unless target.position}}{{#unless (eq target.stance "defensive")}}disabled{{/unless}}{{/unless}}>
+						Extra Action {{#unless (eq target.stance "defensive")}}(1 Pos){{/unless}}
+					</label>
+				</div>
+			</div>
+			<div class="form-group dice-boost">
+				<label>Position Boost (+Dice):</label>
+				<div class="form-fields">
+					<input type="number" class="boost-dice" value="0" min="0" max="{{target.position}}">
+					<span class="max-pos">/ {{target.position}} Pos</span>
+				</div>
+			</div>
+		</div>
+		{{/if}}
+
 		<div class="defense-options">
 			<h5>Defend with:</h5>
 			<div class="defense-buttons">

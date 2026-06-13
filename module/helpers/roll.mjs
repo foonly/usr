@@ -206,26 +206,27 @@ export async function usrRoll(data) {
 				const isMelee = item.type === "melee";
 				const target = game.user.targets.first();
 
-				// If in combat and melee, check for target
-				if (game.combat?.active && isMelee) {
-					if (!target) {
+				// Melee attack flow
+				if (isMelee) {
+					if (target) {
+						// Create interactive defense message if target is selected
+						return await createCombatInteraction(
+							data.actor,
+							target.actor,
+							item,
+							result,
+						);
+					} else if (game.combat?.active) {
+						// If in combat but no target, warn
 						ui.notifications.warn("Please select a target for melee attacks.");
 						return { roll, result };
 					}
-
-					// Create interactive defense message
-					return await createCombatInteraction(
-						data.actor,
-						target.actor,
-						item,
-						result,
-					);
-				} else {
-					// Ranged or out of combat: resolve immediately
-					// Add successes to damage
-					const bonusDamage = result.successes;
-					await rollDamage(data.actor, item, bonusDamage);
 				}
+
+				// Ranged, untargeted melee, or out-of-combat untargeted: resolve immediately
+				// Add successes to damage
+				const bonusDamage = result.successes;
+				await rollDamage(data.actor, item, bonusDamage);
 			} catch (err) {
 				console.error("USR | Damage roll failed:", err);
 			}
@@ -356,8 +357,13 @@ export async function createCombatInteraction(
 		id: "unarmed",
 		name: game.i18n.localize("USR.Unarmed"),
 		img: "icons/skills/melee/unarmed-punch-fist.webp",
-		defenseBonus: 0,
+		defenseBonus: -1,
 	});
+
+	const combatant = game.combat?.combatants.find(
+		(c) => c.actorId === target.id,
+	);
+	const inCombat = !!game.combat?.active && !!combatant;
 
 	const data = {
 		attacker: {
@@ -371,6 +377,10 @@ export async function createCombatInteraction(
 			uuid: target.uuid,
 			name: target.name,
 			img: target.img,
+			inCombat,
+			position: combatant?.getFlag("usr", "position") ?? 4,
+			acted: combatant?.getFlag("usr", "action.acted") ?? false,
+			stance: combatant?.getFlag("usr", "action.stance") ?? "neutral",
 		},
 		item: {
 			id: item.id || item._id,

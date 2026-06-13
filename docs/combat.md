@@ -46,11 +46,11 @@ In the first phase the combatants choose their stance out of 3 possibilities. Th
 
 ### Argressive Stance
 
-In aggressive stance the character prioritizes mobility and offensive actions over defense. Aggressive stance gives the character a higher initiative roll of 6 dice, but roll 3 dice for defence.
+In aggressive stance the character prioritizes mobility and offensive actions over defense. Aggressive stance gives the character a higher initiative roll of 6 dice, but roll 2 dice for defence.
 
 ### Neutral Stance
 
-In neutral stance the character balances mobility and defense, with a standard initiative roll of 4 dice and a defence roll of 4 dice.
+In neutral stance the character balances mobility and defense, with a standard initiative roll of 4 dice and a defence roll of 3 dice.
 
 ### Defensive Stance
 
