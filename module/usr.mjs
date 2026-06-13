@@ -86,6 +86,32 @@ Hooks.once("init", async function () {
 /* -------------------------------------------- */
 
 /**
+ * Sync active combatant's target flag when manually targeting on canvas.
+ * Enforce single targeting by releasing other targets.
+ */
+Hooks.on("targetToken", (user, token, targeted) => {
+	if (user.id !== game.user.id) return;
+	if (!targeted) return;
+
+	// Enforce single target
+	for (let t of user.targets) {
+		if (t !== token) t.setTarget(false, { releaseOthers: false, group: true });
+	}
+
+	if (!game.combat?.active || game.combat.getFlag("usr", "phase") !== 3) return;
+
+	const activeCombatant = game.combat.turns[game.combat.turn];
+	if (!activeCombatant || (!activeCombatant.isOwner && !game.user.isGM)) return;
+
+	const targetedCombatant = game.combat.combatants.find(
+		(c) => c.tokenId === token.document.id,
+	);
+	if (targetedCombatant && targetedCombatant.id !== activeCombatant.id) {
+		activeCombatant.setFlag("usr", "action.targetId", targetedCombatant.id);
+	}
+});
+
+/**
  * Draw the position tracker on tokens when in combat.
  */
 Hooks.on("refreshToken", (token) => {
@@ -136,14 +162,6 @@ Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
 /* -------------------------------------------- */
 /*  Token HUD                                   */
 /* -------------------------------------------- */
-
-Hooks.on("renderTokenHUD", (app, html, data) => {
-	// Hide the target button since USR uses a different targeting workflow
-	const target =
-		html[0]?.querySelector('[data-action="target"]') ||
-		html.querySelector?.('[data-action="target"]');
-	if (target) target.remove();
-});
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */

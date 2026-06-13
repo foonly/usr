@@ -340,10 +340,10 @@ export class usrCombatTracker
 			if (targetToken && targetToken.isVisible) {
 				targetToken.setTarget(true, { releaseOthers: true });
 			} else {
-				game.user.updateTokenTargets([]);
+				canvas.tokens.setTargets([]);
 			}
 		} else {
-			game.user.updateTokenTargets([]);
+			canvas.tokens.setTargets([]);
 		}
 	}
 
