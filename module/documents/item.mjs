@@ -34,7 +34,19 @@ export class usrItem extends Item {
 		if (item.type === "melee" || item.type === "ranged") {
 			const trait = item.type === "melee" ? "melee" : "ranged";
 			const spec = item.system.specialization || "";
-			const label = `${item.name} (${item.type === "melee" ? "Melee" : "Ranged"} Attack)`;
+			let label = `${item.name} (${item.type === "melee" ? "Melee" : "Ranged"} Attack)`;
+
+			let diceBonus = 0;
+			if (game.combat) {
+				const combatant = game.combat.combatants.find(
+					(c) => c.actorId === actor.id,
+				);
+				const stance = combatant?.getFlag("usr", "action.stance");
+				if (stance === "defensive") {
+					diceBonus = -1;
+					label += " [Defensive Stance]";
+				}
+			}
 
 			return usrRoll({
 				actor,
@@ -43,6 +55,7 @@ export class usrItem extends Item {
 				spec,
 				flavor: label,
 				difficulty: 4, // Default to Normal
+				diceBonus,
 			});
 		}
 

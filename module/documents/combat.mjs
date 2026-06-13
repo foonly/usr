@@ -32,6 +32,8 @@ export class usrCombat extends Combat {
 						targetId: "",
 						movement: "none",
 						description: "",
+						boostType: "none",
+						boostAmount: 0,
 					},
 					initiative: null,
 				};
@@ -69,12 +71,20 @@ export class usrCombat extends Combat {
 			return this.nextRound();
 		}
 
-		// If moving to Phase 2, reveal all actions and reset turn
+		// If moving to Phase 2, reveal all actions, apply defensive position bonus, and reset turn
 		if (nextPhase === 2) {
-			const updates = this.combatants.map((c) => ({
-				_id: c.id,
-				"flags.usr.action.revealed": true,
-			}));
+			const updates = this.combatants.map((c) => {
+				const action = c.getFlag("usr", "action") || {};
+				const update = {
+					_id: c.id,
+					"flags.usr.action.revealed": true,
+				};
+				if (action.stance === "defensive") {
+					const currentPos = c.getFlag("usr", "position") ?? 4;
+					update["flags.usr.position"] = Math.min(currentPos + 2, 5);
+				}
+				return update;
+			});
 			await this.updateEmbeddedDocuments("Combatant", updates);
 			return this.update({ "flags.usr.phase": nextPhase, turn: null });
 		}

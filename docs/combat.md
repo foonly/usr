@@ -54,7 +54,7 @@ In neutral stance the character balances mobility and defense, with a standard i
 
 ### Defensive Stance
 
-In defensive stance the character focuses on defense. Defensive stance does not roll initiative, but get a +2 position increase in the beginning of the turn. Defensive stance rolls 6 dice for defence. Defensive stance can perform defensive actions without paying position. Attacks from defensive stance always has a -1 modifier. (Attacks are rolled with 3 instead of 4 dice)
+In defensive stance the character focuses on defense. Defensive stance rolls 2 dice for initiative, but get a +2 position increase in the beginning of the turn. Defensive stance rolls 6 dice for defence. Defensive stance can perform defensive actions without paying position. Attacks from defensive stance always has a -1 modifier. (Attacks are rolled with 3 instead of 4 dice)
 
 ## Position
 

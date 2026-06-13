@@ -20,11 +20,8 @@ export class usrCombatant extends Combatant {
 		const stance = action.stance || "defensive";
 		let position = this.getFlag("usr", "position") ?? 4;
 
-		if (stance === "defensive") {
-			return this.update({ initiative: 0 });
-		}
-
-		const difficulty = stance === "aggressive" ? 6 : 4;
+		const difficulty =
+			stance === "aggressive" ? 6 : stance === "defensive" ? 2 : 4;
 		const actor = this.actor;
 
 		if (!actor) {

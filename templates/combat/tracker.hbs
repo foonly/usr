@@ -79,7 +79,7 @@
                 <i class="fa-solid fa-check successes" title="Action Defined"></i>
                 {{/if}}
             {{else}}
-                {{#if (and (eq @root.phase 2) isOwner (not initiative) (ne usrAction.stance "defensive"))}}
+                {{#if (and (eq @root.phase 2) isOwner (not initiative))}}
                 <button type="button" class="combatant-control roll" data-action="rollInitiative" data-tooltip
                         aria-label="{{ localize "COMBAT.InitiativeRoll" }}"
                         style="--initiative-icon: url('/icons/svg/dice-target.svg'); --initiative-icon-hover: url('/icons/svg/dice-target.svg');"></button>

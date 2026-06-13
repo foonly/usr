@@ -240,14 +240,8 @@ export class usrCombatTracker
 				// Handle Target Visibility
 				if (stance === "defensive") {
 					targetGroup.style.display = "none";
-					posBoostOption.style.display = "none";
-					initBoostOption.style.display = "none";
-					html.querySelector('input[name="boostType"][value="none"]').checked =
-						true;
 				} else {
 					targetGroup.style.display = "flex";
-					posBoostOption.style.display = "flex";
-					initBoostOption.style.display = "flex";
 				}
 
 				// Handle Boost Amount Visibility
@@ -324,12 +318,6 @@ export class usrCombatTracker
 
 		const combatant = combat.turns[turnIndex];
 		const action = combatant.getFlag("usr", "action");
-
-		// Defensive stance gets +2 position at the beginning of the turn
-		if (action?.stance === "defensive") {
-			const currentPos = combatant.getFlag("usr", "position") ?? 4;
-			await combatant.setFlag("usr", "position", Math.min(currentPos + 2, 5));
-		}
 
 		const token = combatant.token?.object;
 
@@ -422,31 +410,30 @@ export class usrCombatTracker
 		const updates = [];
 		for (const combatant of combat.combatants) {
 			const action = combatant.getFlag("usr", "action");
-			if (!action || action.stance === "defensive") {
-				updates.push({
-					_id: combatant.id,
-					"flags.usr.action.status": "defensive",
-				});
-				continue;
-			}
+			if (!action) continue;
 
+			let status = null;
 			if (action.targetId && !action.targetId.startsWith("custom:")) {
 				const target = combat.combatants.get(action.targetId);
 				if (target) {
 					const attackerSuccesses = combatant.initiative || 0;
 					const targetSuccesses = target.initiative || 0;
 
-					let status = "failed";
+					status = "failed";
 					if (attackerSuccesses === 0) status = "failed";
 					else if (attackerSuccesses > targetSuccesses) status = "win";
 					else if (attackerSuccesses === targetSuccesses) status = "tie";
 					else status = "loss";
-
-					updates.push({
-						_id: combatant.id,
-						"flags.usr.action.status": status,
-					});
 				}
+			} else if (action.stance === "defensive") {
+				status = "defensive";
+			}
+
+			if (status) {
+				updates.push({
+					_id: combatant.id,
+					"flags.usr.action.status": status,
+				});
 			}
 			// Custom targets or no targets are handled manually by the GM or remain null
 		}
