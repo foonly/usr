@@ -1,6 +1,21 @@
 # Changelog
 
-## 0.7.0 (2026-06-13)
+## 0.8.0 (2026-06-14)
+
+#### Features
+
+- combat: implement robust combat interaction resolution (77bec66)
+- combat: implement DialogV2 for attack defense (18995ca)
+
+#### Bug Fixes
+
+- combat: update resolution message sender and display (29688d4)
+
+#### Styles
+
+- css: refactor chat combat interaction layout (d9eed05)
+
+## v0.7.0 (2026-06-13)
 
 #### Features
 
