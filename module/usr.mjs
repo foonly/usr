@@ -82,6 +82,70 @@ Hooks.once("init", async function () {
 });
 
 /* -------------------------------------------- */
+/*  Combat & Token Hooks                        */
+/* -------------------------------------------- */
+
+/**
+ * Draw the position tracker on tokens when in combat.
+ */
+Hooks.on("refreshToken", (token) => {
+	const combatant = token.combatant;
+
+	if (!combatant || !game.combat?.active) {
+		if (token.usrPosition) token.usrPosition.visible = false;
+		return;
+	}
+
+	if (!token.usrPosition) {
+		token.usrPosition = token.addChild(new PIXI.Container());
+	}
+	token.usrPosition.visible = true;
+	token.usrPosition.removeChildren().forEach((c) => c.destroy());
+
+	const position = combatant.getFlag("usr", "position") ?? 4;
+	const w = 8;
+	const h = 8;
+	const g = 2;
+	const totalW = 5 * w + 4 * g;
+
+	const graphics = new PIXI.Graphics();
+	for (let i = 0; i < 5; i++) {
+		const isFilled = i < position;
+		graphics.beginFill(isFilled ? 0xffffff : 0x333333, 0.9);
+		graphics.lineStyle(1, 0x000000, 1);
+		graphics.drawRect(i * (w + g), 0, w, h);
+		graphics.endFill();
+	}
+	token.usrPosition.addChild(graphics);
+
+	// Position at the bottom center of the token
+	token.usrPosition.x = (token.w - totalW) / 2;
+	token.usrPosition.y = token.h - h - 5;
+});
+
+/**
+ * Refresh token when combatant position changes.
+ */
+Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
+	if (foundry.utils.hasProperty(changed, "flags.usr.position")) {
+		const token = combatant.token?.object;
+		if (token) token.renderFlags.set({ refreshState: true });
+	}
+});
+
+/* -------------------------------------------- */
+/*  Token HUD                                   */
+/* -------------------------------------------- */
+
+Hooks.on("renderTokenHUD", (app, html, data) => {
+	// Hide the target button since USR uses a different targeting workflow
+	const target =
+		html[0]?.querySelector('[data-action="target"]') ||
+		html.querySelector?.('[data-action="target"]');
+	if (target) target.remove();
+});
+
+/* -------------------------------------------- */
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */
 

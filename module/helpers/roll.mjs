@@ -84,7 +84,7 @@ export async function usrRoll(data) {
 		data.difficulty = diffSequence[newIndex];
 	}
 
-	const nr = Math.abs(data.difficulty);
+	const nr = Math.abs(data.difficulty) + (data.diceBonus || 0);
 	const roll = await new Roll(`${nr}d10`).evaluate();
 	const result = {
 		difficulty: data.difficulty,

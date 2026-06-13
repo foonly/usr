@@ -33,6 +33,17 @@ The project follows the standard Foundry VTT system structure, utilizing modern 
 - **CSS**: Modern CSS with variables, nesting and imports.
 - **ES Modules**: Modern JavaScript module system.
 
+## Important Development Notes
+
+### DialogV2 and window.classes
+
+When using `foundry.applications.api.DialogV2`, Foundry wraps the provided template content in its own form structure. To apply custom styling reliably:
+
+- Use the `classes` option in the `DialogV2` constructor (e.g., `classes: ["my-custom-class"]`) to add a class to the outer application window.
+- Custom classes added directly to the root `<form>` tag in your Handlebars template will be lost or overridden.
+- Target your styles using the window class (e.g., `.my-custom-class .dialog-content`).
+- The `standard-form` layout often defaults to a side-by-side label/field arrangement; use `display: flex; flex-direction: column;` on `.form-group` if a stacked layout is desired.
+
 ## Core Concepts
 
 - **Actors**: Supports `character` and `npc` types.

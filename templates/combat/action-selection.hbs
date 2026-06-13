@@ -1,25 +1,55 @@
 <form class="usr action-selection">
-    <div class="flexrow">
-        <div class="flexcol">
-            <label>{{localize "USR.Stance"}}</label>
-            <select name="stance" class="stance-selector">
-                <option value="" {{#unless action.stance}}selected{{/unless}}>-- Select Stance --</option>
-                {{selectOptions stances selected=action.stance}}
-            </select>
-        </div>
-        <div class="flexcol">
-            <label>{{localize "USR.ActionType"}}</label>
-            <select name="type">
-                {{selectOptions types selected=action.type}}
-            </select>
+    {{!-- Action Type Row --}}
+    <div class="form-group">
+        <label>{{localize "USR.ActionType"}}</label>
+        <div class="form-fields radio-group">
+            <label class="radio-label">
+                <input type="radio" name="type" value="melee" {{#if (eq action.type "melee")}}checked{{/if}}>
+                <span>{{localize "USR.TraitMelee"}}</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="type" value="ranged" {{#if (eq action.type "ranged")}}checked{{/if}}>
+                <span>{{localize "USR.TraitRanged"}}</span>
+            </label>
         </div>
     </div>
 
-    <div class="flexcol movement-group">
+    {{!-- Stance Row --}}
+    <div class="form-group">
+        <label>{{localize "USR.Stance"}}</label>
+        <div class="form-fields radio-group stance-selector">
+            <label class="radio-label">
+                <input type="radio" name="stance" value="defensive" {{#if (eq action.stance "defensive")}}checked{{/if}}>
+                <span>{{localize "USR.StanceDefensive"}}</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="stance" value="neutral" {{#if (or (eq action.stance "neutral") (not action.stance))}}checked{{/if}}>
+                <span>{{localize "USR.StanceNeutral"}}</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="stance" value="aggressive" {{#if (eq action.stance "aggressive")}}checked{{/if}}>
+                <span>{{localize "USR.StanceAggressive"}}</span>
+            </label>
+        </div>
+    </div>
+
+    {{!-- Movement Row --}}
+    <div class="form-group">
         <label>{{localize "USR.Movement"}}</label>
-        <select name="movement">
-            {{selectOptions movements selected=action.movement}}
-        </select>
+        <div class="form-fields radio-group movement-selector">
+            <label class="radio-label">
+                <input type="radio" name="movement" value="none" {{#if (or (eq action.movement "none") (not action.movement))}}checked{{/if}}>
+                <span>{{localize "USR.None"}}</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="movement" value="slow" {{#if (eq action.movement "slow")}}checked{{/if}}>
+                <span>{{localize "USR.MovementSlow"}}</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="movement" value="fast" {{#if (eq action.movement "fast")}}checked{{/if}}>
+                <span>{{localize "USR.MovementFast"}}</span>
+            </label>
+        </div>
     </div>
 
     <div class="flexcol target-group">
@@ -38,6 +68,35 @@
             </select>
 
             <input type="text" name="customTarget" class="custom-target-input" {{#unless isCustomTarget}}style="display: none;"{{/unless}} value="{{action.customTargetName}}" placeholder="Custom Target...">
+        </div>
+    </div>
+
+    {{!-- Boost Options Row --}}
+    <div class="form-group boost-group">
+        <label>{{localize "USR.Boost"}}</label>
+        <div class="form-fields flexcol">
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="boostType" value="none" {{#if (or (eq action.boostType "none") (not action.boostType))}}checked{{/if}}>
+                    <span>{{localize "USR.BoostNone"}}</span>
+                </label>
+                <label class="radio-label position-boost-option">
+                    <input type="radio" name="boostType" value="position" {{#if (eq action.boostType "position")}}checked{{/if}}>
+                    <span>{{localize "USR.BoostPosition"}}</span>
+                </label>
+                <label class="radio-label initiative-boost-option">
+                    <input type="radio" name="boostType" value="initiative" {{#if (eq action.boostType "initiative")}}checked{{/if}}>
+                    <span>{{localize "USR.BoostInitiative"}}</span>
+                </label>
+            </div>
+
+            <div class="boost-amount-container" {{#unless (eq action.boostType "initiative")}}style="display: none;"{{/unless}}>
+                <div class="flexrow">
+                    <span>{{localize "USR.BoostAmount"}}: </span>
+                    <input type="number" name="boostAmount" value="{{#if action.boostAmount}}{{action.boostAmount}}{{else}}1{{/if}}" min="1" max="{{currentPosition}}">
+                    <span class="max-pos">/ {{currentPosition}}</span>
+                </div>
+            </div>
         </div>
     </div>
 

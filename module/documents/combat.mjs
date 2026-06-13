@@ -7,7 +7,10 @@ export class usrCombat extends Combat {
 	async _onCreate(data, options, userId) {
 		await super._onCreate(data, options, userId);
 		if (game.user.id === userId) {
-			await this.setFlag("usr", "phase", 1);
+			await this.update({
+				"flags.usr.phase": 1,
+				turn: null,
+			});
 		}
 	}
 
@@ -35,8 +38,9 @@ export class usrCombat extends Combat {
 			});
 			await this.updateEmbeddedDocuments("Combatant", updates);
 
-			// Reset phase to Phase 1: Define
+			// Reset phase to Phase 1: Define and reset turn to -1
 			changed["flags.usr.phase"] = 1;
+			changed["turn"] = null;
 		}
 	}
 
@@ -65,13 +69,14 @@ export class usrCombat extends Combat {
 			return this.nextRound();
 		}
 
-		// If moving to Phase 2, reveal all actions
+		// If moving to Phase 2, reveal all actions and reset turn
 		if (nextPhase === 2) {
 			const updates = this.combatants.map((c) => ({
 				_id: c.id,
 				"flags.usr.action.revealed": true,
 			}));
 			await this.updateEmbeddedDocuments("Combatant", updates);
+			return this.update({ "flags.usr.phase": nextPhase, turn: null });
 		}
 
 		return this.update({ "flags.usr.phase": nextPhase });

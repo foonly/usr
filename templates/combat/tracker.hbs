@@ -9,6 +9,21 @@
         <div class="token-name">
             <strong class="name">{{ name }}</strong>
 
+            {{!-- Position Tracker --}}
+            <div class="position-tracker" title="Position: {{usrPosition}}/5">
+                <div class="position-dots">
+                    {{#each usrPositionDots}}
+                    <div class="dot {{#if this}}filled{{else}}empty{{/if}}"></div>
+                    {{/each}}
+                </div>
+                {{#if @root.user.isGM}}
+                <div class="position-controls">
+                    <a class="position-control" data-action="decreasePosition" data-tooltip="USR.DecreasePosition"><i class="fa-solid fa-minus"></i></a>
+                    <a class="position-control" data-action="increasePosition" data-tooltip="USR.IncreasePosition"><i class="fa-solid fa-plus"></i></a>
+                </div>
+                {{/if}}
+            </div>
+
             <div class="combatant-details">
                 {{#if usrAction.revealed}}
                 <span class="stance {{ usrAction.stance }}">{{ usrAction.stance }}</span>
@@ -16,7 +31,7 @@
                 <i class="action-type fa-solid {{#if (eq usrAction.type "melee")}}fa-swords{{else}}fa-bow-arrow{{/if}}" title="{{ usrAction.type }}"></i>
                 {{/if}}
                 {{#if usrTargetName}}
-                <span class="target">→ {{ usrTargetName }}</span>
+                <span class="target" title="{{ usrTargetName }}">→ {{ usrTargetName }}</span>
                 {{/if}}
                 {{else}}
                 <span class="action-status {{#if hasUsrAction}}ready{{/if}}">
@@ -41,6 +56,9 @@
                 {{/if}}
 
                 {{#if (and @root.user.isGM (eq @root.phase 3))}}
+                <button type="button" class="inline-control combatant-control icon fa-solid fa-play"
+                        data-action="startTurn" data-tooltip="USR.StartTurn"
+                        aria-label="{{ localize "USR.StartTurn" }}"></button>
                 <button type="button" class="inline-control combatant-control icon fa-solid fa-check-circle {{#if usrAction.acted}}active{{/if}}"
                         data-action="toggleActed" data-tooltip="USR.ToggleActed"
                         aria-label="{{ localize "USR.ToggleActed" }}"></button>
