@@ -34,22 +34,19 @@
 <table class="items-table">
 	<thead>
 		<tr>
-			<th>Eq</th>
-			<th>{{localize "USR.Item"}}</th>
-			<th>{{localize "USR.Damage"}}</th>
-			<th>{{localize "USR.Specialization"}}</th>
-			<th>{{localize "USR.Lethality"}}</th>
-			<th>{{localize "USR.Quickness"}}</th>
-			<th>{{localize "USR.Impact"}}</th>
-			<th>{{localize "USR.DefenseBonus"}}</th>
-			<th>{{localize "USR.Reach"}}</th>
-			<th>{{localize "USR.Actions"}}</th>
+			<th class="col-eq">Eq</th>
+			<th class="col-name">{{localize "USR.Item"}}</th>
+			<th class="col-type">{{localize "USR.Type"}}</th>
+			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each melee as |item id|}}
-		<tr class="item draggable" data-item-id="{{item._id}}">
-			<td class="equipped-toggle">
+		<tr
+			class="item draggable {{#if item.system.equipped}}equipped{{/if}}"
+			data-item-id="{{item._id}}"
+		>
+			<td class="equipped-toggle text-center">
 				<a
 					class="item-control item-toggle-equipped"
 					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
@@ -60,18 +57,19 @@
 					></i>
 				</a>
 			</td>
-			<td>
-				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
-				{{item.name}}
+			<td class="item-name">
+				<div class="item-image">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="24"
+						height="24"
+					/>
+				</div>
+				<span class="name">{{item.name}}</span>
 			</td>
-			<td>{{item.system.damage}}</td>
-			<td>{{item.system.specialization}}</td>
-			<td>{{item.system.lethality}}</td>
-			<td>{{item.system.quickness}}</td>
-			<td>{{item.system.impact}}</td>
-			<td>{{item.system.defenseBonus}}</td>
-			<td>{{item.system.reach}}</td>
-			<td>
+			<td class="item-type text-center">{{item.system.specialization}}</td>
+			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
 					title="Edit Item"
@@ -90,7 +88,7 @@
 	</tbody>
 </table>
 <a
-	class="item-control item-create"
+	class="item-control item-create full-width"
 	data-type="melee"
 	title="{{localize 'USR.AddMelee'}}"
 >
@@ -102,23 +100,20 @@
 <table class="items-table">
 	<thead>
 		<tr>
-			<th>Eq</th>
-			<th>{{localize "USR.Item"}}</th>
-			<th>{{localize "USR.Damage"}}</th>
-			<th>{{localize "USR.Specialization"}}</th>
-			<th>{{localize "USR.Accuracy"}}</th>
-			<th>{{localize "USR.Penetration"}}</th>
-			<th>{{localize "USR.LethalityModifier"}}</th>
-			<th>{{localize "USR.Shots"}}</th>
-			<th>{{localize "USR.Reload"}}</th>
-			<th>{{localize "USR.Ammo"}}</th>
-			<th>{{localize "USR.Actions"}}</th>
+			<th class="col-eq">Eq</th>
+			<th class="col-name">{{localize "USR.Item"}}</th>
+			<th class="col-type">{{localize "USR.Type"}}</th>
+			<th class="col-ammo text-center">{{localize "USR.Ammo"}}</th>
+			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each ranged as |item id|}}
-		<tr class="item draggable" data-item-id="{{item._id}}">
-			<td class="equipped-toggle">
+		<tr
+			class="item draggable {{#if item.system.equipped}}equipped{{/if}}"
+			data-item-id="{{item._id}}"
+		>
+			<td class="equipped-toggle text-center">
 				<a
 					class="item-control item-toggle-equipped"
 					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
@@ -129,19 +124,20 @@
 					></i>
 				</a>
 			</td>
-			<td>
-				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
-				{{item.name}}
+			<td class="item-name">
+				<div class="item-image">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="24"
+						height="24"
+					/>
+				</div>
+				<span class="name">{{item.name}}</span>
 			</td>
-			<td>{{item.system.damage}}</td>
-			<td>{{item.system.specialization}}</td>
-			<td>{{item.system.accuracy}}</td>
-			<td>{{item.system.penetration}}</td>
-			<td>{{item.system.lethalityModifier}}</td>
-			<td>{{item.system.shots}}</td>
-			<td>{{item.system.reload}}</td>
-			<td>{{item.system.ammo}}</td>
-			<td>
+			<td class="item-type text-center">{{item.system.specialization}}</td>
+			<td class="item-ammo text-center">{{item.system.ammo}}</td>
+			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
 					title="Edit Item"
@@ -160,7 +156,7 @@
 	</tbody>
 </table>
 <a
-	class="item-control item-create"
+	class="item-control item-create full-width"
 	data-type="ranged"
 	title="{{localize 'USR.AddRanged'}}"
 >
@@ -172,19 +168,22 @@
 <table class="items-table">
 	<thead>
 		<tr>
-			<th>Eq</th>
-			<th>{{localize "USR.Item"}}</th>
-			<th>{{localize "USR.Cover"}}</th>
-			<th>{{localize "USR.Impact"}}</th>
-			<th>{{localize "USR.DeflectDie"}}</th>
-			<th>{{localize "USR.DeflectBonus"}}</th>
-			<th>{{localize "USR.Actions"}}</th>
+			<th class="col-eq">Eq</th>
+			<th class="col-name">{{localize "USR.Item"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Cover"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Impact"}}</th>
+			<th class="col-stat text-center">{{localize "USR.DeflectDie"}}</th>
+			<th class="col-stat text-center">{{localize "USR.DeflectBonus"}}</th>
+			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each armor as |item id|}}
-		<tr class="item draggable" data-item-id="{{item._id}}">
-			<td class="equipped-toggle">
+		<tr
+			class="item draggable {{#if item.system.equipped}}equipped{{/if}}"
+			data-item-id="{{item._id}}"
+		>
+			<td class="equipped-toggle text-center">
 				<a
 					class="item-control item-toggle-equipped"
 					title="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}"
@@ -195,15 +194,22 @@
 					></i>
 				</a>
 			</td>
-			<td>
-				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
-				{{item.name}}
+			<td class="item-name">
+				<div class="item-image">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="24"
+						height="24"
+					/>
+				</div>
+				<span class="name">{{item.name}}</span>
 			</td>
-			<td>{{item.system.cover}}</td>
-			<td>{{item.system.impact}}</td>
-			<td>{{item.system.deflectDie}}</td>
-			<td>{{item.system.deflectBonus}}</td>
-			<td>
+			<td class="text-center">{{item.system.cover}}</td>
+			<td class="text-center">{{item.system.impact}}</td>
+			<td class="text-center">{{item.system.deflectDie}}</td>
+			<td class="text-center">{{item.system.deflectBonus}}</td>
+			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
 					title="Edit Item"
@@ -222,7 +228,7 @@
 	</tbody>
 </table>
 <a
-	class="item-control item-create"
+	class="item-control item-create full-width"
 	data-type="armor"
 	title="{{localize 'USR.AddArmor'}}"
 >
@@ -234,22 +240,29 @@
 <table class="items-table">
 	<thead>
 		<tr>
-			<th>{{localize "USR.Item"}}</th>
-			<th>{{localize "USR.Qty"}}</th>
-			<th>{{localize "USR.Weight"}}</th>
-			<th>{{localize "USR.Actions"}}</th>
+			<th class="col-name">{{localize "USR.Item"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Qty"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Weight"}}</th>
+			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each gear as |item id|}}
 		<tr class="item draggable" data-item-id="{{item._id}}">
-			<td>
-				<img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
-				{{item.name}}
+			<td class="item-name">
+				<div class="item-image">
+					<img
+						src="{{item.img}}"
+						title="{{item.name}}"
+						width="24"
+						height="24"
+					/>
+				</div>
+				<span class="name">{{item.name}}</span>
 			</td>
-			<td>{{item.system.quantity}}</td>
-			<td>{{item.system.weight}}</td>
-			<td>
+			<td class="text-center">{{item.system.quantity}}</td>
+			<td class="text-center">{{item.system.weight}}</td>
+			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
 					title="Edit Item"
@@ -268,7 +281,7 @@
 	</tbody>
 </table>
 <a
-	class="item-control item-create"
+	class="item-control item-create full-width"
 	data-type="item"
 	title="{{localize 'USR.AddItem'}}"
 >

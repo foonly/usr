@@ -1,42 +1,4 @@
 <section class="combat-overview">
-	<h3 class="section-header">Damage Monitor</h3>
-	{{#if system.damage.monitor}}
-	<div class="damage-monitor">
-		{{#each system.damage.monitor}}
-		<div class="mod">{{modifier}}</div>
-		{{/each}} {{#each system.damage.monitor}}
-		<div class="val {{value}}">{{value}}</div>
-		{{/each}}
-	</div>
-	{{/if}}
-
-	<div class="combat-summary grid grid-2col">
-		<section class="combat-card">
-			<h4 class="subsection-header">Resistance</h4>
-			<table class="damage-resistance-table">
-				<tbody>
-					{{#each system.damage.resistance as |value type|}}
-					<tr>
-						<td class="res-label">
-							{{localize (concat "USR.DamageResistance" type)}}
-						</td>
-						<td class="res-value">{{value}}</td>
-					</tr>
-					{{/each}}
-				</tbody>
-			</table>
-		</section>
-
-		<section class="combat-card">
-			<h4 class="subsection-header">Actions</h4>
-			<div class="combat-actions">
-				<button class="add-heal">Heal (HP: {{system.health.hp}})</button>
-				<button class="remove-stun">Remove Stun</button>
-				<button class="add-damage">Take Damage</button>
-			</div>
-		</section>
-	</div>
-
 	<section class="combat-weapons">
 		<h3 class="section-header">Weapons</h3>
 		<div class="weapon-cards">
@@ -218,23 +180,41 @@
 		</div>
 	</section>
 
-	<h3 class="section-header">Combat Traits</h3>
-	<table class="traits-table combat-traits">
-		<thead>
-			<tr>
-				<th>Trait</th>
-				<th>Value</th>
-				<th>XP</th>
-				<th>Roll</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{> "systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.initiative key="initiative" }} {{>
-			"systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.melee key="melee" }} {{>
-			"systems/usr/templates/actor/parts/actor-trait.hbs"
-			trait=system.traits.ranged key="ranged" }}
-		</tbody>
-	</table>
+	<h3 class="section-header">Damage Monitor</h3>
+	{{#if system.damage.monitor}}
+	<div class="damage-monitor">
+		{{#each system.damage.monitor}}
+		<div class="mod">{{modifier}}</div>
+		{{/each}} {{#each system.damage.monitor}}
+		<div class="val {{value}}">{{value}}</div>
+		{{/each}}
+	</div>
+	{{/if}}
+
+	<div class="combat-summary grid grid-2col">
+		<section class="combat-card">
+			<h4 class="subsection-header">Resistance</h4>
+			<table class="damage-resistance-table">
+				<tbody>
+					{{#each system.damage.resistance as |value type|}}
+					<tr>
+						<td class="res-label">
+							{{localize (concat "USR.DamageResistance" type)}}
+						</td>
+						<td class="res-value">{{value}}</td>
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>
+		</section>
+
+		<section class="combat-card">
+			<h4 class="subsection-header">Actions</h4>
+			<div class="combat-actions">
+				<button class="add-heal">Heal (HP: {{system.health.hp}})</button>
+				<button class="remove-stun">Remove Stun</button>
+				<button class="add-damage">Take Damage</button>
+			</div>
+		</section>
+	</div>
 </section>
