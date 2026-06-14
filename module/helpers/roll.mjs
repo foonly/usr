@@ -15,7 +15,7 @@ export async function usrRoll(data) {
 
 	// Get values for trait and specialization if given.
 	if (data.trait) {
-		const trait = coreTraits[data.trait] || skillTraits?.get?.(data.trait);
+		const trait = coreTraits[data.trait] || skillTraits?.[data.trait];
 		if (!trait) {
 			console.error(
 				`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
@@ -237,10 +237,14 @@ export async function usrRoll(data) {
 	}
 
 	if (!result.critical && data.trait && data.actor) {
+		const isCore = !!coreTraits[data.trait];
+		const traits = isCore ? coreTraits : skillTraits;
 		const updatedTraits = foundry.utils.deepClone(traits);
 		let awarded = false;
 		if (data.trait) {
-			const trait = updatedTraits[data.trait];
+			const trait = isCore
+				? updatedTraits[data.trait]
+				: updatedTraits[data.trait]; // Same access for skillTraits now it's an Object
 			if (!trait) return { roll, result };
 			if (data.spec && Array.isArray(trait.spec)) {
 				trait.spec.forEach((spec) => {
@@ -268,7 +272,8 @@ export async function usrRoll(data) {
 				}
 			}
 		}
-		await data.actor.update({ "system.traits": updatedTraits });
+		const updateKey = isCore ? "system.traits" : "system.skillTraits";
+		await data.actor.update({ [updateKey]: updatedTraits });
 	}
 
 	return { roll, result };
@@ -467,7 +472,7 @@ export async function makeRoll(data = {}) {
 			);
 		}
 		if (data.actor.system.skillTraits) {
-			data.actor.system.skillTraits.forEach((trait, key) =>
+			Object.entries(data.actor.system.skillTraits).forEach(([key, trait]) =>
 				processTrait(key, trait),
 			);
 		}
@@ -528,7 +533,7 @@ export function rollXp(data) {
 	const skillTraits = data.actor.system.skillTraits;
 	const isCore = !!coreTraits[data.trait];
 	const traits = isCore ? coreTraits : skillTraits;
-	const trait = isCore ? coreTraits[data.trait] : skillTraits.get(data.trait);
+	const trait = isCore ? coreTraits[data.trait] : skillTraits[data.trait];
 
 	if (data.spec) {
 		trait.spec.forEach((spec) => {

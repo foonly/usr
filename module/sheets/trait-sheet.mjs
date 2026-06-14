@@ -5,12 +5,14 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  */
 export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	constructor(trait, key, actor, options = {}) {
+		const label =
+			trait.label || `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
 		super(
 			foundry.utils.mergeObject(
 				{
 					id: `trait-${key}-edit-sheet`,
 					window: {
-						title: `Edit ${game.i18n.localize(trait.label)}`,
+						title: `Edit ${game.i18n.localize(label)}`,
 					},
 				},
 				options,
@@ -18,6 +20,8 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		);
 
 		this.trait = foundry.utils.deepClone(trait);
+		// Ensure label is set for new traits
+		if (!this.trait.label) this.trait.label = label;
 		this.key = key;
 		this.actor = actor;
 	}
@@ -42,8 +46,30 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		actions: {
 			addSpec: this.prototype._onAddSpec,
 			saveAndClose: this.prototype._onSaveAndClose,
+			clearRoll: this.prototype._onClearRoll,
+			clearSpecRoll: this.prototype._onClearSpecRoll,
 		},
 	};
+
+	/**
+	 * Clear the main trait's roll counter.
+	 */
+	_onClearRoll() {
+		this.trait.roll = 0;
+		this.render();
+	}
+
+	/**
+	 * Clear a specific specialization's roll counter.
+	 */
+	_onClearSpecRoll(event) {
+		const slug = event.currentTarget.dataset.slug;
+		const spec = this.trait.spec.find((s) => s.title === slug);
+		if (spec) {
+			spec.roll = 0;
+			this.render();
+		}
+	}
 
 	static PARTS = {
 		sheet: {

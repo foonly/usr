@@ -4,6 +4,31 @@ const fields = foundry.data.fields;
  * Shared fields for all Item types.
  */
 class BaseItemData extends foundry.abstract.TypeDataModel {
+	/** @override */
+	static migrateData(source) {
+		// Migrate specialization strings to slugs for Melee and Ranged
+		if (
+			(source.type === "melee" || source.type === "ranged") &&
+			source.system?.specialization
+		) {
+			const spec = source.system.specialization.toLowerCase();
+			const specConfig = CONFIG.usr.specializations[source.type];
+
+			// If it's already a slug or known config, we're good
+			if (specConfig && !specConfig[spec]) {
+				// Try to find a slug that matches the localized name
+				for (const [slug, labelKey] of Object.entries(specConfig)) {
+					const label = game.i18n.localize(labelKey).toLowerCase();
+					if (spec === label) {
+						source.system.specialization = slug;
+						break;
+					}
+				}
+			}
+		}
+		return super.migrateData(source);
+	}
+
 	static defineSchema() {
 		return {
 			weight: new fields.NumberField({ initial: 0, min: 0 }),

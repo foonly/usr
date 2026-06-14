@@ -44,26 +44,95 @@ export async function migrateWorld() {
  */
 async function migrateActorData(actor) {
 	const updateData = {};
+	// We use the most raw data possible
+	const source = actor.toObject(false);
+	const system = source.system || {};
+	const traits = system.traits || {};
 
-	// Migrate Traits to SkillTraits
-	const traits = actor.system.traits;
-	const skillTraits = actor.system.skillTraits || {};
+	console.log(
+		`USR | Migrating ${actor.name}. Traits keys found in source:`,
+		Object.keys(traits),
+	);
+
 	const skillTraitKeys = CONFIG.usr.traits.skills;
+	const skillTraits = system.skillTraits || {};
+	const newSkillTraits = {};
+	let hasNewSkills = false;
+
+	// Helper to migrate specializations to slugs
+	const migrateSpecs = (traitKey, trait) => {
+		if (!trait?.spec || !Array.isArray(trait.spec)) return;
+		const specConfig = CONFIG.usr.specializations[traitKey];
+		if (!specConfig) return;
+
+		trait.spec.forEach((s) => {
+			if (!s.title) return;
+			const title = s.title.trim().toLowerCase();
+
+			// 1. If title is already a valid slug (case-insensitive check)
+			if (specConfig[title]) {
+				if (s.title !== title) {
+					console.log(`USR | Normalizing spec slug: ${s.title} -> ${title}`);
+					s.title = title;
+				}
+				return;
+			}
+
+			// 2. Try to find a slug that matches the localized label
+			for (const [slug, labelKey] of Object.entries(specConfig)) {
+				const label = game.i18n.localize(labelKey).trim().toLowerCase();
+				if (title === label) {
+					console.log(
+						`USR | Migrating spec name to slug: ${s.title} -> ${slug}`,
+					);
+					s.title = slug;
+					return;
+				}
+			}
+		});
+	};
 
 	for (const key of skillTraitKeys) {
-		// If the trait exists in the old fixed traits but not in skillTraits
-		if (traits[key] && !skillTraits[key]) {
-			if (!updateData["system.skillTraits"]) updateData["system.skillTraits"] = {};
-			updateData["system.skillTraits"][key] = traits[key];
-			// Update label to localized key
-			updateData["system.skillTraits"][key].label = `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+		// Check both in the 'traits' object and directly in system (just in case)
+		const oldTrait = traits[key] || system[key];
+
+		if (
+			oldTrait &&
+			(oldTrait.value > 1 || (oldTrait.spec && oldTrait.spec.length > 0))
+		) {
+			console.log(`USR | !!! Found valid trait data for ${key}:`, oldTrait);
+			newSkillTraits[key] = foundry.utils.deepClone(oldTrait);
+			if (!newSkillTraits[key].label.startsWith("USR.")) {
+				newSkillTraits[key].label =
+					`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+			}
+			// Migrate specs for this skill trait
+			migrateSpecs(key, newSkillTraits[key]);
+			hasNewSkills = true;
 		}
 	}
 
-	// Update core trait labels to localization keys
+	if (hasNewSkills) {
+		updateData["system.skillTraits"] = {
+			...skillTraits,
+			...newSkillTraits,
+		};
+	}
+
+	// Update core trait labels to localization keys and migrate specs
 	for (const key of CONFIG.usr.traits.core) {
-		if (traits[key] && !traits[key].label.startsWith("USR.")) {
-			updateData[`system.traits.${key}.label`] = `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+		const trait = traits[key];
+		if (trait) {
+			if (typeof trait.label === "string" && !trait.label.startsWith("USR.")) {
+				updateData[`system.traits.${key}.label`] =
+					`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+			}
+			// Clone trait and migrate specs
+			const updatedTrait = foundry.utils.deepClone(trait);
+			migrateSpecs(key, updatedTrait);
+			if (updatedTrait.spec) {
+				updateData[`system.traits.${key}.spec`] = updatedTrait.spec;
+			}
 		}
 	}
 

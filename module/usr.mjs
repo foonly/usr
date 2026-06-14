@@ -28,6 +28,7 @@ Hooks.once("init", async function () {
 		rollItemMacro,
 		usrRoll,
 		rollDamage,
+		migrate: migrateWorld,
 	};
 
 	// Add custom constants for configuration.

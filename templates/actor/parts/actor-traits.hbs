@@ -1,43 +1,15 @@
-<div class="traits-container">
-	<section class="core-traits">
-		<header class="traits-header">
-			<h3>Core Traits</h3>
-		</header>
-		<table class="traits-table">
-			<thead>
-				<tr>
-					<th>Trait</th>
-					<th>Value</th>
-					<th>XP</th>
-					<th>Roll</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each system.traits as |trait key| }} {{>
-				"systems/usr/templates/actor/parts/actor-trait.hbs" trait=trait key=key
-				}} {{/each}}
-			</tbody>
-		</table>
-	</section>
-
-	<section class="skill-traits">
-		<header class="traits-header">
-			<h3>Skill Traits</h3>
-		</header>
-		<table class="traits-table">
-			<thead>
-				<tr>
-					<th>Trait</th>
-					<th>Value</th>
-					<th>XP</th>
-					<th>Roll</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each skillTraits as |trait| }} {{>
-				"systems/usr/templates/actor/parts/actor-trait.hbs" trait=trait
-				key=trait.key }} {{/each}}
-			</tbody>
-		</table>
-	</section>
-</div>
+<table class="traits-table">
+	<thead>
+		<tr>
+			<th>{{localize 'USR.Trait'}}</th>
+			<th>{{localize 'USR.Level'}}</th>
+			<th>XP</th>
+			<th>{{localize 'USR.Rolls'}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each allTraits as |trait|}} {{>
+		"systems/usr/templates/actor/parts/actor-trait.hbs" trait=trait
+		key=trait.key }} {{/each}}
+	</tbody>
+</table>

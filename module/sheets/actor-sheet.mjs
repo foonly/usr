@@ -82,8 +82,13 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		// Add derived data for the sheet
 		actorData.system.damage = this.actor.system.damage;
 
-		// Handle core traits localization
-		for (const [key, trait] of Object.entries(actorData.system.traits)) {
+		// Handle all traits localization and unification
+		context.allTraits = [];
+
+		// Helper to process a trait
+		const processTrait = (key, traitData) => {
+			const trait = foundry.utils.deepClone(traitData);
+			trait.key = key;
 			trait.localizedLabel = game.i18n.localize(trait.label);
 			if (trait.spec) {
 				const specConfig = usr.specializations[key];
@@ -94,25 +99,31 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 					spec.isLegacy = specConfig && !specConfig[spec.title];
 				});
 			}
+			return trait;
+		};
+
+		// Core Traits
+		for (const [key, trait] of Object.entries(actorData.system.traits)) {
+			context.allTraits.push(processTrait(key, trait));
 		}
 
-		// Handle skill traits localization
-		context.skillTraits = [];
-		if (actorData.system.skillTraits) {
-			for (const [key, trait] of Object.entries(actorData.system.skillTraits)) {
-				trait.key = key;
-				trait.localizedLabel = game.i18n.localize(trait.label);
-				if (trait.spec) {
-					const specConfig = usr.specializations[key];
-					trait.spec.forEach((spec) => {
-						spec.localizedTitle = specConfig?.[spec.title]
-							? game.i18n.localize(specConfig[spec.title])
-							: spec.title;
-						spec.isLegacy = specConfig && !specConfig[spec.title];
-					});
-				}
-				context.skillTraits.push(trait);
-			}
+		// Skill Traits
+		const skillTraitKeys = CONFIG.usr.traits.skills;
+		const savedSkillTraits = actorData.system.skillTraits || {};
+
+		for (const key of skillTraitKeys) {
+			const savedTrait = savedSkillTraits[key];
+			const traitData = savedTrait
+				? savedTrait
+				: {
+						label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+						value: 1,
+						xp: 0,
+						roll: 0,
+						hasSpec: true,
+						spec: [],
+					};
+			context.allTraits.push(processTrait(key, traitData));
 		}
 
 		const items = this.actor.items.map((item) => {
@@ -359,7 +370,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		on(".trait-edit", (event) => {
 			const key = event.currentTarget.dataset.trait;
 			const trait =
-				this.actor.system.traits[key] || this.actor.system.skillTraits.get(key);
+				this.actor.system.traits[key] || this.actor.system.skillTraits[key];
 			new TraitSheet(trait, key, this.actor).render({ force: true });
 		});
 

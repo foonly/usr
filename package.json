@@ -1,6 +1,6 @@
 {
 	"name": "usr",
-	"version": "0.8.1",
+	"version": "0.9.0",
 	"description": "Universal Simple Role-Playing for Foundry VTT.",
 	"browserslist": [
 		"last 3 versions"

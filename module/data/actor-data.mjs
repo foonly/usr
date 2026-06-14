@@ -4,6 +4,114 @@ const fields = foundry.data.fields;
  * Shared fields for all Actor types.
  */
 class BaseActorData extends foundry.abstract.TypeDataModel {
+	/** @override */
+	static migrateData(source) {
+		const skillTraitKeys = [
+			"medicine",
+			"engineering",
+			"charisma",
+			"survival",
+			"subterfuge",
+			"animals",
+			"craftsmanship",
+			"naval",
+		];
+
+		// Helper to migrate specializations to slugs
+		const migrateSpecs = (traitKey, trait) => {
+			if (!trait?.spec || !Array.isArray(trait.spec)) return;
+			const specConfig = CONFIG.usr.specializations[traitKey];
+			if (!specConfig) return;
+
+			trait.spec.forEach((s) => {
+				if (!s.title) return;
+				const title = s.title.trim().toLowerCase();
+
+				// 1. If title is already a valid slug (case-insensitive check)
+				if (specConfig[title]) {
+					if (s.title !== title) {
+						console.log(`USR | Normalizing spec slug: ${s.title} -> ${title}`);
+						s.title = title;
+					}
+					return;
+				}
+
+				// 2. Try to find a slug that matches the localized label
+				for (const [slug, labelKey] of Object.entries(specConfig)) {
+					const label = game.i18n.localize(labelKey).trim().toLowerCase();
+					if (title === label) {
+						console.log(
+							`USR | Migrating spec name to slug: ${s.title} -> ${slug}`,
+						);
+						s.title = slug;
+						return;
+					}
+				}
+			});
+		};
+
+		if (source.traits) {
+			source.skillTraits ??= {};
+			for (const key of skillTraitKeys) {
+				// If the trait exists in the raw source 'traits' object
+				if (source.traits[key]) {
+					// Move it to skillTraits if it's not already there
+					if (!source.skillTraits[key]) {
+						source.skillTraits[key] = source.traits[key];
+						console.log(`USR | Migrating ${key} from source traits`);
+					}
+
+					// Ensure label is localized key
+					if (
+						typeof source.skillTraits[key].label === "string" &&
+						!source.skillTraits[key].label.startsWith("USR.")
+					) {
+						source.skillTraits[key].label =
+							`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+					}
+
+					// Migrate specs for this skill trait
+					migrateSpecs(key, source.skillTraits[key]);
+
+					// Remove from original traits object to prevent schema validation issues
+					delete source.traits[key];
+				} else if (source.skillTraits[key]) {
+					// It's already in skillTraits, but we might still need to migrate specs
+					migrateSpecs(key, source.skillTraits[key]);
+				}
+			}
+		}
+
+		// Update core trait labels and migrate specs
+		if (source.traits) {
+			const coreKeys = [
+				"fortitude",
+				"intelligence",
+				"initiative",
+				"willpower",
+				"awareness",
+				"mobility",
+				"melee",
+				"ranged",
+			];
+			for (const key of coreKeys) {
+				if (source.traits[key]) {
+					if (
+						typeof source.traits[key].label === "string" &&
+						!source.traits[key].label.startsWith("USR.")
+					) {
+						source.traits[key].label =
+							`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+					}
+					// Migrate specs for this core trait
+					migrateSpecs(key, source.traits[key]);
+				}
+			}
+		}
+
+		return super.migrateData(source);
+	}
+
 	static defineSchema() {
 		return {
 			health: new fields.SchemaField({
@@ -35,10 +143,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 				melee: this.traitField("USR.TraitMelee", true),
 				ranged: this.traitField("USR.TraitRanged", true),
 			}),
-			skillTraits: new fields.MapField(
-				new fields.StringField(),
-				this.traitField("", true),
-			),
+			skillTraits: new fields.ObjectField({ initial: {} }),
 			info: new fields.SchemaField({
 				fullName: new fields.StringField({ initial: "" }),
 				biography: new fields.HTMLField({ initial: "" }),

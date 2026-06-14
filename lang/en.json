@@ -16,6 +16,7 @@
 	"USR.TraitCraftsmanship": "Craftsmanship",
 	"USR.TraitNaval": "Naval",
 
+	"USR.Trait": "Trait",
 	"USR.Language": "Language",
 	"USR.Level": "Level",
 	"USR.Knowledge": "Knowledge",
@@ -48,6 +49,7 @@
 	"USR.DamageResistances": "Serious",
 	"USR.DamageResistanced": "Deadly",
 	"USR.None": "None",
+	"USR.Rolls": "Rolls",
 	"USR.SpecSwords": "Swords",
 	"USR.SpecKnives": "Knives",
 	"USR.SpecClubs": "Clubs",
