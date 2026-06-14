@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.0 (2026-06-14)
+## 1.1.0 (2026-06-14)
+
+#### Features
+
+- config: add Unarmed specialization to melee weapons (8773fb8)
+
+## v1.0.0 (2026-06-14)
 
 #### Features
 
