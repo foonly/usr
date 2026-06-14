@@ -1,6 +1,20 @@
 # Changelog
 
-### 0.8.1 (2026-06-14)
+## 1.0.0 (2026-06-14)
+
+#### Features
+
+- data: refactor trait system and add migrations (eb98059)
+- traits: transition to structured specialization and skill system (61e7f50)
+
+#### Styles
+
+- css: Refactor actor items tables and UI (c4130ba)
+
+### Misc
+- Version (1076693)
+
+### v0.8.1 (2026-06-14)
 
 #### Styles
 
