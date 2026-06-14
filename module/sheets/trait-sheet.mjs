@@ -10,7 +10,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 				{
 					id: `trait-${key}-edit-sheet`,
 					window: {
-						title: `Edit ${trait.label}`,
+						title: `Edit ${game.i18n.localize(trait.label)}`,
 					},
 				},
 				options,
@@ -55,9 +55,47 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	/** @override */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
+		const specConfig = CONFIG.usr.specializations[this.key] || {};
+		const allSpecs = [];
+
+		// Prepare existing specs
+		const existingSpecs = new Map();
+		if (Array.isArray(this.trait.spec)) {
+			this.trait.spec.forEach((s) => existingSpecs.set(s.title, s));
+		}
+
+		// Add all specs from config
+		for (const [slug, labelKey] of Object.entries(specConfig)) {
+			const existing = existingSpecs.get(slug);
+			allSpecs.push({
+				slug,
+				title: slug,
+				localizedTitle: game.i18n.localize(labelKey),
+				value: existing?.value ?? 0,
+				roll: existing?.roll ?? 0,
+				xp: existing?.xp ?? 0,
+				isLegacy: false,
+			});
+			existingSpecs.delete(slug);
+		}
+
+		// Add remaining legacy specs
+		for (const [title, s] of existingSpecs) {
+			allSpecs.push({
+				slug: title,
+				title: title,
+				localizedTitle: title,
+				value: s.value,
+				roll: s.roll,
+				xp: s.xp,
+				isLegacy: true,
+			});
+		}
+
 		return Object.assign(context, {
 			trait: this.trait,
 			key: this.key,
+			allSpecs,
 		});
 	}
 
@@ -102,7 +140,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	 * Update the local trait state from the submitted form.
 	 * @param {SubmitEvent} event
 	 * @param {HTMLFormElement} form
-	 * @param {import("../..//../../FoundryVTT/client/applications/ux/form-data-extended.mjs").default} formData
+	 * @param {FormDataExtended} formData
 	 * @returns {Promise<void>}
 	 */
 	async _onSubmitForm(event, form, formData) {
@@ -114,18 +152,20 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 
 		if (this.trait.hasSpec) {
 			const spec = [];
-			let nr = 0;
-			while (data[`spec-${nr}-title`] !== undefined) {
-				const title = data[`spec-${nr}-title`];
-				if (title.trim().length) {
-					spec.push({
-						title,
-						value: Number.parseInt(data[`spec-${nr}-value`] ?? 0, 10),
-						roll: Number.parseInt(data[`spec-${nr}-roll`] ?? 0, 10),
-						xp: Number.parseInt(data[`spec-${nr}-xp`] ?? 0, 10),
-					});
+			const specConfig = CONFIG.usr.specializations[this.key] || {};
+			const slugs = new Set([
+				...Object.keys(specConfig),
+				...this.trait.spec.map((s) => s.title),
+			]);
+
+			for (const slug of slugs) {
+				const val = Number.parseInt(data[`spec-${slug}-value`] ?? 0, 10);
+				const roll = Number.parseInt(data[`spec-${slug}-roll`] ?? 0, 10);
+				const xp = Number.parseInt(data[`spec-${slug}-xp`] ?? 0, 10);
+
+				if (val > 0 || roll > 0 || xp > 0) {
+					spec.push({ title: slug, value: val, roll, xp });
 				}
-				nr++;
 			}
 			this.trait.spec = spec;
 		}
@@ -135,11 +175,20 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 
 	/**
 	 * Persist the edited trait back to the actor.
-	 * @returns {Promise<import("../../FoundryVTT/client/documents/actor.mjs").default>}
+	 * @returns {Promise<Actor>}
 	 */
 	updateActor() {
-		const traits = foundry.utils.deepClone(this.actor.system.traits);
-		traits[this.key] = this.trait;
-		return this.actor.update({ "system.traits": traits });
+		const isCore = !!this.actor.system.traits[this.key];
+		if (isCore) {
+			const traits = foundry.utils.deepClone(this.actor.system.traits);
+			traits[this.key] = this.trait;
+			return this.actor.update({ "system.traits": traits });
+		} else {
+			const skillTraits = foundry.utils.deepClone(
+				this.actor.system.toObject().skillTraits,
+			);
+			skillTraits[this.key] = this.trait;
+			return this.actor.update({ "system.skillTraits": skillTraits });
+		}
 	}
 }

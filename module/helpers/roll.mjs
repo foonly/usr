@@ -3,8 +3,9 @@ import { usr } from "./config.mjs";
 const { DialogV2 } = foundry.applications.api;
 
 export async function usrRoll(data) {
-	const traits = data.actor?.system?.traits;
-	if (!traits) {
+	const coreTraits = data.actor?.system?.traits;
+	const skillTraits = data.actor?.system?.skillTraits;
+	if (!coreTraits) {
 		console.error("USR | usrRoll: Actor has no traits:", data.actor);
 		return { roll: null, result: null };
 	}
@@ -14,7 +15,7 @@ export async function usrRoll(data) {
 
 	// Get values for trait and specialization if given.
 	if (data.trait) {
-		const trait = traits[data.trait];
+		const trait = coreTraits[data.trait] || skillTraits?.get?.(data.trait);
 		if (!trait) {
 			console.error(
 				`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
@@ -27,24 +28,18 @@ export async function usrRoll(data) {
 		}
 		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
 		if (data.spec && Array.isArray(trait.spec)) {
-			// Find specialization by title (case insensitive) or by translating the internal key
-			const targetTitle = data.spec.toLowerCase();
-			const translatedTitle =
-				usr.meleeSpecializations[data.spec] ||
-				usr.rangedSpecializations[data.spec]
-					? game.i18n
-							.localize(
-								usr.meleeSpecializations[data.spec] ||
-									usr.rangedSpecializations[data.spec],
-							)
-							.toLowerCase()
-					: "";
+			// Find specialization by slug first, then by title (legacy fallback)
+			const specSlug = data.spec;
+			const specConfig = usr.specializations[data.trait];
+			const localizedLabel = specConfig?.[specSlug]
+				? game.i18n.localize(specConfig[specSlug]).toLowerCase()
+				: "";
 
 			trait.spec.forEach((spec) => {
 				const specTitle = spec.title.toLowerCase();
 				if (
-					targetTitle === specTitle ||
-					(translatedTitle && translatedTitle === specTitle)
+					specSlug === spec.title || // Match by slug
+					(localizedLabel && localizedLabel === specTitle) // Legacy fallback
 				) {
 					data.specialization = Number.isFinite(spec.value) ? spec.value : 0;
 				}
@@ -185,9 +180,8 @@ export async function usrRoll(data) {
 
 	if (data.createMessage !== false && !willCreateInteraction) {
 		if (data.spec) {
-			const specLabelKey =
-				usr.meleeSpecializations[data.spec] ||
-				usr.rangedSpecializations[data.spec];
+			const specConfig = usr.specializations[data.trait];
+			const specLabelKey = specConfig?.[data.spec];
 			if (specLabelKey) {
 				const specLabel = game.i18n.localize(specLabelKey);
 				// If flavor already starts with weapon name, insert specialization
@@ -439,29 +433,44 @@ export function showRoll(roll, result, speaker, flavor = "") {
 }
 
 export async function makeRoll(data = {}) {
-	if (data.actor && data.actor.system.traits) {
+	if (data.actor) {
 		data.traits = [];
-		Object.keys(data.actor.system.traits).forEach((key) => {
-			const trait = data.actor.system.traits[key];
+		const processTrait = (key, trait) => {
+			const traitLabel = game.i18n.localize(trait.label);
 			data.traits.push({
 				key,
 				index: key,
-				label: trait.label,
+				label: traitLabel,
 				value: trait.value,
-				active: trait.label === data.label,
+				active: traitLabel === data.label,
 			});
 			if (trait.hasSpec && trait.spec) {
+				const specConfig = usr.specializations[key];
 				trait.spec.forEach((spec) => {
+					const specLabel = specConfig?.[spec.title]
+						? game.i18n.localize(specConfig[spec.title])
+						: spec.title;
 					data.traits.push({
 						key,
 						index: `${key}/${spec.title}`,
-						label: ` - ${spec.title}`,
+						label: ` - ${specLabel}`,
 						value: `${trait.value}/${spec.value}`,
 						active: spec.title === data.label,
 					});
 				});
 			}
-		});
+		};
+
+		if (data.actor.system.traits) {
+			Object.entries(data.actor.system.traits).forEach(([key, trait]) =>
+				processTrait(key, trait),
+			);
+		}
+		if (data.actor.system.skillTraits) {
+			data.actor.system.skillTraits.forEach((trait, key) =>
+				processTrait(key, trait),
+			);
+		}
 	}
 
 	data.difficulty = usr.difficulty;
@@ -515,8 +524,12 @@ export async function makeRoll(data = {}) {
 }
 
 export function rollXp(data) {
-	const traits = data.actor.system.traits;
-	const trait = traits[data.trait];
+	const coreTraits = data.actor.system.traits;
+	const skillTraits = data.actor.system.skillTraits;
+	const isCore = !!coreTraits[data.trait];
+	const traits = isCore ? coreTraits : skillTraits;
+	const trait = isCore ? coreTraits[data.trait] : skillTraits.get(data.trait);
+
 	if (data.spec) {
 		trait.spec.forEach((spec) => {
 			if (data.spec === spec.title) {
@@ -548,8 +561,16 @@ export function rollXp(data) {
 							flavor: label,
 							rollMode: game.settings.get("core", "rollMode"),
 						});
-						const updatedTraits = foundry.utils.deepClone(traits);
-						data.actor.update({ "system.traits": updatedTraits });
+						if (isCore) {
+							const updatedTraits = foundry.utils.deepClone(coreTraits);
+							data.actor.update({ "system.traits": updatedTraits });
+						} else {
+							const updatedTraits = foundry.utils.deepClone(
+								data.actor.system.toObject().skillTraits,
+							);
+							updatedTraits[data.trait] = trait;
+							data.actor.update({ "system.skillTraits": updatedTraits });
+						}
 					});
 				}
 			}
@@ -577,14 +598,23 @@ export function rollXp(data) {
 						trait.xp -= 5;
 					}
 				}
-				const label = `Roll for XP on ${trait.label} with value of ${trait.value}. Needs a result over ${target}.`;
+				const traitLabel = game.i18n.localize(trait.label);
+				const label = `Roll for XP on ${traitLabel} with value of ${trait.value}. Needs a result over ${target}.`;
 				roll.toMessage({
 					speaker: ChatMessage.getSpeaker({ actor: data.actor }),
 					flavor: label,
 					rollMode: game.settings.get("core", "rollMode"),
 				});
-				const updatedTraits = foundry.utils.deepClone(traits);
-				data.actor.update({ "system.traits": updatedTraits });
+				if (isCore) {
+					const updatedTraits = foundry.utils.deepClone(coreTraits);
+					data.actor.update({ "system.traits": updatedTraits });
+				} else {
+					const updatedTraits = foundry.utils.deepClone(
+						data.actor.system.toObject().skillTraits,
+					);
+					updatedTraits[data.trait] = trait;
+					data.actor.update({ "system.skillTraits": updatedTraits });
+				}
 			});
 		}
 	}

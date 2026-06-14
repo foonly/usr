@@ -1,72 +1,88 @@
 <main class="sheet-body">
-	<label for="trait-{{key}}">{{ trait.label }}</label>
-	<input
-		type="number"
-		min="0"
-		max="7"
-		id="trait-{{key}}"
-		name="value"
-		value="{{trait.value}}"
-		data-dtype="Number"
-	/>
-	<label for="roll-{{key}}">Rolls</label>
-	<input
-		type="number"
-		min="0"
-		max="2"
-		id="roll-{{key}}"
-		name="roll"
-		value="{{trait.roll}}"
-		data-dtype="Number"
-	/>
-	<label for="xp-{{key}}">XP</label>
-	<input
-		type="number"
-		min="0"
-		max="5"
-		id="xp-{{key}}"
-		name="xp"
-		value="{{trait.xp}}"
-		data-dtype="Number"
-	/>
-	{{#if trait.hasSpec}} {{#each trait.spec as |spec nr|}}
-	<input type="text" name="spec-{{nr}}-title" value="{{spec.title}}" />
-	<input
-		type="number"
-		min="0"
-		max="3"
-		name="spec-{{nr}}-value"
-		value="{{spec.value}}"
-		data-dtype="Number"
-	/>
-	<label>Rolls</label>
-	<input
-		type="number"
-		min="0"
-		max="2"
-		name="spec-{{nr}}-roll"
-		value="{{spec.roll}}"
-		data-dtype="Number"
-	/>
-	<label>XP</label>
-	<input
-		type="number"
-		min="0"
-		max="3"
-		name="spec-{{nr}}-xp"
-		value="{{spec.xp}}"
-		data-dtype="Number"
-	/>
-	{{/each}}
-	<button
-		type="button"
-		class="add-spec grid-6col action-icon"
-		data-action="addSpec"
-		data-trait="{{key}}"
-		title="{{localize 'USR.AddSpec'}}"
-	>
-		<i class="fas fa-plus"></i> {{localize 'USR.AddSpec'}}
-	</button>
+	<div class="trait-header grid grid-4col">
+		<label>{{localize trait.label}}</label>
+		<div class="form-group">
+			<label>{{localize 'USR.Level'}}</label>
+			<input
+				type="number"
+				min="0"
+				max="7"
+				name="value"
+				value="{{trait.value}}"
+				data-dtype="Number"
+			/>
+		</div>
+		<div class="form-group">
+			<label>{{localize 'USR.Quickness'}}</label>
+			<input
+				type="number"
+				min="0"
+				max="2"
+				name="roll"
+				value="{{trait.roll}}"
+				data-dtype="Number"
+			/>
+		</div>
+		<div class="form-group">
+			<label>XP</label>
+			<input
+				type="number"
+				min="0"
+				max="5"
+				name="xp"
+				value="{{trait.xp}}"
+				data-dtype="Number"
+			/>
+		</div>
+	</div>
+
+	{{#if trait.hasSpec}}
+	<hr />
+	<div class="specializations-list">
+		<header class="grid grid-4col">
+			<span>{{localize 'USR.Specialization'}}</span>
+			<span>{{localize 'USR.Level'}}</span>
+			<span>{{localize 'USR.Quickness'}}</span>
+			<span>XP</span>
+		</header>
+		{{#each allSpecs as |spec|}}
+		<div class="spec-row grid grid-4col {{#if spec.isLegacy}}legacy{{/if}}">
+			<span
+				class="spec-title"
+				title="{{#if spec.isLegacy}}{{localize 'USR.Legacy'}}{{/if}}"
+			>
+				{{spec.localizedTitle}} {{#if spec.isLegacy}}<i
+					class="fas fa-history"
+				></i
+				>{{/if}}
+			</span>
+			<input
+				type="number"
+				min="0"
+				max="3"
+				name="spec-{{spec.slug}}-value"
+				value="{{spec.value}}"
+				data-dtype="Number"
+			/>
+			<input
+				type="number"
+				min="0"
+				max="2"
+				name="spec-{{spec.slug}}-roll"
+				value="{{spec.roll}}"
+				data-dtype="Number"
+			/>
+			<input
+				type="number"
+				min="0"
+				max="3"
+				name="spec-{{spec.slug}}-xp"
+				value="{{spec.xp}}"
+				data-dtype="Number"
+			/>
+		</div>
+		{{/each}}
+	</div>
 	{{/if}}
 </main>
 <footer class="sheet-footer flexrow">

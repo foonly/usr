@@ -13,6 +13,7 @@ import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
 import { usrRoll, rollDamage } from "./helpers/roll.mjs";
+import { migrateWorld } from "./helpers/migration.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -80,8 +81,44 @@ Hooks.once("init", async function () {
 		makeDefault: true,
 	});
 
+	// Register world settings
+	game.settings.register("usr", "systemVersion", {
+		name: "System Version",
+		scope: "world",
+		config: false,
+		type: String,
+		default: "0.0.0",
+	});
+
+	game.settings.register("usr", "worldKnowledge", {
+		name: "World Knowledge Skills",
+		hint: "Additional knowledge skills available in this world (comma separated).",
+		scope: "world",
+		config: true,
+		type: String,
+		default: "",
+	});
+
 	// Preload Handlebars templates.
 	return preloadHandlebarsTemplates();
+});
+
+/* -------------------------------------------- */
+/*  Ready Hook                                  */
+/* -------------------------------------------- */
+
+Hooks.once("ready", async function () {
+	// Only run migration for the GM
+	if (!game.user.isGM) return;
+
+	// Check if migration is needed
+	const currentVersion = game.system.version;
+	const lastVersion = game.settings.get("usr", "systemVersion");
+
+	if (foundry.utils.isNewerVersion(currentVersion, lastVersion)) {
+		await migrateWorld();
+		await game.settings.set("usr", "systemVersion", currentVersion);
+	}
 });
 
 /* -------------------------------------------- */

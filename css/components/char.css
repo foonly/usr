@@ -46,7 +46,12 @@
 			}
 		}
 
-		tbody tr:nth-child(even):not(.equipped) {
+		tbody tr.unapproved {
+			background: rgba(192, 57, 43, 0.05);
+			border-left: 2px solid rgba(192, 57, 43, 0.5);
+		}
+
+		tbody tr:nth-child(even):not(.equipped):not(.unapproved) {
 			background: rgba(255, 255, 255, 0.02);
 		}
 
@@ -109,7 +114,12 @@
 		}
 
 		.trait-specialization {
-			font-size: 0.9em;
+			font-size: 0.9rem;
+
+			&.legacy {
+				color: var(--usr-text-muted);
+				font-style: italic;
+			}
 
 			.trait-label {
 				padding-left: 2rem;
@@ -194,6 +204,14 @@
 		td:last-child,
 		th:last-child {
 			text-align: right;
+		}
+	}
+
+	.knowledge-table {
+		.warning {
+			color: #e67e22;
+			font-size: 0.8rem;
+			margin-left: 0.25rem;
 		}
 	}
 

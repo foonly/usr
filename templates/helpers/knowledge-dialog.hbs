@@ -1,5 +1,14 @@
 <div class="entry">
-    <input id="knowledge" type="text" placeholder="Knowledge Skill" value="{{name}}"/>
+	<label for="knowledge-select">{{localize 'USR.Knowledge'}}:</label>
+	<select id="knowledge-select">
+		<option value="">-- {{localize 'USR.Custom'}} --</option>
+		{{#each categories as |label slug|}}
+			<option value="{{slug}}" {{#if (eq ../name label)}}selected{{/if}}>{{label}}</option>
+		{{/each}}
+	</select>
+</div>
+<div class="entry">
+    <input id="knowledge" type="text" placeholder="{{localize 'USR.Custom'}}" value="{{name}}"/>
 </div>
 <div class="entry">
     <label for="level">{{localize 'USR.Level' }}:</label>
@@ -9,3 +18,9 @@
         {{/each}}
     </select>
 </div>
+{{#if showApproval}}
+<div class="entry approval-row">
+	<label>{{localize 'USR.Approve'}}:</label>
+	<input type="checkbox" id="approved" {{#if approved}}checked{{/if}}>
+</div>
+{{/if}}

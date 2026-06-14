@@ -2,11 +2,98 @@
 	&.trait .window-content,
 	.trait-sheet {
 		.sheet-body {
-			display: grid;
-			grid-template-columns: 3fr 1fr 2fr 1fr 1fr 1fr;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			padding: 1rem;
 
-			> * {
-				display: block;
+			.trait-header {
+				padding: 0.5rem;
+				background: var(--usr-surface-2);
+				border-radius: 4px;
+				align-items: center;
+
+				label {
+					font-weight: bold;
+					font-size: 1.2rem;
+				}
+
+				.form-group {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 0.25rem;
+
+					label {
+						font-size: 0.75rem;
+						color: var(--usr-text-muted);
+						text-transform: uppercase;
+					}
+
+					input {
+						width: 50px;
+						text-align: center;
+					}
+				}
+			}
+
+			.specializations-list {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+
+				header {
+					font-weight: bold;
+					font-size: 0.75rem;
+					color: var(--usr-text-muted);
+					text-transform: uppercase;
+					padding: 0.25rem 0.5rem;
+					border-bottom: 1px solid var(--usr-border);
+
+					span:not(:first-child) {
+						text-align: center;
+					}
+				}
+
+				.spec-row {
+					padding: 0.25rem 0.5rem;
+					align-items: center;
+					border-radius: 4px;
+
+					&:nth-child(even) {
+						background: rgba(255, 255, 255, 0.02);
+					}
+
+					&:hover {
+						background: var(--usr-surface-hover);
+					}
+
+					&.legacy {
+						background: rgba(255, 0, 0, 0.03);
+						.spec-title {
+							color: var(--usr-text-muted);
+							font-style: italic;
+						}
+					}
+
+					.spec-title {
+						display: flex;
+						align-items: center;
+						gap: 0.5rem;
+						font-size: 0.9rem;
+
+						i {
+							font-size: 0.75rem;
+							opacity: 0.7;
+						}
+					}
+
+					input {
+						width: 50px;
+						margin: 0 auto;
+						text-align: center;
+					}
+				}
 			}
 		}
 	}

@@ -71,10 +71,27 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 				},
 			);
 
+		// Prepare specialization options
+		let specOptions = {};
+		if (itemData.type === "melee") {
+			specOptions = CONFIG.usr.specializations.melee;
+		} else if (itemData.type === "ranged") {
+			specOptions = CONFIG.usr.specializations.ranged;
+		}
+
+		const specializations = Object.entries(specOptions).reduce(
+			(acc, [slug, labelKey]) => {
+				acc[slug] = game.i18n.localize(labelKey);
+				return acc;
+			},
+			{ "": game.i18n.localize("USR.None") },
+		);
+
 		Object.assign(context, {
 			item: itemData,
 			system: itemData.system,
 			config: CONFIG.usr,
+			specializations,
 			flags: itemData.flags,
 			owner: this.item.isOwner,
 			rollData,

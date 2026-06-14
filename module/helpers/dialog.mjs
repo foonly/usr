@@ -174,20 +174,42 @@ export async function editKnowledge(actor, index = -1) {
 	const knowledge = actor.system.knowledge ?? [];
 	let name = "";
 	let level = 0;
+	let approved = true;
 
 	if (index > -1) {
 		const know = knowledge[index];
 		name = know.name;
 		level = Number.parseInt(know.level, 10);
+		approved = know.approved !== false;
+	}
+
+	const categories = Object.entries(usr.knowledgeCategories).reduce(
+		(acc, [slug, labelKey]) => {
+			acc[slug] = game.i18n.localize(labelKey);
+			return acc;
+		},
+		{},
+	);
+
+	// Add world knowledge from settings
+	const worldKnowledge = game.settings.get("usr", "worldKnowledge");
+	if (worldKnowledge) {
+		worldKnowledge.split(",").forEach((k) => {
+			const trimmed = k.trim();
+			if (trimmed) categories[trimmed] = trimmed;
+		});
 	}
 
 	const content = await foundry.applications.handlebars.renderTemplate(
 		"systems/usr/templates/helpers/knowledge-dialog.hbs",
 		{
 			name,
+			categories,
 			levelList: usr.knowledge.map((label, i) => {
 				return { label, active: i === level };
 			}),
+			showApproval: game.user.isGM,
+			approved,
 		},
 	);
 
@@ -204,17 +226,26 @@ export async function editKnowledge(actor, index = -1) {
 				label: "Save",
 				default: true,
 				callback: (_event, _button, dialog) => {
-					const name = getDialogValue(dialog, "#knowledge");
-					const level = getDialogValue(dialog, "#level");
+					let name = getDialogValue(dialog, "#knowledge");
+					const selectValue = getDialogValue(dialog, "#knowledge-select");
+					if (selectValue) {
+						name = categories[selectValue];
+					}
+					const level = Number.parseInt(getDialogValue(dialog, "#level"), 10);
+					const approvedElement = dialog.element.querySelector("#approved");
+					const isApproved = approvedElement ? approvedElement.checked : true;
+
 					if (name.length) {
 						if (index === -1) {
 							knowledge.push({
 								name,
 								level,
+								approved: isApproved,
 							});
 						} else {
 							knowledge[index].name = name;
 							knowledge[index].level = level;
+							knowledge[index].approved = isApproved;
 						}
 						knowledge.sort(knowledgeSort);
 						actor.update({ "system.knowledge": knowledge });

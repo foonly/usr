@@ -82,6 +82,39 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		// Add derived data for the sheet
 		actorData.system.damage = this.actor.system.damage;
 
+		// Handle core traits localization
+		for (const [key, trait] of Object.entries(actorData.system.traits)) {
+			trait.localizedLabel = game.i18n.localize(trait.label);
+			if (trait.spec) {
+				const specConfig = usr.specializations[key];
+				trait.spec.forEach((spec) => {
+					spec.localizedTitle = specConfig?.[spec.title]
+						? game.i18n.localize(specConfig[spec.title])
+						: spec.title;
+					spec.isLegacy = specConfig && !specConfig[spec.title];
+				});
+			}
+		}
+
+		// Handle skill traits localization
+		context.skillTraits = [];
+		if (actorData.system.skillTraits) {
+			for (const [key, trait] of Object.entries(actorData.system.skillTraits)) {
+				trait.key = key;
+				trait.localizedLabel = game.i18n.localize(trait.label);
+				if (trait.spec) {
+					const specConfig = usr.specializations[key];
+					trait.spec.forEach((spec) => {
+						spec.localizedTitle = specConfig?.[spec.title]
+							? game.i18n.localize(specConfig[spec.title])
+							: spec.title;
+						spec.isLegacy = specConfig && !specConfig[spec.title];
+					});
+				}
+				context.skillTraits.push(trait);
+			}
+		}
+
 		const items = this.actor.items.map((item) => {
 			const data = item.toObject(false);
 			data.data = data.system;
@@ -143,6 +176,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			return {
 				name: know.name,
 				level: usr.knowledge[know.level],
+				approved: know.approved,
 			};
 		});
 	}
@@ -324,7 +358,8 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 
 		on(".trait-edit", (event) => {
 			const key = event.currentTarget.dataset.trait;
-			const trait = this.actor.system.traits[key];
+			const trait =
+				this.actor.system.traits[key] || this.actor.system.skillTraits.get(key);
 			new TraitSheet(trait, key, this.actor).render({ force: true });
 		});
 
@@ -391,8 +426,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		) {
 			const itemId = element.closest(".item")?.dataset.itemId;
 			if (itemId === "unarmed") {
-				const fortitude = this.actor.system.traits.fortitude.value;
-				const meleeTrait = this.actor.system.traits.melee;
+				const coreTraits = this.actor.system.traits;
+				const skillTraits = this.actor.system.skillTraits;
+				const fortitude = coreTraits.fortitude.value;
+				const meleeTrait = coreTraits.melee;
 				let spec = "";
 
 				// Check for Unarmed specialization

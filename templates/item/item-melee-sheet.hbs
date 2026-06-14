@@ -65,12 +65,11 @@
 			<input type="number" name="system.damage" value="{{system.damage}}" />
 		</div>
 		<div class="form-group">
-			<label>{{localize "USR.WeaponType"}}</label>
+			<label>{{localize "USR.Specialization"}}</label>
 			<select name="system.specialization">
 				{{selectOptions
-					config.meleeSpecializations
+					specializations
 					selected=system.specialization
-					localize=true
 				}}
 			</select>
 		</div>
