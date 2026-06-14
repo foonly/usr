@@ -74,6 +74,7 @@ usr.specializations = {
 		jumping: "USR.SpecJumping",
 	},
 	melee: {
+		unarmed: "USR.SpecUnarmed",
 		axes: "USR.SpecAxes",
 		swords: "USR.SpecSwords",
 		knives: "USR.SpecKnives",
