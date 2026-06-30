@@ -11,11 +11,11 @@
 @import "components/dialog.css";
 
 /* Add custom fonts by visiting and search https://fonts.google.com */
-@import url("https://fonts.googleapis.com/css2?family=Special+Elite&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manufacturing+Consent&family=Special+Elite&display=swap");
 
 :root {
+	--usr-font-header: "Manufacturing Consent", serif;
 	--usr-font-primary: "Special Elite", serif;
-	--usr-font-secondary: "Special Elite", serif;
 
 	--usr-padding-sm: 5px;
 	--usr-padding-md: 10px;
@@ -47,6 +47,7 @@
 /* Explicit Light Theme Overrides */
 body.theme-light {
 	--usr-text: #2f2d29;
+	--color-text-primary: #2f2d29;
 	--usr-text-muted: #5b564d;
 	--usr-text-strong: #191813;
 	--usr-surface-1: rgba(255, 255, 255, 0.62);
@@ -60,6 +61,7 @@ body.theme-light {
 /* Explicit Dark Theme Overrides (if needed for specificity) */
 body.theme-dark {
 	--usr-text: #e7e2d9;
+	--color-text-primary: #e7e2d9;
 	--usr-text-muted: #b9b1a3;
 	--usr-text-strong: #f6f1e8;
 	--usr-surface-1: rgba(28, 25, 34, 0.82);
@@ -68,4 +70,15 @@ body.theme-dark {
 	--usr-surface-hover: rgba(255, 255, 255, 0.08);
 	--usr-border: rgba(223, 211, 192, 0.22);
 	--usr-accent: #b89d74;
+}
+
+/* Foundry variables */
+body {
+	--font-body: var(--usr-font-primary);
+	--font-h1: var(--usr-font-header);
+	--font-h2: var(--usr-font-header);
+	--font-h3: var(--usr-font-header);
+	--font-h4: var(--usr-font-header);
+	--font-h5: var(--usr-font-header);
+	--font-h6: var(--usr-font-header);
 }
