@@ -11,10 +11,10 @@
 @import "components/dialog.css";
 
 /* Add custom fonts by visiting and search https://fonts.google.com */
-@import url("https://fonts.googleapis.com/css2?family=Manufacturing+Consent&family=Special+Elite&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rye&family=Special+Elite&display=swap");
 
 :root {
-	--usr-font-header: "Manufacturing Consent", serif;
+	--usr-font-header: "Rye", serif;
 	--usr-font-primary: "Special Elite", serif;
 
 	--usr-padding-sm: 5px;
@@ -48,9 +48,10 @@
 body.theme-light {
 	--usr-text: #2f2d29;
 	--color-text-primary: #2f2d29;
+	--color-text-emphatic: #2f2d29;
 	--usr-text-muted: #5b564d;
 	--usr-text-strong: #191813;
-	--usr-surface-1: rgba(255, 255, 255, 0.62);
+	--usr-surface-1: url(/ui/parchment.jpg) repeat;
 	--usr-surface-2: rgba(255, 255, 255, 0.78);
 	--usr-surface-3: rgba(255, 255, 255, 0.9);
 	--usr-surface-hover: rgba(0, 0, 0, 0.05);
@@ -58,23 +59,10 @@ body.theme-light {
 	--usr-accent: #7b6243;
 }
 
-/* Explicit Dark Theme Overrides (if needed for specificity) */
-body.theme-dark {
-	--usr-text: #e7e2d9;
-	--color-text-primary: #e7e2d9;
-	--usr-text-muted: #b9b1a3;
-	--usr-text-strong: #f6f1e8;
-	--usr-surface-1: rgba(28, 25, 34, 0.82);
-	--usr-surface-2: rgba(46, 40, 53, 0.88);
-	--usr-surface-3: rgba(64, 56, 72, 0.92);
-	--usr-surface-hover: rgba(255, 255, 255, 0.08);
-	--usr-border: rgba(223, 211, 192, 0.22);
-	--usr-accent: #b89d74;
-}
-
 /* Foundry variables */
 body {
 	--font-body: var(--usr-font-primary);
+	--font-sans: var(--usr-font-primary);
 	--font-h1: var(--usr-font-header);
 	--font-h2: var(--usr-font-header);
 	--font-h3: var(--usr-font-header);
