@@ -28,7 +28,7 @@ jobs:
 
       - name: Create Release Zip
         if: steps.foonver.outputs.is_bumped == 'true'
-        run: zip -r usr.zip . -x@.zipexclude
+        run: zip -r usr.zip * -x@.zipexclude
 
       - name: Create GitHub Release
         if: steps.foonver.outputs.is_bumped == 'true'

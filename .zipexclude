@@ -1,10 +1,6 @@
-.git
-.github
-.zed
-.gitignore
-.npmignore
-.zipexclude
+*.zip
+node_modules/*
+node_modules
 AGENTS.md
 foonver.toml
 PLAN.md
-node_modules
