@@ -1,6 +1,17 @@
 # Changelog
 
-## 1.1.0 (2026-06-14)
+### 1.1.1 (2026-07-01)
+
+#### Styles
+
+- css: update chat styling and font variables (822945a)
+- css: update typography and font variables (fb781f9)
+
+#### Continuous Integration
+
+- github: automate release process with foonver (54248a1)
+
+## v1.1.0 (2026-06-14)
 
 #### Features
 
