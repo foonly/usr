@@ -1,0 +1,10 @@
+.git
+.github
+.zed
+.gitignore
+.npmignore
+.zipexclude
+AGENTS.md
+foonver.toml
+PLAN.md
+node_modules

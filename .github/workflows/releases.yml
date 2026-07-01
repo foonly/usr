@@ -1,18 +1,42 @@
-name: Release
+name: Release version
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+      - "push-action/**"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  release:
     permissions:
       contents: write
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: zip -r usr.zip * -x "versionSync.mjs" "scss/*" "node_modules/*" "package*.json" "pnpm-*" @
-      - uses: ncipollo/release-action@v1
         with:
-          artifacts: "system.json,usr.zip"
+          fetch-depth: 0
+
+      - name: Run foonver
+        id: foonver
+        uses: foonly/foonver@v0.14.0
+        with:
+          command: "auto"
+          changelog: "true"
+          push: "true"
+          commit_suffix: "[skip ci]"
+          version_file: "system.json"
+
+      - name: Create Release Zip
+        if: steps.foonver.outputs.is_bumped == 'true'
+        run: zip -r usr.zip . -x@.zipexclude
+
+      - name: Create GitHub Release
+        if: steps.foonver.outputs.is_bumped == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.foonver.outputs.version }}
+          name: Release ${{ steps.foonver.outputs.version }}
+          body: ${{ steps.foonver.outputs.release_notes }}
+          files: |
+            system.json
+            usr.zip

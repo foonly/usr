@@ -17,6 +17,10 @@
 	--usr-font-header: "Rye", serif;
 	--usr-font-primary: "Special Elite", serif;
 
+	--usr-font-size: 16px;
+	--usr-font-size-small: 14px;
+	--usr-font-size-large: 18px;
+
 	--usr-padding-sm: 5px;
 	--usr-padding-md: 10px;
 	--usr-padding-lg: 20px;
