@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.1.1 (2026-07-01)
+### 1.1.2 (2026-07-01)
+
+#### Continuous Integration
+
+- github: update zip command and exclusion list (1fbff1a)
+
+### v1.1.1 (2026-07-01)
 
 #### Styles
 
