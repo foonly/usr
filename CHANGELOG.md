@@ -1,6 +1,16 @@
 # Changelog
 
-### 1.1.3 (2026-07-02)
+### 1.1.4 (2026-07-02)
+
+#### Bug Fixes
+
+- sheet: set default values for trait properties in TraitSheet (4c0fec0)
+
+#### Styles
+
+- css: standardize font size variables (1219d62)
+
+### v1.1.3 (2026-07-02)
 
 #### Styles
 
