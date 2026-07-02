@@ -6,7 +6,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	constructor(trait, key, actor, options = {}) {
 		const label =
-			trait.label || `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+			trait?.label || `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
 		super(
 			foundry.utils.mergeObject(
 				{
@@ -19,9 +19,22 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 			),
 		);
 
-		this.trait = foundry.utils.deepClone(trait);
+		this.trait = foundry.utils.deepClone(trait || {});
 		// Ensure label is set for new traits
 		if (!this.trait.label) this.trait.label = label;
+		if (this.trait.value === undefined) this.trait.value = 1;
+		if (this.trait.xp === undefined) this.trait.xp = 0;
+		if (this.trait.roll === undefined) this.trait.roll = 0;
+		if (this.trait.spec === undefined) this.trait.spec = [];
+		if (this.trait.hasSpec === undefined) {
+			const isCore = !!actor.system.traits[key];
+			if (isCore) {
+				this.trait.hasSpec = ["mobility", "melee", "ranged"].includes(key);
+			} else {
+				this.trait.hasSpec = true;
+			}
+		}
+
 		this.key = key;
 		this.actor = actor;
 	}
