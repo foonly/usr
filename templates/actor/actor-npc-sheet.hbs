@@ -11,21 +11,17 @@
 		width="100"
 	/>
 	<div class="header-fields">
-		<div class="header-top npc-header-top">
-			<h1 class="charname">
-				<input
-					name="name"
-					type="text"
-					value="{{actor.name}}"
-					placeholder="Name"
-				/>
-			</h1>
-			<div class="header-meta npc-meta">
-				<div class="meta-card readonly">
-					<span class="meta-label">Modifier</span>
-					<span class="meta-value">{{system.damage.modifierText}}</span>
-				</div>
-			</div>
+		<h1 class="charname">
+			<input
+				name="name"
+				type="text"
+				value="{{actor.name}}"
+				placeholder="Name"
+			/>
+		</h1>
+		<div class="meta-card readonly modifier">
+			<span class="meta-label">Modifier</span>
+			<span class="meta-value">{{system.damage.modifierText}}</span>
 		</div>
 	</div>
 </header>

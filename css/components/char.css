@@ -72,6 +72,61 @@
 		}
 	}
 
+	.actor-header {
+		.header-fields {
+			display: grid;
+			grid-gap: 8px;
+			grid-template-columns: auto 32px 96px;
+
+			.charname {
+				grid-column: 1 / span 2;
+			}
+
+			.xp {
+				flex-direction: row;
+			}
+
+			.chips {
+				flex: 0 1 auto;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				justify-content: flex-start;
+				align-items: center;
+
+				.chip {
+					background-image: url("/systems/usr/assets/chips/white.webp");
+					background-size: contain;
+					background-repeat: no-repeat;
+					background-position: center;
+					height: 40px;
+					width: 40px;
+					transition:
+						transform 0.15s ease,
+						filter 0.15s ease;
+
+					&:hover {
+						transform: translateY(-1px);
+						filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.18));
+					}
+
+					&[data-chip="green"] {
+						background-image: url("/systems/usr/assets/chips/green.webp");
+					}
+					&[data-chip="blue"] {
+						background-image: url("/systems/usr/assets/chips/blue.webp");
+					}
+					&[data-chip="red"] {
+						background-image: url("/systems/usr/assets/chips/red.webp");
+					}
+					&[data-chip="black"] {
+						background-image: url("/systems/usr/assets/chips/black.webp");
+					}
+				}
+			}
+		}
+	}
+
 	.traits-table {
 		.trait-label {
 			width: 100%;

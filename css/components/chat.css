@@ -171,11 +171,11 @@
 }
 
 /* Compatibility with Foundry VTT legacy chat log theme */
-.themed.theme-dark .chat-sidebar .chat-log.themed.theme-light {
+.themed.theme-dark .chat-log.themed.theme-light {
 	--color-scheme: dark;
 }
 
-.themed .chat-sidebar .chat-log.themed.theme-light .chat-message {
+.themed .chat-log.themed.theme-light .chat-message {
 	color: var(--usr-text);
 	background: var(--usr-surface-1);
 
