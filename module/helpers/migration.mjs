@@ -96,19 +96,27 @@ async function migrateActorData(actor) {
 		// Check both in the 'traits' object and directly in system (just in case)
 		const oldTrait = traits[key] || system[key];
 
-		if (
-			oldTrait &&
-			(oldTrait.value > 1 || (oldTrait.spec && oldTrait.spec.length > 0))
-		) {
-			console.log(`USR | !!! Found valid trait data for ${key}:`, oldTrait);
-			newSkillTraits[key] = foundry.utils.deepClone(oldTrait);
-			if (!newSkillTraits[key].label.startsWith("USR.")) {
-				newSkillTraits[key].label =
-					`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+		if (oldTrait) {
+			// Only migrate if not already in skillTraits and if it has useful data
+			if (
+				!skillTraits[key] &&
+				(oldTrait.value > 1 || (oldTrait.spec && oldTrait.spec.length > 0))
+			) {
+				console.log(`USR | Migrating ${key} trait data for ${actor.name}`);
+				newSkillTraits[key] = foundry.utils.deepClone(oldTrait);
+				if (!newSkillTraits[key].label?.startsWith("USR.")) {
+					newSkillTraits[key].label = `USR.Trait${
+						key.charAt(0).toUpperCase() + key.slice(1)
+					}`;
+				}
+				// Migrate specs for this skill trait
+				migrateSpecs(key, newSkillTraits[key]);
+				hasNewSkills = true;
 			}
-			// Migrate specs for this skill trait
-			migrateSpecs(key, newSkillTraits[key]);
-			hasNewSkills = true;
+
+			// Always clear the old data location in the update to prevent repeated migration
+			updateData[`system.traits.-=${key}`] = null;
+			updateData[`system.-=${key}`] = null;
 		}
 	}
 
@@ -124,13 +132,16 @@ async function migrateActorData(actor) {
 		const trait = traits[key];
 		if (trait) {
 			if (typeof trait.label === "string" && !trait.label.startsWith("USR.")) {
-				updateData[`system.traits.${key}.label`] =
-					`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+				updateData[`system.traits.${key}.label`] = `USR.Trait${
+					key.charAt(0).toUpperCase() + key.slice(1)
+				}`;
 			}
 			// Clone trait and migrate specs
 			const updatedTrait = foundry.utils.deepClone(trait);
 			migrateSpecs(key, updatedTrait);
-			if (updatedTrait.spec) {
+
+			// Only update if specs actually changed
+			if (JSON.stringify(updatedTrait.spec) !== JSON.stringify(trait.spec)) {
 				updateData[`system.traits.${key}.spec`] = updatedTrait.spec;
 			}
 		}
@@ -138,13 +149,17 @@ async function migrateActorData(actor) {
 
 	// Migrate Knowledge approval
 	if (actor.system.knowledge) {
+		let changed = false;
 		const knowledge = actor.system.knowledge.map((k) => {
 			if (k.approved === undefined) {
+				changed = true;
 				return { ...k, approved: true };
 			}
 			return k;
 		});
-		updateData["system.knowledge"] = knowledge;
+		if (changed) {
+			updateData["system.knowledge"] = knowledge;
+		}
 	}
 
 	return updateData;

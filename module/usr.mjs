@@ -116,7 +116,12 @@ Hooks.once("ready", async function () {
 	const currentVersion = game.system.version;
 	const lastVersion = game.settings.get("usr", "systemVersion");
 
+	console.log(
+		`USR | Current Version: ${currentVersion}, Last Version: ${lastVersion}`,
+	);
+
 	if (foundry.utils.isNewerVersion(currentVersion, lastVersion)) {
+		console.log("USR | System version is newer, running migration...");
 		await migrateWorld();
 		await game.settings.set("usr", "systemVersion", currentVersion);
 	}
