@@ -2,7 +2,7 @@
 	"id": "usr",
 	"title": "Universal Simple Role-Playing",
 	"description": "The Universal Simple Role-Playing System for FoundryVTT!",
-	"version": "1.1.4",
+	"version": "1.1.5",
 	"compatibility": {
 		"minimum": 12,
 		"verified": 14

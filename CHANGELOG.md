@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.1.4 (2026-07-02)
+### 1.1.5 (2026-07-02)
+
+#### Bug Fixes
+
+- migration: improve actor trait migration logic (b1ad956)
+
+### v1.1.4 (2026-07-02)
 
 #### Bug Fixes
 
