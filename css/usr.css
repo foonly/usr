@@ -73,4 +73,10 @@ body {
 	--font-h4: var(--usr-font-header);
 	--font-h5: var(--usr-font-header);
 	--font-h6: var(--usr-font-header);
+	--font-h1-size: var(--usr-font-size-large);
+	--font-h2-size: var(--usr-font-size-large);
+	--font-h3-size: var(--usr-font-size);
+	--font-h4-size: var(--usr-font-size);
+	--font-h5-size: var(--usr-font-size-small);
+	--font-h6-size: var(--usr-font-size-small);
 }

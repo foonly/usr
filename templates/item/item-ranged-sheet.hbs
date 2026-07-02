@@ -40,6 +40,14 @@
 		data-group="primary"
 		data-tab="description"
 	>
+		<div class="form-group">
+			<label>{{localize "USR.Weight"}}</label>
+			<input type="number" name="system.weight" value="{{system.weight}}" />
+		</div>
+		<div class="form-group">
+			<label>{{localize "USR.Ammo"}}</label>
+			<input type="number" name="system.ammo" value="{{system.ammo}}" min="0" />
+		</div>
 		<prose-mirror
 			name="system.description"
 			value="{{system.description}}"
@@ -56,10 +64,6 @@
 		data-group="primary"
 		data-tab="attributes"
 	>
-		<div class="form-group">
-			<label>{{localize "USR.Weight"}}</label>
-			<input type="number" name="system.weight" value="{{system.weight}}" />
-		</div>
 		<div class="form-group">
 			<label>{{localize "USR.Damage"}}</label>
 			<input type="number" name="system.damage" value="{{system.damage}}" />
@@ -108,10 +112,6 @@
 		<div class="form-group">
 			<label>{{localize "USR.Reload"}}</label>
 			<input type="number" name="system.reload" value="{{system.reload}}" min="1" />
-		</div>
-		<div class="form-group">
-			<label>{{localize "USR.Ammo"}}</label>
-			<input type="number" name="system.ammo" value="{{system.ammo}}" min="0" />
 		</div>
 	</div>
 </section>
