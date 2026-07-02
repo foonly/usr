@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.1.2 (2026-07-01)
+### 1.1.3 (2026-07-02)
+
+#### Styles
+
+- css: refactor actor header layout and move chip styles (a467795)
+
+### v1.1.2 (2026-07-01)
 
 #### Continuous Integration
 
