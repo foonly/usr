@@ -95,15 +95,26 @@ async function migrateActorData(actor) {
 	for (const key of skillTraitKeys) {
 		// Check both in the 'traits' object and directly in system (just in case)
 		const oldTrait = traits[key] || system[key];
+		const existingTrait = skillTraits[key];
 
 		if (oldTrait) {
-			// Only migrate if not already in skillTraits and if it has useful data
-			if (
-				!skillTraits[key] &&
-				(oldTrait.value > 1 || (oldTrait.spec && oldTrait.spec.length > 0))
-			) {
-				console.log(`USR | Migrating ${key} trait data for ${actor.name}`);
-				newSkillTraits[key] = foundry.utils.deepClone(oldTrait);
+			// Migrate if not in skillTraits, or if existing is incomplete (missing value/label)
+			if (!existingTrait || !existingTrait.value || !existingTrait.label) {
+				console.log(
+					`USR | Migrating/Fixing ${key} trait data for ${actor.name}`,
+				);
+				newSkillTraits[key] = {
+					label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+					value: 1,
+					xp: 0,
+					roll: 0,
+					hasSpec: true,
+					spec: [],
+					...foundry.utils.deepClone(existingTrait || {}),
+					...foundry.utils.deepClone(oldTrait),
+				};
+
+				// Ensure label is localized key
 				if (!newSkillTraits[key].label?.startsWith("USR.")) {
 					newSkillTraits[key].label = `USR.Trait${
 						key.charAt(0).toUpperCase() + key.slice(1)
@@ -117,6 +128,23 @@ async function migrateActorData(actor) {
 			// Always clear the old data location in the update to prevent repeated migration
 			updateData[`system.traits.-=${key}`] = null;
 			updateData[`system.-=${key}`] = null;
+		} else if (existingTrait) {
+			// Even if no oldTrait, check if existingTrait is incomplete and fix it if so
+			if (!existingTrait.value || !existingTrait.label) {
+				console.log(
+					`USR | Fixing incomplete skill trait ${key} for ${actor.name}`,
+				);
+				newSkillTraits[key] = {
+					label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+					value: 1,
+					xp: 0,
+					roll: 0,
+					hasSpec: true,
+					spec: [],
+					...foundry.utils.deepClone(existingTrait),
+				};
+				hasNewSkills = true;
+			}
 		}
 	}
 

@@ -55,10 +55,19 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 			for (const key of skillTraitKeys) {
 				// If the trait exists in the raw source 'traits' object
 				if (source.traits[key]) {
-					// Move it to skillTraits if it's not already there
-					if (!source.skillTraits[key]) {
-						source.skillTraits[key] = source.traits[key];
-						console.log(`USR | Migrating ${key} from source traits`);
+					// Move it to skillTraits if it's not already there or if existing is incomplete
+					if (!source.skillTraits[key] || !source.skillTraits[key].value) {
+						source.skillTraits[key] = {
+							label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+							value: 1,
+							xp: 0,
+							roll: 0,
+							hasSpec: true,
+							spec: [],
+							...source.skillTraits[key],
+							...source.traits[key],
+						};
+						console.log(`USR | Migrating/Fixing ${key} from source traits`);
 					}
 
 					// Ensure label is localized key
@@ -66,8 +75,9 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 						typeof source.skillTraits[key].label === "string" &&
 						!source.skillTraits[key].label.startsWith("USR.")
 					) {
-						source.skillTraits[key].label =
-							`USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`;
+						source.skillTraits[key].label = `USR.Trait${
+							key.charAt(0).toUpperCase() + key.slice(1)
+						}`;
 					}
 
 					// Migrate specs for this skill trait
@@ -76,7 +86,21 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 					// Remove from original traits object to prevent schema validation issues
 					delete source.traits[key];
 				} else if (source.skillTraits[key]) {
-					// It's already in skillTraits, but we might still need to migrate specs
+					// It's already in skillTraits, but we might still need to fix incomplete data
+					if (
+						!source.skillTraits[key].value ||
+						!source.skillTraits[key].label
+					) {
+						source.skillTraits[key] = {
+							label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+							value: 1,
+							xp: 0,
+							roll: 0,
+							hasSpec: true,
+							spec: [],
+							...source.skillTraits[key],
+						};
+					}
 					migrateSpecs(key, source.skillTraits[key]);
 				}
 			}

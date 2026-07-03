@@ -113,16 +113,15 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 
 		for (const key of skillTraitKeys) {
 			const savedTrait = savedSkillTraits[key];
-			const traitData = savedTrait
-				? savedTrait
-				: {
-						label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
-						value: 1,
-						xp: 0,
-						roll: 0,
-						hasSpec: true,
-						spec: [],
-					};
+			const traitData = {
+				label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+				value: 1,
+				xp: 0,
+				roll: 0,
+				hasSpec: true,
+				spec: [],
+				...savedTrait,
+			};
 			context.allTraits.push(processTrait(key, traitData));
 		}
 
