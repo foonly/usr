@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.1.5 (2026-07-02)
+### 1.1.6 (2026-07-03)
+
+#### Bug Fixes
+
+- data: improve skill trait migration and validation (cf9801e)
+
+### v1.1.5 (2026-07-02)
 
 #### Bug Fixes
 
