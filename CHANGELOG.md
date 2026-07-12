@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.1.6 (2026-07-03)
+### 1.1.7 (2026-07-12)
+
+#### Bug Fixes
+
+- migration: refactor data migration for efficiency and robustness (5a673c1)
+
+### v1.1.6 (2026-07-03)
 
 #### Bug Fixes
 
