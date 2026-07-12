@@ -122,8 +122,13 @@ Hooks.once("ready", async function () {
 
 	if (foundry.utils.isNewerVersion(currentVersion, lastVersion)) {
 		console.log("USR | System version is newer, running migration...");
-		await migrateWorld();
-		await game.settings.set("usr", "systemVersion", currentVersion);
+		try {
+			await migrateWorld();
+			await game.settings.set("usr", "systemVersion", currentVersion);
+			console.log(`USR | Version setting updated to ${currentVersion}`);
+		} catch (err) {
+			console.error("USR | Migration failed:", err);
+		}
 	}
 });
 

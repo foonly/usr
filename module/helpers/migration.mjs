@@ -4,36 +4,44 @@
  */
 export async function migrateWorld() {
 	const systemVersion = game.system.version;
-	// We only run migration if we haven't already or if version changed significantly
-	// For now, we check if skillTraits exist on characters.
 	ui.notifications.info(`Migrating USR System to version ${systemVersion}...`);
+	console.log(`USR | Starting migration to ${systemVersion}`);
 
+	const actorUpdates = [];
 	for (const actor of game.actors) {
 		try {
 			const updateData = await migrateActorData(actor);
 			if (!foundry.utils.isEmpty(updateData)) {
-				console.log(`Migrating Actor ${actor.name}`, updateData);
-				await actor.update(updateData);
+				actorUpdates.push({ _id: actor.id, ...updateData });
 			}
 		} catch (err) {
-			err.message = `Failed USR system migration for Actor ${actor.name}: ${err.message}`;
-			console.error(err);
+			console.error(`USR | Failed migration for Actor ${actor.name}:`, err);
 		}
 	}
 
+	if (actorUpdates.length > 0) {
+		console.log(`USR | Migrating ${actorUpdates.length} Actors...`);
+		await Actor.updateDocuments(actorUpdates);
+	}
+
+	const itemUpdates = [];
 	for (const item of game.items) {
 		try {
 			const updateData = await migrateItemData(item);
 			if (!foundry.utils.isEmpty(updateData)) {
-				console.log(`Migrating Item ${item.name}`, updateData);
-				await item.update(updateData);
+				itemUpdates.push({ _id: item.id, ...updateData });
 			}
 		} catch (err) {
-			err.message = `Failed USR system migration for Item ${item.name}: ${err.message}`;
-			console.error(err);
+			console.error(`USR | Failed migration for Item ${item.name}:`, err);
 		}
 	}
 
+	if (itemUpdates.length > 0) {
+		console.log(`USR | Migrating ${itemUpdates.length} Items...`);
+		await Item.updateDocuments(itemUpdates);
+	}
+
+	console.log("USR | System migration complete!");
 	ui.notifications.info("USR System migration complete!");
 }
 
@@ -44,18 +52,12 @@ export async function migrateWorld() {
  */
 async function migrateActorData(actor) {
 	const updateData = {};
-	// We use the most raw data possible
 	const source = actor.toObject(false);
 	const system = source.system || {};
 	const traits = system.traits || {};
-
-	console.log(
-		`USR | Migrating ${actor.name}. Traits keys found in source:`,
-		Object.keys(traits),
-	);
+	const skillTraits = system.skillTraits || {};
 
 	const skillTraitKeys = CONFIG.usr.traits.skills;
-	const skillTraits = system.skillTraits || {};
 	const newSkillTraits = {};
 	let hasNewSkills = false;
 
@@ -69,22 +71,14 @@ async function migrateActorData(actor) {
 			if (!s.title) return;
 			const title = s.title.trim().toLowerCase();
 
-			// 1. If title is already a valid slug (case-insensitive check)
 			if (specConfig[title]) {
-				if (s.title !== title) {
-					console.log(`USR | Normalizing spec slug: ${s.title} -> ${title}`);
-					s.title = title;
-				}
+				if (s.title !== title) s.title = title;
 				return;
 			}
 
-			// 2. Try to find a slug that matches the localized label
 			for (const [slug, labelKey] of Object.entries(specConfig)) {
 				const label = game.i18n.localize(labelKey).trim().toLowerCase();
 				if (title === label) {
-					console.log(
-						`USR | Migrating spec name to slug: ${s.title} -> ${slug}`,
-					);
 					s.title = slug;
 					return;
 				}
@@ -93,16 +87,13 @@ async function migrateActorData(actor) {
 	};
 
 	for (const key of skillTraitKeys) {
-		// Check both in the 'traits' object and directly in system (just in case)
 		const oldTrait = traits[key] || system[key];
 		const existingTrait = skillTraits[key];
 
 		if (oldTrait) {
-			// Migrate if not in skillTraits, or if existing is incomplete (missing value/label)
+			// Migrate if not in skillTraits, or if existing is incomplete
 			if (!existingTrait || !existingTrait.value || !existingTrait.label) {
-				console.log(
-					`USR | Migrating/Fixing ${key} trait data for ${actor.name}`,
-				);
+				console.log(`USR | Migrating ${key} for ${actor.name}`);
 				newSkillTraits[key] = {
 					label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
 					value: 1,
@@ -110,41 +101,29 @@ async function migrateActorData(actor) {
 					roll: 0,
 					hasSpec: true,
 					spec: [],
-					...foundry.utils.deepClone(existingTrait || {}),
 					...foundry.utils.deepClone(oldTrait),
+					...foundry.utils.deepClone(existingTrait || {}),
 				};
-
-				// Ensure label is localized key
-				if (!newSkillTraits[key].label?.startsWith("USR.")) {
-					newSkillTraits[key].label = `USR.Trait${
-						key.charAt(0).toUpperCase() + key.slice(1)
-					}`;
-				}
-				// Migrate specs for this skill trait
 				migrateSpecs(key, newSkillTraits[key]);
 				hasNewSkills = true;
 			}
-
-			// Always clear the old data location in the update to prevent repeated migration
 			updateData[`system.traits.-=${key}`] = null;
 			updateData[`system.-=${key}`] = null;
-		} else if (existingTrait) {
-			// Even if no oldTrait, check if existingTrait is incomplete and fix it if so
-			if (!existingTrait.value || !existingTrait.label) {
-				console.log(
-					`USR | Fixing incomplete skill trait ${key} for ${actor.name}`,
-				);
-				newSkillTraits[key] = {
-					label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
-					value: 1,
-					xp: 0,
-					roll: 0,
-					hasSpec: true,
-					spec: [],
-					...foundry.utils.deepClone(existingTrait),
-				};
-				hasNewSkills = true;
-			}
+		} else if (
+			existingTrait &&
+			(!existingTrait.value || !existingTrait.label)
+		) {
+			// Fix incomplete data even if no oldTrait
+			newSkillTraits[key] = {
+				label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
+				value: 1,
+				xp: 0,
+				roll: 0,
+				hasSpec: true,
+				spec: [],
+				...foundry.utils.deepClone(existingTrait),
+			};
+			hasNewSkills = true;
 		}
 	}
 
@@ -155,27 +134,25 @@ async function migrateActorData(actor) {
 		};
 	}
 
-	// Update core trait labels to localization keys and migrate specs
+	// Core Traits
 	for (const key of CONFIG.usr.traits.core) {
 		const trait = traits[key];
 		if (trait) {
+			const updatedTrait = foundry.utils.deepClone(trait);
+			migrateSpecs(key, updatedTrait);
+
 			if (typeof trait.label === "string" && !trait.label.startsWith("USR.")) {
 				updateData[`system.traits.${key}.label`] = `USR.Trait${
 					key.charAt(0).toUpperCase() + key.slice(1)
 				}`;
 			}
-			// Clone trait and migrate specs
-			const updatedTrait = foundry.utils.deepClone(trait);
-			migrateSpecs(key, updatedTrait);
-
-			// Only update if specs actually changed
 			if (JSON.stringify(updatedTrait.spec) !== JSON.stringify(trait.spec)) {
 				updateData[`system.traits.${key}.spec`] = updatedTrait.spec;
 			}
 		}
 	}
 
-	// Migrate Knowledge approval
+	// Knowledge
 	if (actor.system.knowledge) {
 		let changed = false;
 		const knowledge = actor.system.knowledge.map((k) => {
@@ -185,9 +162,7 @@ async function migrateActorData(actor) {
 			}
 			return k;
 		});
-		if (changed) {
-			updateData["system.knowledge"] = knowledge;
-		}
+		if (changed) updateData["system.knowledge"] = knowledge;
 	}
 
 	return updateData;

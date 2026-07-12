@@ -64,8 +64,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 							roll: 0,
 							hasSpec: true,
 							spec: [],
-							...source.skillTraits[key],
-							...source.traits[key],
+							...foundry.utils.deepClone(source.traits[key] || {}),
+							...foundry.utils.deepClone(source.skillTraits[key] || {}),
 						};
 						console.log(`USR | Migrating/Fixing ${key} from source traits`);
 					}
