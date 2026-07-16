@@ -14,6 +14,7 @@ export async function usrRoll(data) {
 		: 0;
 
 	// Get values for trait and specialization if given.
+	let traitLabel = "";
 	if (data.trait) {
 		const trait = coreTraits[data.trait] || skillTraits?.[data.trait];
 		if (!trait) {
@@ -26,6 +27,7 @@ export async function usrRoll(data) {
 			);
 			return { roll: null, result: null };
 		}
+		traitLabel = game.i18n.localize(trait.label);
 		const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
 		const traitModifier = Number.isFinite(trait.modifier) ? trait.modifier : 0;
 		data.skill = traitValue + traitModifier;
@@ -189,11 +191,18 @@ export async function usrRoll(data) {
 		if (data.spec) {
 			const specConfig = usr.specializations[data.trait];
 			const specLabelKey = specConfig?.[data.spec];
-			if (specLabelKey) {
-				const specLabel = game.i18n.localize(specLabelKey);
+			const specLabel = specLabelKey
+				? game.i18n.localize(specLabelKey)
+				: data.spec;
+			if (specLabel) {
 				// If flavor already starts with weapon name, insert specialization
 				if (flavor.includes("(") && flavor.includes(")")) {
 					flavor = flavor.replace("(", `(${specLabel} - `);
+				} else if (
+					flavor === specLabel ||
+					flavor.toLowerCase() === specLabel.toLowerCase()
+				) {
+					flavor = `${traitLabel} (${specLabel})`;
 				} else {
 					flavor = `${flavor} (${specLabel})`;
 				}

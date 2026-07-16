@@ -46,11 +46,35 @@
 		color: var(--usr-text-muted);
 	}
 
+	.dice-rolls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
+		margin: 8px 0;
+		padding: 0;
+		list-style: none;
+	}
+
 	.dice-rolls .roll.die {
-		color: var(--usr-c-black);
-		font-weight: bold;
+		color: #000;
+		font-weight: 900;
+		text-shadow:
+			0 0 3px #fff,
+			0 0 3px #fff;
+		filter: brightness(1.2);
+		font-size: 20px;
+		line-height: 28px;
+		width: 28px;
+		height: 28px;
+		background-size: 28px 28px;
+		margin-right: 4px;
+
 		&.success {
-			color: var(--usr-c-black);
+			color: #000;
+			text-shadow:
+				0 0 5px #fff,
+				0 0 5px #fff;
+			filter: brightness(1.5);
 		}
 	}
 }
