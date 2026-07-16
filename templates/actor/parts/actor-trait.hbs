@@ -9,9 +9,14 @@
 		</a>
 		{{ trait.localizedLabel }}
 	</td>
-	<td class="trait-value rolls-{{trait.roll}}">{{trait.value}}</td>
+	<td class="trait-value">
+		{{trait.value}}{{#if trait.modifier}}
+		<span class="modifier"
+			>({{numberFormat trait.modifier decimals=0 sign=true}})</span
+		>{{/if}}
+	</td>
 
-	<td class="trait-xp">
+	<td class="trait-xp stars-{{trait.starLevel}}">
 		<a class="roll-xp" data-trait="{{key}}">{{trait.xp}}/5</a>
 	</td>
 	<td class="trait-roll">
@@ -57,8 +62,13 @@
 		></i
 		>{{/if}}
 	</td>
-	<td class="trait-value rolls-{{ roll }}">{{ value }}</td>
-	<td class="trait-xp">
+	<td class="trait-value">
+		{{ value }}{{#if modifier}}
+		<span class="modifier"
+			>({{numberFormat modifier decimals=0 sign=true}})</span
+		>{{/if}}
+	</td>
+	<td class="trait-xp stars-{{ starLevel }}">
 		<a class="roll-xp" data-trait="{{../key}}" data-spec="{{title}}"
 			>{{ xp }}/3</a
 		>

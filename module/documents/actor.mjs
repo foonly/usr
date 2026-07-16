@@ -63,12 +63,15 @@ export class usrActor extends Actor {
 			modifierText = "None";
 		}
 
+		const fortitudeTotal =
+			systemData.traits.fortitude.value +
+			(systemData.traits.fortitude.modifier ?? 0);
 		const resistance = {
-			x: Math.ceil(systemData.traits.fortitude.value * 0.9),
-			l: Math.ceil(systemData.traits.fortitude.value * 0.8),
-			m: Math.ceil(systemData.traits.fortitude.value * 0.7),
-			s: Math.ceil(systemData.traits.fortitude.value * 0.6),
-			d: Math.ceil(systemData.traits.fortitude.value * 0.5),
+			x: Math.ceil(fortitudeTotal * 0.9),
+			l: Math.ceil(fortitudeTotal * 0.8),
+			m: Math.ceil(fortitudeTotal * 0.7),
+			s: Math.ceil(fortitudeTotal * 0.6),
+			d: Math.ceil(fortitudeTotal * 0.5),
 		};
 
 		systemData.damage = {

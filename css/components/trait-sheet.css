@@ -92,7 +92,7 @@
 
 				header {
 					display: grid;
-					grid-template-columns: 1fr 60px 80px 60px;
+					grid-template-columns: 1fr 45px 45px 65px 45px;
 					font-weight: bold;
 					font-size: 0.75rem;
 					color: var(--usr-text-muted);
@@ -108,7 +108,7 @@
 
 				.spec-row {
 					display: grid;
-					grid-template-columns: 1fr 60px 80px 60px;
+					grid-template-columns: 1fr 45px 45px 65px 45px;
 					padding: 0.25rem 0.5rem;
 					align-items: center;
 					border-radius: 4px;

@@ -25,6 +25,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		if (this.trait.value === undefined) this.trait.value = 1;
 		if (this.trait.xp === undefined) this.trait.xp = 0;
 		if (this.trait.roll === undefined) this.trait.roll = 0;
+		if (this.trait.modifier === undefined) this.trait.modifier = 0;
 		if (this.trait.spec === undefined) this.trait.spec = [];
 		if (this.trait.hasSpec === undefined) {
 			const isCore = !!actor.system.traits[key];
@@ -43,8 +44,8 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		classes: ["usr", "sheet", "trait"],
 		tag: "form",
 		position: {
-			width: 400,
-			height: 400,
+			width: 640,
+			height: 640,
 		},
 		window: {
 			contentClasses: ["standard-form"],
@@ -111,6 +112,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 				title: slug,
 				localizedTitle: game.i18n.localize(labelKey),
 				value: existing?.value ?? 0,
+				modifier: existing?.modifier ?? 0,
 				roll: existing?.roll ?? 0,
 				xp: existing?.xp ?? 0,
 				isLegacy: false,
@@ -186,6 +188,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		const data = formData.object;
 
 		this.trait.value = Number.parseInt(data.value ?? 0, 10);
+		this.trait.modifier = Number.parseInt(data.modifier ?? 0, 10);
 		this.trait.roll = Number.parseInt(data.roll ?? 0, 10);
 		this.trait.xp = Number.parseInt(data.xp ?? 0, 10);
 
@@ -199,11 +202,12 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 
 			for (const slug of slugs) {
 				const val = Number.parseInt(data[`spec-${slug}-value`] ?? 0, 10);
+				const mod = Number.parseInt(data[`spec-${slug}-modifier`] ?? 0, 10);
 				const roll = Number.parseInt(data[`spec-${slug}-roll`] ?? 0, 10);
 				const xp = Number.parseInt(data[`spec-${slug}-xp`] ?? 0, 10);
 
-				if (val > 0 || roll > 0 || xp > 0) {
-					spec.push({ title: slug, value: val, roll, xp });
+				if (val > 0 || mod !== 0 || roll > 0 || xp > 0) {
+					spec.push({ title: slug, value: val, modifier: mod, roll, xp });
 				}
 			}
 			this.trait.spec = spec;

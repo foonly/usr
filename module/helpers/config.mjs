@@ -173,6 +173,7 @@ usr.specializations = {
 	},
 };
 
+usr.traitMax = 7;
 usr.traits = {
 	core: [
 		"fortitude",

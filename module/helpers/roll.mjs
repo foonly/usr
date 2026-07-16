@@ -26,7 +26,10 @@ export async function usrRoll(data) {
 			);
 			return { roll: null, result: null };
 		}
-		data.skill = Number.isFinite(trait.value) ? trait.value : 0;
+		const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
+		const traitModifier = Number.isFinite(trait.modifier) ? trait.modifier : 0;
+		data.skill = traitValue + traitModifier;
+
 		if (data.spec && Array.isArray(trait.spec)) {
 			// Find specialization by slug first, then by title (legacy fallback)
 			const specSlug = data.spec;
@@ -41,7 +44,11 @@ export async function usrRoll(data) {
 					specSlug === spec.title || // Match by slug
 					(localizedLabel && localizedLabel === specTitle) // Legacy fallback
 				) {
-					data.specialization = Number.isFinite(spec.value) ? spec.value : 0;
+					const specValue = Number.isFinite(spec.value) ? spec.value : 0;
+					const specModifier = Number.isFinite(spec.modifier)
+						? spec.modifier
+						: 0;
+					data.specialization = specValue + specModifier;
 				}
 			});
 		}
@@ -236,7 +243,7 @@ export async function usrRoll(data) {
 		}
 	}
 
-	if (!result.critical && data.trait && data.actor) {
+	if (data.trait && data.actor) {
 		const isCore = !!coreTraits[data.trait];
 		const traits = isCore ? coreTraits : skillTraits;
 		const updatedTraits = foundry.utils.deepClone(traits);
@@ -251,12 +258,12 @@ export async function usrRoll(data) {
 					if (data.spec === spec.title) {
 						const specValue = Number.isFinite(spec.value) ? spec.value : 0;
 						const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
-						if (
-							specValue < 3 &&
-							(specRoll < 1 || (specRoll < 2 && data.difficulty < 4))
-						) {
+						if (specValue < (CONFIG.usr.traitMax || 7)) {
 							awarded = true;
-							spec.roll = specRoll + 1;
+							let increment = 1;
+							if (data.difficulty === 4) increment = 2;
+							else if (data.difficulty <= 3) increment = 3;
+							spec.roll = specRoll + increment;
 						}
 					}
 				});
@@ -264,11 +271,11 @@ export async function usrRoll(data) {
 			if (!awarded) {
 				const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
 				const traitRoll = Number.isFinite(trait.roll) ? trait.roll : 0;
-				if (
-					traitValue < 7 &&
-					(traitRoll < 1 || (traitRoll < 2 && data.difficulty < 4))
-				) {
-					trait.roll = traitRoll + 1;
+				if (traitValue < (CONFIG.usr.traitMax || 7)) {
+					let increment = 1;
+					if (data.difficulty === 4) increment = 2;
+					else if (data.difficulty <= 3) increment = 3;
+					trait.roll = traitRoll + increment;
 				}
 			}
 		}
@@ -539,28 +546,32 @@ export function rollXp(data) {
 		trait.spec.forEach((spec) => {
 			if (data.spec === spec.title) {
 				// Roll on specialization.
-				if (spec.value > 2) {
+				if (spec.value >= (CONFIG.usr.traitMax || 7)) {
 					return false;
 				}
 				let paid = false;
 				if (spec.roll > 0) {
-					spec.roll--;
+					if (spec.roll >= 64) spec.roll = 8;
+					else if (spec.roll >= 8) spec.roll = 1;
+					else spec.roll = 0;
 					paid = true;
 				} else if (data.actor.system.xp > 0) {
 					data.actor.update({ "system.xp": data.actor.system.xp - 1 });
 					paid = true;
 				}
 				if (paid) {
-					const target = spec.value * 3 + 10;
+					const originalValue = spec.value;
+					const target = originalValue * 3 + 10;
 					new Roll("2d10").evaluate().then((roll) => {
-						if (roll.total > target) {
+						const isSuccess = roll.total > target;
+						if (isSuccess) {
 							spec.xp++;
 							if (spec.xp > 2) {
 								spec.value++;
 								spec.xp -= 3;
 							}
 						}
-						const label = `Roll for XP on ${spec.title} with value of ${spec.value}. Needs a result over ${target}.`;
+						const label = `Roll for XP on ${spec.title} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
 						roll.toMessage({
 							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
 							flavor: label,
@@ -582,21 +593,25 @@ export function rollXp(data) {
 		});
 	} else {
 		// Roll on trait.
-		if (trait.value > 6) {
+		if (trait.value >= (CONFIG.usr.traitMax || 7)) {
 			return false;
 		}
 		let paid = false;
 		if (trait.roll > 0) {
-			trait.roll--;
+			if (trait.roll >= 64) trait.roll = 8;
+			else if (trait.roll >= 8) trait.roll = 1;
+			else trait.roll = 0;
 			paid = true;
 		} else if (data.actor.system.xp > 0) {
 			data.actor.update({ "system.xp": data.actor.system.xp - 1 });
 			paid = true;
 		}
 		if (paid) {
-			const target = trait.value * 2 + 6;
+			const originalValue = trait.value;
+			const target = originalValue * 2 + 6;
 			new Roll("2d10").evaluate().then((roll) => {
-				if (roll.total > target) {
+				const isSuccess = roll.total > target;
+				if (isSuccess) {
 					trait.xp++;
 					if (trait.xp > 4) {
 						trait.value++;
@@ -604,7 +619,7 @@ export function rollXp(data) {
 					}
 				}
 				const traitLabel = game.i18n.localize(trait.label);
-				const label = `Roll for XP on ${traitLabel} with value of ${trait.value}. Needs a result over ${target}.`;
+				const label = `Roll for XP on ${traitLabel} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
 				roll.toMessage({
 					speaker: ChatMessage.getSpeaker({ actor: data.actor }),
 					flavor: label,

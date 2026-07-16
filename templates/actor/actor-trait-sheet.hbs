@@ -14,6 +14,15 @@
 				/>
 			</div>
 			<div class="form-group">
+				<label>{{localize 'USR.Modifier'}}</label>
+				<input
+					type="number"
+					name="modifier"
+					value="{{trait.modifier}}"
+					data-dtype="Number"
+				/>
+			</div>
+			<div class="form-group">
 				<label>{{localize 'USR.Rolls'}}</label>
 				<div class="roll-display">
 					<span class="roll-value">{{trait.roll}}</span>
@@ -48,6 +57,7 @@
 		<header>
 			<span class="spec-name-header">{{localize 'USR.Specialization'}}</span>
 			<span class="spec-stat-header">{{localize 'USR.Level'}}</span>
+			<span class="spec-stat-header">Mod</span>
 			<span class="spec-stat-header">{{localize 'USR.Rolls'}}</span>
 			<span class="spec-stat-header">XP</span>
 		</header>
@@ -69,6 +79,13 @@
 				class="spec-input"
 				name="spec-{{spec.slug}}-value"
 				value="{{spec.value}}"
+				data-dtype="Number"
+			/>
+			<input
+				type="number"
+				class="spec-input"
+				name="spec-{{spec.slug}}-modifier"
+				value="{{spec.modifier}}"
 				data-dtype="Number"
 			/>
 			<div class="roll-display spec-roll">

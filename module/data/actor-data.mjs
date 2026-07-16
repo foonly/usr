@@ -183,6 +183,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 		return new fields.SchemaField({
 			label: new fields.StringField({ initial: label }),
 			value: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
+			modifier: new fields.NumberField({ initial: 0, integer: true }),
 			xp: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 			roll: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 			hasSpec: new fields.BooleanField({ initial: hasSpec }),
@@ -190,6 +191,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 				new fields.SchemaField({
 					title: new fields.StringField({ initial: "" }),
 					value: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
+					modifier: new fields.NumberField({ initial: 0, integer: true }),
 					xp: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 					roll: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 				}),

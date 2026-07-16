@@ -29,10 +29,6 @@
 			text-align: left;
 		}
 
-		tbody tr + tr td {
-			border-top: 1px solid var(--usr-border);
-		}
-
 		tbody tr.equipped {
 			background: rgba(184, 157, 116, 0.1);
 			border-left: 3px solid var(--usr-accent);
@@ -129,33 +125,45 @@
 
 	.traits-table {
 		.trait-label {
-			width: 100%;
 			white-space: nowrap;
 		}
 
 		.trait-value {
-			font-size: 2em;
-			text-align: center;
+			font-size: 1.6em;
 
-			&.rolls-1::after {
-				vertical-align: super;
-				font-size: 0.5em;
-				content: "*";
-			}
-
-			&.rolls-2::after {
-				vertical-align: super;
-				font-size: 0.5em;
-				content: "**";
+			.modifier {
+				font-size: 0.4em;
+				color: var(--usr-text-muted);
+				vertical-align: middle;
+				margin-left: 0.2rem;
 			}
 		}
 
 		.trait-xp {
 			text-align: center;
+
+			&::after {
+				content: "";
+				vertical-align: super;
+				font-size: 0.8em;
+				margin-left: 2px;
+				color: var(--usr-accent);
+			}
+
+			&.stars-1::after {
+				content: "*";
+			}
+
+			&.stars-2::after {
+				content: "**";
+			}
+
+			&.stars-3::after {
+				content: "***";
+			}
 		}
 
 		.trait-roll {
-			width: 140px;
 			min-width: 140px;
 			display: flex;
 			flex-wrap: nowrap;

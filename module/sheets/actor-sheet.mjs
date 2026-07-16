@@ -90,6 +90,16 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			const trait = foundry.utils.deepClone(traitData);
 			trait.key = key;
 			trait.localizedLabel = game.i18n.localize(trait.label);
+
+			// Calculate star level based on roll progress
+			const getStarLevel = (roll) => {
+				if (roll >= 64) return 3;
+				if (roll >= 8) return 2;
+				if (roll > 0) return 1;
+				return 0;
+			};
+			trait.starLevel = getStarLevel(trait.roll);
+
 			if (trait.spec) {
 				const specConfig = usr.specializations[key];
 				trait.spec.forEach((spec) => {
@@ -97,6 +107,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 						? game.i18n.localize(specConfig[spec.title])
 						: spec.title;
 					spec.isLegacy = specConfig && !specConfig[spec.title];
+					spec.starLevel = getStarLevel(spec.roll);
 				});
 			}
 			return trait;
@@ -243,7 +254,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		context.equippedArmor = equippedArmor;
 
 		// Prepare Unarmed Attack
-		const fortitude = context.system.traits.fortitude.value;
+		const fortitude =
+			context.system.traits.fortitude.value +
+			(context.system.traits.fortitude.modifier ?? 0);
 		const meleeTrait = context.system.traits.melee;
 		let spec = "";
 
@@ -438,7 +451,8 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			if (itemId === "unarmed") {
 				const coreTraits = this.actor.system.traits;
 				const skillTraits = this.actor.system.skillTraits;
-				const fortitude = coreTraits.fortitude.value;
+				const fortitude =
+					coreTraits.fortitude.value + (coreTraits.fortitude.modifier ?? 0);
 				const meleeTrait = coreTraits.melee;
 				let spec = "";
 
