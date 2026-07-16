@@ -1,6 +1,13 @@
 # Changelog
 
-### 1.1.7 (2026-07-12)
+## 1.2.0 (2026-07-16)
+
+#### Features
+
+- roll: improve chat roll styling and flavor text (aa24bcc)
+- actor: add trait modifiers (5dd2101)
+
+### v1.1.7 (2026-07-12)
 
 #### Bug Fixes
 
