@@ -111,6 +111,7 @@ If the character is in aggressive stance, they can pay position to perform extra
 
 | Accuracy | Point Blank (6D) | Short (4D) | Medium (3D) | Long (2D) | Very Long (1D) |
 | :------: | :--------------: | :--------: | :---------: | :-------: | :------------: |
+|    0     |        2         |     3      |      6      |    11     |       15       |
 |    1     |        2         |     5      |     15      |    20     |       30       |
 |    2     |        3         |     7      |     20      |    33     |       55       |
 |    3     |        4         |     10     |     25      |    45     |       80       |
@@ -121,8 +122,9 @@ If the character is in aggressive stance, they can pay position to perform extra
 
 | Accuracy | Short (4D/Aim 1) | Medium (3D/Aim 2) | Long (2D/Aim 3) | V. Long (1D/Aim 4) |
 | :------: | :--------------: | :---------------: | :-------------: | :----------------: |
-|    1     |        15        |        25         |       45        |         60         |
-|    2     |        35        |        60         |       85        |        100         |
+|    0     |        4         |         8         |       15        |         25         |
+|    1     |        12        |        20         |       35        |         50         |
+|    2     |        25        |        40         |       60        |        100         |
 |    3     |        50        |        90         |       140       |        180         |
 |    4     |        60        |        100        |       190       |        350         |
 |    5     |        70        |        130        |       240       |        500         |
@@ -152,5 +154,5 @@ If the character is in aggressive stance, they can pay position to perform extra
 
 - **Cover:** 1 to 6. How much of the bodypart it covers.
 - **Impact:** 1 to ~5. How much impact protection the armour has.
-- **Deflect Die:** None, D4, D6 or D8. Determines the die used for deflecting damage.
-- **Deflect Bonus:** 0 to ~5. The bonus to the deflect roll.
+- **Deflect Die:** None, D4, D6 or D8. Determines the dice (2) used for deflecting damage.
+- **Deflect Bonus:** 0 to ~8. The bonus to the deflect roll.

@@ -229,7 +229,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				ranged.push(item);
 				if (item.system.equipped) equippedRanged.push(item);
 				// Prepare range tables for combat cards
-				const acc = Math.clamp(item.system.accuracy, 1, 7) - 1;
+				const acc = Math.clamp(item.system.accuracy, 0, 7);
 				item.rangeTables = {
 					normal: usr.rangeTables.normal[acc].map((val, i) => ({
 						label: usr.rangeLabels.normal[i],
@@ -413,6 +413,39 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			const item = this.actor.items.get(element.dataset.itemId);
 			if (item) {
 				await item.update({ "system.equipped": !item.system.equipped });
+			}
+		});
+
+		on(".item-reload", async (event) => {
+			event.preventDefault();
+			const element = event.currentTarget;
+			const item = this.actor.items.get(element.dataset.itemId);
+			if (item && item.type === "ranged") {
+				const magazine = item.system.magazine ?? 0;
+				const capacity = item.system.shots ?? 1;
+				const ammo = item.system.ammo ?? 0;
+
+				const needed = capacity - magazine;
+				if (needed <= 0) {
+					ui.notifications.info("Magazine is already full.");
+					return;
+				}
+				if (ammo <= 0) {
+					ui.notifications.warn("No ammunition available to reload.");
+					return;
+				}
+
+				const actual = Math.min(needed, ammo);
+				await item.update({
+					"system.magazine": magazine + actual,
+					"system.ammo": ammo - actual,
+				});
+
+				ChatMessage.create({
+					speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+					content: `Reloaded ${item.name} (+${actual} rounds).`,
+					flavor: "Weapon Reload",
+				});
 			}
 		});
 

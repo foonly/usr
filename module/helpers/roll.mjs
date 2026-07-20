@@ -13,6 +13,22 @@ export async function usrRoll(data) {
 		? data.specialization
 		: 0;
 
+	// Ammunition check and consumption for ranged attacks
+	if (data.item && data.item.type === "ranged" && data.skipDamage !== true) {
+		const magazine = data.item.system.magazine ?? 0;
+		if (magazine <= 0) {
+			ui.notifications.error("Magazine is empty! Reload first.");
+			// Play custom metallic click sound for empty chamber
+			game.audio.play("systems/usr/assets/sounds/gun_click.wav", {
+				volume: 0.8,
+			});
+			return { roll: null, result: null };
+		}
+		if (typeof data.item.update === "function") {
+			await data.item.update({ "system.magazine": magazine - 1 });
+		}
+	}
+
 	// Get values for trait and specialization if given.
 	let traitLabel = "";
 	if (data.trait) {
@@ -244,7 +260,8 @@ export async function usrRoll(data) {
 				// Ranged or out-of-combat untargeted: resolve immediately if hit
 				if (result.successes > 0) {
 					const bonusDamage = result.successes;
-					await rollDamage(data.actor, item, bonusDamage);
+					const targetActor = game.user.targets.first()?.actor || null;
+					await rollDamage(data.actor, item, bonusDamage, targetActor);
 				}
 			} catch (err) {
 				console.error("USR | Damage roll failed:", err);
@@ -295,7 +312,12 @@ export async function usrRoll(data) {
 	return { roll, result };
 }
 
-export async function rollDamage(actor, item, bonusDamage = 0) {
+export async function rollDamage(
+	actor,
+	item,
+	bonusDamage = 0,
+	targetActor = null,
+) {
 	const roll = await new Roll("2d10").evaluate();
 	const total = roll.total;
 	let location = null;
@@ -329,7 +351,74 @@ export async function rollDamage(actor, item, bonusDamage = 0) {
 		lethalityKey = lethalityReverse[lethIndex];
 	}
 
-	const finalDamage = item.system.damage + bonusDamage;
+	let deflectResult = null;
+	if (targetActor && item.type === "ranged" && location) {
+		const locationLabel = location.label.toLowerCase();
+		let coverageKey = null;
+		if (locationLabel.includes("head")) coverageKey = "head";
+		else if (locationLabel.includes("torso")) coverageKey = "torso";
+		else if (locationLabel.includes("arms")) coverageKey = "arms";
+		else if (locationLabel.includes("legs")) coverageKey = "legs";
+
+		if (coverageKey) {
+			const equippedArmors = targetActor.items.filter(
+				(i) =>
+					i.type === "armor" &&
+					i.system.equipped &&
+					i.system.locations?.[coverageKey],
+			);
+
+			if (equippedArmors.length > 0) {
+				let maxDie = "none";
+				let maxBonus = 0;
+
+				const dieWeight = { none: 0, d4: 1, d6: 2, d8: 3 };
+
+				equippedArmors.forEach((armor) => {
+					const die = armor.system.deflectDie ?? "none";
+					const bonus = armor.system.deflectBonus ?? 0;
+					if (dieWeight[die] > dieWeight[maxDie]) {
+						maxDie = die;
+					}
+					if (bonus > maxBonus) {
+						maxBonus = bonus;
+					}
+				});
+
+				let rollVal = 0;
+				let rollFormula = "";
+				if (maxDie !== "none") {
+					const armorRoll = await new Roll(`2${maxDie}`).evaluate();
+					rollVal = armorRoll.total;
+					rollFormula = `2${maxDie} (${rollVal}) + ${maxBonus}`;
+				} else if (maxBonus > 0) {
+					rollFormula = `${maxBonus}`;
+				}
+
+				const totalDeflect = rollVal + maxBonus;
+				const penetration = item.system.penetration ?? 0;
+				const netDeflect = Math.max(0, totalDeflect - penetration);
+
+				deflectResult = {
+					hasArmor: true,
+					coverageKey,
+					maxDie,
+					maxBonus,
+					rollVal,
+					rollFormula,
+					totalDeflect,
+					penetration,
+					netDeflect,
+				};
+			}
+		}
+	}
+
+	const totalDamage = item.system.damage + bonusDamage;
+	let finalDamage = totalDamage;
+	if (deflectResult) {
+		finalDamage = Math.max(0, totalDamage - deflectResult.netDeflect);
+	}
 
 	const result = {
 		item: item.toObject ? item.toObject(false) : item,
@@ -339,8 +428,10 @@ export async function rollDamage(actor, item, bonusDamage = 0) {
 		damage: finalDamage,
 		baseDamage: item.system.damage,
 		bonusDamage: bonusDamage,
+		totalDamage: totalDamage,
 		dice: roll.dice[0].results.map((r) => r.result),
 		total: total,
+		deflectResult,
 	};
 
 	const content = await foundry.applications.handlebars.renderTemplate(

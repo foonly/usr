@@ -407,7 +407,7 @@ async function resolveInteraction(
 	// Auto-roll damage in a SEPARATE message only if hit
 	if (netSuccesses > 0) {
 		const weapon = attacker.items.get(attackData.item.id) || attackData.item;
-		await game.usr.rollDamage(attacker, weapon, netSuccesses);
+		await game.usr.rollDamage(attacker, weapon, netSuccesses, target);
 	}
 }
 

@@ -41,6 +41,15 @@
 		font-family: var(--usr-font-primary);
 	}
 
+	.dice-total.deflected {
+		background: rgba(52, 152, 219, 0.15);
+		color: #5dade2;
+		border-color: rgba(52, 152, 219, 0.3);
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		text-align: center;
+	}
+
 	.dice-tooltip .tooltip-part .dice .part-header {
 		border-bottom: 1px solid var(--usr-border);
 		color: var(--usr-text-muted);

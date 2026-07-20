@@ -107,6 +107,12 @@
 					<h4 class="weapon-name">{{item.name}}</h4>
 					<div class="weapon-controls">
 						<a
+							class="item-control item-reload"
+							title="Reload Weapon"
+							data-item-id="{{_id}}"
+							><i class="fas fa-redo-alt"></i
+						></a>
+						<a
 							class="item-control item-toggle-equipped"
 							title="Unequip"
 							data-item-id="{{_id}}"
@@ -130,10 +136,14 @@
 						<span class="value">{{item.system.penetration}}</span>
 					</div>
 					<div class="stat">
-						<span class="label">{{localize "USR.Shots"}}:</span>
+						<span class="label">Mag:</span>
 						<span class="value"
-							>{{item.system.ammo}}/{{item.system.shots}}</span
+							>{{item.system.magazine}}/{{item.system.shots}}</span
 						>
+					</div>
+					<div class="stat">
+						<span class="label">Ammo:</span>
+						<span class="value">{{item.system.ammo}}</span>
 					</div>
 				</div>
 
@@ -143,12 +153,13 @@
 						<div class="range-grid">
 							{{#each item.rangeTables.normal}}
 							<button
-								class="range-roll rollable"
+								class="range-roll rollable {{#if (eq ../system.magazine 0)}}empty-mag{{/if}}"
 								data-roll-usr="{{dice}}"
 								data-label="{{../name}} ({{localize label}})"
 								data-trait="ranged"
 								data-spec="{{../system.specialization}}"
 								data-item-id="{{../_id}}"
+								title="{{#if (eq ../system.magazine 0)}}Magazine empty! Click to dry-fire.{{else}}Fire at this range{{/if}}"
 							>
 								<span class="range-label">{{localize label}} ({{dice}}D)</span>
 								<span class="range-value">{{value}}</span>
@@ -161,12 +172,13 @@
 						<div class="range-grid">
 							{{#each item.rangeTables.aimed}}
 							<button
-								class="range-roll rollable"
+								class="range-roll rollable {{#if (eq ../system.magazine 0)}}empty-mag{{/if}}"
 								data-roll-usr="{{dice}}"
 								data-label="{{../name}} ({{localize label}} - Aimed)"
 								data-trait="ranged"
 								data-spec="{{../system.specialization}}"
 								data-item-id="{{../_id}}"
+								title="{{#if (eq ../system.magazine 0)}}Magazine empty! Click to dry-fire.{{else}}Fire at this range{{/if}}"
 							>
 								<span class="range-label">{{localize label}} ({{dice}}D)</span>
 								<span class="range-value">{{value}}</span>

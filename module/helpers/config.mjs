@@ -80,7 +80,6 @@ usr.specializations = {
 		knives: "USR.SpecKnives",
 		clubs: "USR.SpecClubs",
 		bayonets: "USR.SpecBayonets",
-		brawling: "USR.SpecBrawling",
 		whips: "USR.SpecWhips",
 	},
 	ranged: {
@@ -216,17 +215,19 @@ usr.knowledgeCategories = {
 
 usr.rangeTables = {
 	normal: [
+		[2, 3, 6, 11, 15], // Acc 0
 		[2, 5, 15, 20, 30], // Acc 1
 		[3, 7, 20, 33, 55], // Acc 2
 		[4, 10, 25, 45, 80], // Acc 3
 		[4, 13, 35, 60, 110], // Acc 4
 		[4, 15, 45, 75, 130], // Acc 5
-		[4, 15, 45, 75, 130], // Acc 6 (Assuming same as 5)
-		[4, 15, 45, 75, 130], // Acc 7 (Assuming same as 5)
+		[4, 15, 45, 75, 130], // Acc 6 (Same as 5)
+		[4, 15, 45, 75, 130], // Acc 7 (Same as 5)
 	],
 	aimed: [
-		[15, 25, 45, 60], // Acc 1
-		[35, 60, 85, 100], // Acc 2
+		[4, 8, 15, 25], // Acc 0
+		[12, 20, 35, 50], // Acc 1
+		[25, 40, 60, 100], // Acc 2
 		[50, 90, 140, 180], // Acc 3
 		[60, 100, 190, 350], // Acc 4
 		[70, 130, 240, 500], // Acc 5

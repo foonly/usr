@@ -136,6 +136,22 @@
 				cursor: pointer;
 				transition: background 0.2s ease;
 
+				&.empty-mag {
+					opacity: 0.55;
+					border-color: rgba(192, 57, 43, 0.4);
+					background: rgba(192, 57, 43, 0.05);
+
+					&:hover {
+						background: rgba(192, 57, 43, 0.1);
+						border-color: rgba(192, 57, 43, 0.8);
+					}
+
+					.range-label,
+					.range-value {
+						color: rgba(231, 76, 60, 0.7);
+					}
+				}
+
 				&:hover {
 					background: var(--usr-surface-hover);
 					border-color: var(--usr-accent);

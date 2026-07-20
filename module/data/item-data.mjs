@@ -88,7 +88,7 @@ export class RangedData extends BaseItemData {
 			accuracy: new fields.NumberField({
 				initial: 1,
 				integer: true,
-				min: 1,
+				min: 0,
 				max: 7,
 			}),
 			penetration: new fields.NumberField({
@@ -103,6 +103,7 @@ export class RangedData extends BaseItemData {
 				max: 2,
 			}),
 			shots: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
+			magazine: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 			reload: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
 			ammo: new fields.NumberField({ initial: 1, integer: true, min: 0 }),
 		};

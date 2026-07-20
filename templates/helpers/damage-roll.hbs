@@ -26,10 +26,36 @@
 				<span class="value lethality-{{lethalityKey}}">{{lethality}}</span>
 			</div>
 			<div class="detail-row">
-				<span class="label">Damage:</span>
-				<span class="value">{{damage}} ({{baseDamage}} + {{bonusDamage}})</span>
+				<span class="label">Total Attack Damage:</span>
+				<span class="value"
+					>{{totalDamage}} ({{baseDamage}} + {{bonusDamage}})</span
+				>
 			</div>
+			{{#if deflectResult}}
+			<div class="detail-row armor-deflect">
+				<span class="label">Armor Roll ({{deflectResult.coverageKey}}):</span>
+				<span class="value"
+					>{{deflectResult.rollFormula}} = {{deflectResult.totalDeflect}}</span
+				>
+			</div>
+			{{#if deflectResult.penetration}}
+			<div class="detail-row armor-penetration">
+				<span class="label">Penetration:</span>
+				<span class="value"
+					>-{{deflectResult.penetration}} (Net:
+					{{deflectResult.netDeflect}})</span
+				>
+			</div>
+			{{else}}
+			<div class="detail-row armor-penetration">
+				<span class="label">Net Deflect:</span>
+				<span class="value">-{{deflectResult.netDeflect}}</span>
+			</div>
+			{{/if}} {{/if}} {{#if (eq damage 0)}}
+			<div class="dice-total damage-total deflected">Deflected</div>
+			{{else}}
+			<div class="dice-total damage-total">{{damage}} {{lethality}} Damage</div>
+			{{/if}}
 		</div>
-		<div class="dice-total damage-total">{{damage}} {{lethality}} Damage</div>
 	</div>
 </div>
