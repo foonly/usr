@@ -82,6 +82,12 @@ export class usrActor extends Actor {
 			monitor,
 		};
 
+		// Blood Pool calculations.
+		const maxBlood = 4 + fortitudeTotal;
+		systemData.blood.max = maxBlood;
+		systemData.blood.shock = systemData.blood.value < maxBlood / 2;
+		systemData.blood.dead = systemData.blood.value <= 0;
+
 		// Make separate methods for each Actor type (character, npc, etc.) to keep
 		// things organized.
 		this._prepareCharacterData();

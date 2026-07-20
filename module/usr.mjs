@@ -100,6 +100,11 @@ Hooks.once("init", async function () {
 		default: "",
 	});
 
+	// Register Handlebars helpers
+	Handlebars.registerHelper("eq", (a, b) => a === b);
+	Handlebars.registerHelper("ne", (a, b) => a !== b);
+	Handlebars.registerHelper("gt", (a, b) => a > b);
+
 	// Preload Handlebars templates.
 	return preloadHandlebarsTemplates();
 });

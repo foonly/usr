@@ -18,13 +18,13 @@ Physical injuries are tracked using a 12-box monitor. As these boxes fill, the c
 
 Attacks inflict specific categories of wounds, which determine how difficult they are to heal using resources.
 
-| Wound Type   | Abbr. | HP Cost to Heal                    | Trauma Modifier |
-| ------------ | ----- | ---------------------------------- | --------------- |
-| **Stun**     | X     | 0 (Removes automatically via rest) | —               |
-| **Light**    | L     | 3 HP                               | —               |
-| **Moderate** | M     | 7 HP                               | +0              |
-| **Serious**  | S     | 12 HP                              | +4              |
-| **Deadly**   | D     | 16 HP                              | +8              |
+| Wound Type   | Abbr. | HP Cost to Heal                    | Trauma Multiplier |
+| ------------ | ----- | ---------------------------------- | ----------------- |
+| **Stun**     | X     | 0 (Removes automatically via rest) | —                 |
+| **Light**    | L     | 3 HP                               | —                 |
+| **Moderate** | M     | 7 HP                               | 1                 |
+| **Serious**  | S     | 12 HP                              | 2                 |
+| **Deadly**   | D     | 16 HP                              | 3                 |
 
 ---
 
@@ -56,7 +56,7 @@ While the Damage Monitor tracks superficial and structural trauma, the **Blood P
 
 - **Max Blood Pool Capacity:** A character's maximum Blood Pool capacity is determined directly by their baseline physical constitution, calculated using their **Fortitude** attribute:
 
-$$\text{Max Blood Pool} = 4 + (2 \times \text{Fortitude})$$
+$$\text{Max Blood Pool} = 4 + \text{Fortitude}$$
 
 - **Systemic Death:** If a character's Blood Pool is drained to **0**, they immediately expire from blood loss, organ failure, or systemic shock.
 - **Hypovolemic Shock Threshold:** If a character loses **over half** of their maximum Blood Pool capacity, their body enters acute shock.

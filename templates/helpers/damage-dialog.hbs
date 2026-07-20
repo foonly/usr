@@ -1,13 +1,25 @@
 <div class="entry">
-    <label for="wound">Damage Type:</label>
-    <select id="wound">
-        {{#each wounds as | wound type | }}
-        <option value="{{type}}">{{label}}</option>
-        {{/each}}
-    </select>
+	<label for="wound">Damage Type:</label>
+	<select id="wound">
+		{{#each wounds as | wound type | }}
+		<option value="{{type}}">{{label}}</option>
+		{{/each}}
+	</select>
 </div>
 <div class="entry">
-    <label for="add-damage">Damage Amount:</label>
-    <input id="add-damage" name="damage" min="0" type="number" placeholder="Damage"
-           data-dtype="Number"/>
+	<label for="add-damage">Damage Amount:</label>
+	<input
+		id="add-damage"
+		name="damage"
+		min="0"
+		type="number"
+		placeholder="Damage"
+		data-dtype="Number"
+	/>
 </div>
+{{#if (gt redChips 0)}}
+<div class="entry">
+	<label for="spend-red">Spend Red Chip (Halve Damage):</label>
+	<input type="checkbox" id="spend-red" />
+</div>
+{{/if}}

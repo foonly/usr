@@ -173,6 +173,13 @@ usr.specializations = {
 	},
 };
 
+usr.bleedingLevels = {
+	none: "USR.BleedingNone",
+	low: "USR.BleedingLow",
+	medium: "USR.BleedingMedium",
+	high: "USR.BleedingHigh",
+};
+
 usr.traitMax = 7;
 usr.traits = {
 	core: [
@@ -247,6 +254,47 @@ usr.rangeLabels = {
 usr.rangeDice = {
 	normal: [6, 4, 3, 2, 1],
 	aimed: [4, 3, 2, 1],
+};
+
+usr.traumaTable = [
+	{ total: 13, label: "USR.TraumaGlancingBlow", bleeding: "none" },
+	{ total: 16, label: "USR.TraumaFalteringPain", bleeding: "none" },
+	{ total: 18, label: "USR.TraumaFleshWound", bleeding: "low" },
+	{ total: 20, label: "USR.TraumaGrizzledScar", bleeding: "medium" },
+	{ total: 22, label: "USR.TraumaBluntTrauma", bleeding: "low" },
+	{ total: 24, label: "USR.TraumaBoneFracture", bleeding: "low" },
+	{ total: 26, label: "USR.TraumaArterialGash", bleeding: "high" },
+	{ total: 29, label: "USR.TraumaTraumaticKnockout", bleeding: "medium" },
+	{ total: 31, label: "USR.TraumaSevereNerveInjury", bleeding: "low" },
+	{ total: 34, label: "USR.TraumaCatastrophicMaiming", bleeding: "high" },
+	{ total: 100, label: "USR.TraumaDeathsDoor", bleeding: "high" },
+];
+
+usr.traumaSubTable = {
+	head: {
+		scar: "USR.TraumaHeadScar",
+		fracture: "USR.TraumaHeadFracture",
+		nerve: "USR.TraumaHeadNerve",
+		maim: "USR.TraumaHeadMaim",
+	},
+	arms: {
+		scar: "USR.TraumaArmsScar",
+		fracture: "USR.TraumaArmsFracture",
+		nerve: "USR.TraumaArmsNerve",
+		maim: "USR.TraumaArmsMaim",
+	},
+	torso: {
+		scar: "USR.TraumaTorsoScar",
+		fracture: "USR.TraumaTorsoFracture",
+		nerve: "USR.TraumaTorsoNerve",
+		maim: "USR.TraumaTorsoMaim",
+	},
+	legs: {
+		scar: "USR.TraumaLegsScar",
+		fracture: "USR.TraumaLegsFracture",
+		nerve: "USR.TraumaLegsNerve",
+		maim: "USR.TraumaLegsMaim",
+	},
 };
 
 usr.hitLocationMelee = [

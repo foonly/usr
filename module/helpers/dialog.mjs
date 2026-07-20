@@ -7,6 +7,65 @@ function getDialogValue(dialog, selector) {
 }
 
 export async function useChip(data) {
+	const { actor, type } = data;
+
+	if (type === "red") {
+		const bleedingLevels = ["none", "low", "medium", "high"];
+		const currentBleeding = actor.system.bleeding || "none";
+		const canAdrenaline = currentBleeding !== "none";
+
+		const buttons = [
+			{
+				action: "negate",
+				label: "Negate Damage (Pre-Resist)",
+				icon: "fa-solid fa-shield-halved",
+				callback: () => "negate",
+			},
+			{
+				action: "adrenaline",
+				label: "Adrenaline Clench (Reduce Bleeding)",
+				icon: "fa-solid fa-heart-pulse",
+				disabled: !canAdrenaline,
+				callback: () => "adrenaline",
+			},
+			{
+				action: "generic",
+				label: "Other / Narrative",
+				icon: "fa-solid fa-dice",
+				callback: () => "generic",
+			},
+		];
+
+		const action = await new DialogV2({
+			window: { title: "Use Red Fate Chip" },
+			content: "<p>Select how you want to use your Red Chip:</p>",
+			buttons,
+			classes: ["usr", "dialog"],
+		}).render({ force: true });
+
+		if (!action) return null;
+
+		// Handle Adrenaline Clench immediately
+		if (action === "adrenaline") {
+			const currentIndex = bleedingLevels.indexOf(currentBleeding);
+			const newBleeding = bleedingLevels[Math.max(0, currentIndex - 1)];
+			await actor.update({
+				"system.bleeding": newBleeding,
+				"system.chips.red": actor.system.chips.red - 1,
+			});
+			return "Adrenaline Clench (Reduced Bleeding)";
+		}
+
+		// For negate or generic, we just subtract the chip and return the label
+		if (actor.system.chips.red > 0) {
+			await actor.update({ "system.chips.red": actor.system.chips.red - 1 });
+			return action === "negate"
+				? "Damage Negation (Halve Incoming Damage)"
+				: "Red Fate Chip";
+		}
+		return null;
+	}
+
 	const confirmation = await DialogV2.confirm({
 		content: `Are you sure you want to use your ${data.type} chip?`,
 		rejectClose: false,

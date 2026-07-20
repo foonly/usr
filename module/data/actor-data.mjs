@@ -147,6 +147,13 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 				hp: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 				status: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 			}),
+			blood: new fields.SchemaField({
+				value: new fields.NumberField({ initial: 4, integer: true, min: 0 }),
+			}),
+			bleeding: new fields.StringField({
+				initial: "none",
+				choices: ["none", "low", "medium", "high"],
+			}),
 			position: new fields.SchemaField({
 				value: new fields.NumberField({
 					initial: 4,

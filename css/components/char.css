@@ -401,6 +401,77 @@
 		overflow: hidden;
 	}
 
+	.blood-pool {
+		.blood-stats {
+			display: flex;
+			flex-direction: column;
+			gap: 0.4rem;
+			margin-bottom: 0.5rem;
+
+			.blood-bar {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				font-size: 1.2rem;
+				font-weight: bold;
+
+				input {
+					width: 50px;
+					text-align: center;
+				}
+
+				.blood-refill {
+					margin-left: 0.5rem;
+					color: var(--usr-text-muted);
+					font-size: 0.9rem;
+					cursor: pointer;
+					opacity: 0.6;
+					transition: all 0.2s ease;
+
+					&:hover {
+						color: var(--usr-accent);
+						opacity: 1;
+						transform: rotate(30deg);
+					}
+				}
+			}
+
+			.shock-warning {
+				color: #e67e22;
+				font-size: 0.85rem;
+				font-weight: bold;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+			}
+
+			.death-warning {
+				color: #c0392b;
+				font-size: 0.85rem;
+				font-weight: bold;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+			}
+		}
+
+		.bleeding-status {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-size: 0.9rem;
+
+			label {
+				font-weight: bold;
+				color: var(--usr-text-muted);
+			}
+
+			select {
+				flex: 1;
+			}
+		}
+	}
+
 	.damage-resistance-table {
 		margin: 0;
 		width: 100%;

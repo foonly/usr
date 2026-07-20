@@ -194,6 +194,30 @@
 	}
 }
 
+.chat-message .trauma-roll {
+	background: var(--usr-surface-2);
+	border: 1px solid var(--usr-border);
+	padding: var(--usr-padding-md);
+	border-radius: 4px;
+	color: var(--usr-text);
+	font-family: var(--usr-font-primary);
+
+	h3 {
+		margin: 0 0 8px 0;
+		color: var(--usr-accent);
+		border-bottom: 1px solid var(--usr-border);
+		padding-bottom: 4px;
+	}
+
+	p {
+		margin: 4px 0;
+	}
+
+	strong {
+		color: var(--usr-text-strong);
+	}
+}
+
 /* Compatibility with Foundry VTT legacy chat log theme */
 .themed.theme-dark .chat-log.themed.theme-light {
 	--color-scheme: dark;

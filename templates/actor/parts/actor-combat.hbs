@@ -191,7 +191,7 @@
 	</div>
 	{{/if}}
 
-	<div class="combat-summary grid grid-2col">
+	<div class="combat-summary grid grid-3col">
 		<section class="combat-card">
 			<h4 class="subsection-header">Resistance</h4>
 			<table class="damage-resistance-table">
@@ -208,12 +208,52 @@
 			</table>
 		</section>
 
+		<section class="combat-card blood-pool">
+			<h4 class="subsection-header">{{localize "USR.BloodPool"}}</h4>
+			<div class="blood-stats">
+				<div class="blood-bar">
+					<input
+						type="number"
+						name="system.blood.value"
+						value="{{system.blood.value}}"
+						min="0"
+						max="{{system.blood.max}}"
+					/>
+					<span> / {{system.blood.max}}</span>
+					<a class="blood-refill" title="Refill Blood Pool"
+						><i class="fas fa-sync"></i
+					></a>
+				</div>
+				{{#if system.blood.shock}}
+				<div class="shock-warning">
+					<i class="fas fa-heart-pulse"></i> {{localize "USR.ShockWarning"}}
+				</div>
+				{{/if}} {{#if system.blood.dead}}
+				<div class="death-warning">
+					<i class="fas fa-skull"></i> {{localize "USR.DeathWarning"}}
+				</div>
+				{{/if}}
+			</div>
+			<div class="bleeding-status">
+				<label>{{localize "USR.Bleeding"}}:</label>
+				<select name="system.bleeding">
+					{{selectOptions config.bleedingLevels selected=system.bleeding
+					localize=true}}
+				</select>
+			</div>
+		</section>
+
 		<section class="combat-card">
 			<h4 class="subsection-header">Actions</h4>
 			<div class="combat-actions">
 				<button class="add-heal">Heal (HP: {{system.health.hp}})</button>
 				<button class="remove-stun">Remove Stun</button>
 				<button class="add-damage">Take Damage</button>
+				{{#if (ne system.bleeding "none")}}
+				<button class="apply-bleeding">
+					<i class="fa-solid fa-droplet"></i> Apply Bleeding
+				</button>
+				{{/if}}
 			</div>
 		</section>
 	</div>

@@ -67,10 +67,38 @@ export async function addHealingPoints(actor) {
 	}).render({ force: true });
 }
 
+function getArgs(dialog) {
+	const type = getDialogValue(dialog, "#wound") ?? "x";
+	let amount = Number.parseInt(
+		getDialogValue(dialog, "#add-damage") ?? "0",
+		10,
+	);
+	const spendRed = dialog.element.querySelector("#spend-red")?.checked ?? false;
+	return { type, amount, spendRed };
+}
+
+async function applyRedChipMitigation(actor, args) {
+	if (args.spendRed) {
+		const redChips = actor.system.chips?.red ?? 0;
+		if (redChips > 0) {
+			await actor.update({ "system.chips.red": redChips - 1 });
+			args.amount = Math.floor(args.amount / 2);
+			ChatMessage.create({
+				speaker: ChatMessage.getSpeaker({ actor }),
+				content: "Spent a Red Chip to negate half the damage.",
+				flavor: "Fate Chip Mitigation",
+			});
+		}
+	}
+}
+
 export async function addDamage(actor) {
 	const content = await foundry.applications.handlebars.renderTemplate(
 		"systems/usr/templates/helpers/damage-dialog.hbs",
-		{ wounds: usr.wounds },
+		{
+			wounds: usr.wounds,
+			redChips: actor.system.chips?.red ?? 0,
+		},
 	);
 
 	return new DialogV2({
@@ -84,9 +112,13 @@ export async function addDamage(actor) {
 				action: "damage",
 				icon: "fa-solid fa-burst",
 				label: "Damage",
-				callback: (_event, _button, dialog) => {
+				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					await applyRedChipMitigation(actor, args);
 					setDamage(args.amount, args.type, actor);
+					if (["m", "s", "d"].includes(args.type) && args.amount > 0) {
+						triggerTraumaCheck(actor, args.type, args.amount);
+					}
 				},
 			},
 			{
@@ -94,22 +126,14 @@ export async function addDamage(actor) {
 				icon: "fa-solid fa-person-burst",
 				label: "Resist",
 				default: true,
-				callback: (_event, _button, dialog) => {
+				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					await applyRedChipMitigation(actor, args);
 					resistDamage(args.amount, args.type, actor);
 				},
 			},
 		],
 	}).render({ force: true });
-}
-
-function getArgs(dialog) {
-	const type = getDialogValue(dialog, "#wound") ?? "x";
-	const amount = Number.parseInt(
-		getDialogValue(dialog, "#add-damage") ?? "0",
-		10,
-	);
-	return { type, amount };
 }
 
 function resistDamage(amount, type, actor) {
@@ -150,8 +174,110 @@ function resistDamage(amount, type, actor) {
 
 		if (remaining > 0) {
 			setDamage(remaining, type, actor);
+
+			if (["m", "s", "d"].includes(type)) {
+				triggerTraumaCheck(actor, type, remaining);
+			}
 		}
 	});
+}
+
+export async function triggerTraumaCheck(actor, type, netDamage) {
+	try {
+		console.log(
+			`USR | Triggering Trauma Check for ${actor.name} (Type: ${type}, Net Damage: ${netDamage})`,
+		);
+
+		// Check for Red Chips
+		const redChips = actor.system.chips?.red ?? 0;
+		if (redChips > 0) {
+			const spend = await DialogV2.confirm({
+				window: { title: "Negate Trauma Roll?" },
+				content: `<p>You have ${redChips} Red Chips. Spend one to skip this Trauma Roll?</p>`,
+				classes: ["usr", "dialog"],
+			});
+
+			if (spend) {
+				await actor.update({ "system.chips.red": redChips - 1 });
+				ChatMessage.create({
+					speaker: ChatMessage.getSpeaker({ actor }),
+					content: "Spent a Red Chip to negate the Trauma Roll.",
+					flavor: "Fate Chip Mitigation",
+				});
+				return;
+			}
+		}
+
+		let modifier = 0;
+		if (type === "m") modifier = netDamage;
+		else if (type === "s") modifier = netDamage * 2;
+		else if (type === "d") modifier = netDamage * 3;
+
+		const roll = await new Roll(`2d10 + ${modifier}`).evaluate();
+		const total = roll.total;
+
+		let result = usr.traumaTable[usr.traumaTable.length - 1];
+		for (const entry of usr.traumaTable) {
+			if (total <= entry.total) {
+				result = entry;
+				break;
+			}
+		}
+
+		// Apply bleeding if worse than current
+		const bleedingOrder = ["none", "low", "medium", "high"];
+		const currentBleeding = actor.system.bleeding || "none";
+		if (
+			bleedingOrder.indexOf(result.bleeding) >
+			bleedingOrder.indexOf(currentBleeding)
+		) {
+			await actor.update({ "system.bleeding": result.bleeding });
+		}
+
+		// Handle Death's Door (Lose 1D4 Blood Points)
+		if (result.label === "USR.TraumaDeathsDoor") {
+			const bloodRoll = await new Roll("1d4").evaluate();
+			const currentBlood = actor.system.blood.value;
+			await actor.update({
+				"system.blood.value": Math.max(0, currentBlood - bloodRoll.total),
+			});
+			bloodRoll.toMessage({
+				speaker: ChatMessage.getSpeaker({ actor }),
+				flavor: "Blood Loss from Death's Door",
+			});
+		}
+
+		const speaker = ChatMessage.getSpeaker({ actor });
+		const localizedLabel = game.i18n.localize(result.label);
+		const title = localizedLabel.includes(":")
+			? localizedLabel.split(":")[0]
+			: "Trauma Check";
+
+		const content = `
+			<div class="trauma-roll">
+				<h3>Trauma Check: ${title}</h3>
+				<p><strong>Roll:</strong> ${roll.formula} = ${total}</p>
+				<p>${localizedLabel}</p>
+				<p><strong>Systemic Bleeding:</strong> ${game.i18n.localize(`USR.Bleeding${result.bleeding.charAt(0).toUpperCase() + result.bleeding.slice(1)}`)}</p>
+			</div>
+		`;
+
+		await roll.toMessage(
+			{
+				speaker,
+				flavor: "Trauma Check",
+				content,
+			},
+			{
+				rollMode: game.settings.get("core", "rollMode"),
+			},
+		);
+		console.log(
+			"USR | Trauma Check message created successfully via roll.toMessage.",
+		);
+	} catch (error) {
+		console.error("USR | Error in triggerTraumaCheck:", error);
+	}
 }
 
 function setDamage(amount, type, actor) {

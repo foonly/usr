@@ -81,6 +81,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		const actorData = this.actor.toObject(false);
 		// Add derived data for the sheet
 		actorData.system.damage = this.actor.system.damage;
+		actorData.system.blood = this.actor.system.blood;
 
 		// Handle all traits localization and unification
 		context.allTraits = [];
@@ -155,6 +156,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			actor: actorData,
 			items,
 			system: actorData.system,
+			config: usr,
 			flags: actorData.flags,
 			owner: this.actor.isOwner,
 			rollData: this.actor.getRollData(),
@@ -336,6 +338,15 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		on(".add-heal", () => addHealingPoints(this.actor));
 		on(".add-damage", () => addDamage(this.actor));
 		on(".remove-stun", () => removeStun(this.actor));
+		on(".apply-bleeding", () => {
+			const currentBlood = this.actor.system.blood.value;
+			if (currentBlood > 0) {
+				this.actor.update({ "system.blood.value": currentBlood - 1 });
+			}
+		});
+		on(".blood-refill", () => {
+			this.actor.update({ "system.blood.value": this.actor.system.blood.max });
+		});
 
 		on(".roll-xp", (event) => {
 			event.preventDefault();
