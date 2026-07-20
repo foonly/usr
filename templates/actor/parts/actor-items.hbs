@@ -203,7 +203,28 @@
 						height="24"
 					/>
 				</div>
-				<span class="name">{{item.name}}</span>
+				<div class="item-name-wrapper">
+					<span class="name">{{item.name}}</span>
+					{{#if item.system.locations}}
+					<div class="coverage-badges">
+						{{#if item.system.locations.head}}<span class="badge" title="Head"
+							>Head</span
+						>{{/if}} {{#if item.system.locations.torso}}<span
+							class="badge"
+							title="Torso"
+							>Torso</span
+						>{{/if}} {{#if item.system.locations.arms}}<span
+							class="badge"
+							title="Arms"
+							>Arms</span
+						>{{/if}} {{#if item.system.locations.legs}}<span
+							class="badge"
+							title="Legs"
+							>Legs</span
+						>{{/if}}
+					</div>
+					{{/if}}
+				</div>
 			</td>
 			<td class="text-center">{{item.system.cover}}</td>
 			<td class="text-center">{{item.system.impact}}</td>

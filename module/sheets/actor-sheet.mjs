@@ -82,6 +82,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		// Add derived data for the sheet
 		actorData.system.damage = this.actor.system.damage;
 		actorData.system.blood = this.actor.system.blood;
+		actorData.system.armorCoverage = this.actor.system.armorCoverage;
 
 		// Handle all traits localization and unification
 		context.allTraits = [];

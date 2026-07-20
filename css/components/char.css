@@ -259,8 +259,32 @@
 				}
 			}
 
-			.name {
-				font-weight: 400;
+			.item-name-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+
+				.name {
+					font-weight: 400;
+				}
+
+				.coverage-badges {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 0.2rem;
+
+					.badge {
+						background: rgba(184, 157, 116, 0.15);
+						border: 1px solid var(--usr-border);
+						border-radius: 3px;
+						font-size: 0.65rem;
+						font-weight: bold;
+						padding: 1px 4px;
+						color: var(--usr-accent);
+						text-transform: uppercase;
+						line-height: 1;
+					}
+				}
 			}
 		}
 
@@ -473,34 +497,11 @@
 	}
 
 	.damage-resistance-table {
-		margin: 0;
+		margin: 0 0 0.5rem;
 		width: 100%;
 		border-collapse: collapse;
 
-		tbody {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 0.2rem 1rem;
-		}
-
-		tr {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding: 0.25rem 0;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-			&:first-child {
-				grid-column: 1 / -1;
-				border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-				margin-bottom: 0.2rem;
-			}
-		}
-
 		td {
-			padding: 0;
-			border: none;
-
 			&.res-label {
 				color: var(--usr-text-muted);
 				font-weight: 700;
@@ -512,6 +513,52 @@
 				color: var(--usr-text-strong);
 				font-size: 1rem;
 				font-weight: 700;
+			}
+		}
+	}
+
+	.active-coverage {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		border-top: 1px dashed var(--usr-border);
+		padding-top: 0.5rem;
+		margin-top: 0.25rem;
+
+		.coverage-label {
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--usr-text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+
+		.coverage-zones {
+			display: flex;
+			gap: 0.4rem;
+
+			.zone {
+				flex: 1;
+				text-align: center;
+				background: var(--usr-surface-2);
+				border: 1px solid var(--usr-border);
+				border-radius: 4px;
+				font-size: 0.7rem;
+				font-weight: bold;
+				padding: 3px 0;
+				color: var(--usr-text-muted);
+				opacity: 0.4;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				transition: all 0.2s ease;
+
+				&.covered {
+					background: var(--usr-accent);
+					border-color: var(--usr-accent);
+					color: white;
+					opacity: 1;
+					box-shadow: 0 0 6px var(--usr-accent);
+				}
 			}
 		}
 	}

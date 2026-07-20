@@ -132,6 +132,12 @@ export class ArmorData extends BaseItemData {
 				integer: true,
 				min: 0,
 			}),
+			locations: new fields.SchemaField({
+				head: new fields.BooleanField({ initial: false }),
+				torso: new fields.BooleanField({ initial: false }),
+				arms: new fields.BooleanField({ initial: false }),
+				legs: new fields.BooleanField({ initial: false }),
+			}),
 		};
 	}
 }

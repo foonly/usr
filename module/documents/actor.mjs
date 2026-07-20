@@ -88,6 +88,28 @@ export class usrActor extends Actor {
 		systemData.blood.shock = systemData.blood.value < maxBlood / 2;
 		systemData.blood.dead = systemData.blood.value <= 0;
 
+		// Armor coverage calculations.
+		const coverage = {
+			head: false,
+			torso: false,
+			arms: false,
+			legs: false,
+		};
+
+		this.items.forEach((item) => {
+			if (item.type === "armor" && item.system.equipped) {
+				const locs = item.system.locations;
+				if (locs) {
+					if (locs.head) coverage.head = true;
+					if (locs.torso) coverage.torso = true;
+					if (locs.arms) coverage.arms = true;
+					if (locs.legs) coverage.legs = true;
+				}
+			}
+		});
+
+		systemData.armorCoverage = coverage;
+
 		// Make separate methods for each Actor type (character, npc, etc.) to keep
 		// things organized.
 		this._prepareCharacterData();

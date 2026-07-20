@@ -193,7 +193,7 @@
 
 	<div class="combat-summary grid grid-3col">
 		<section class="combat-card">
-			<h4 class="subsection-header">Resistance</h4>
+			<h4 class="subsection-header">Resistance & Armor</h4>
 			<table class="damage-resistance-table">
 				<tbody>
 					{{#each system.damage.resistance as |value type|}}
@@ -206,6 +206,24 @@
 					{{/each}}
 				</tbody>
 			</table>
+
+			<div class="active-coverage">
+				<span class="coverage-label">Active Coverage:</span>
+				<div class="coverage-zones">
+					<span class="zone {{#if system.armorCoverage.head}}covered{{/if}}"
+						>Head</span
+					>
+					<span class="zone {{#if system.armorCoverage.torso}}covered{{/if}}"
+						>Torso</span
+					>
+					<span class="zone {{#if system.armorCoverage.arms}}covered{{/if}}"
+						>Arms</span
+					>
+					<span class="zone {{#if system.armorCoverage.legs}}covered{{/if}}"
+						>Legs</span
+					>
+				</div>
+			</div>
 		</section>
 
 		<section class="combat-card blood-pool">
