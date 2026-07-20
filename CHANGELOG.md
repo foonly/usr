@@ -1,6 +1,19 @@
 # Changelog
 
-## 1.2.0 (2026-07-16)
+## 1.3.0 (2026-07-20)
+
+#### Features
+
+- combat: implement weapon magazine management and armor deflection (c121482)
+- armor: add hit location coverage system (fd74d12)
+- actor: Implement blood pool and bleeding mechanics (95eb62e)
+
+#### Documentation
+
+- add damage and trauma mechanics (6a34304)
+- rules: merge levels 19 and 20 in character generation table (b2580c7)
+
+## v1.2.0 (2026-07-16)
 
 #### Features
 
