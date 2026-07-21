@@ -1,6 +1,13 @@
 # Changelog
 
-## 1.3.0 (2026-07-20)
+## 1.4.0 (2026-07-21)
+
+#### Features
+
+- actor: add contacts system (a5b6ee1)
+- damage: add hit location tracking to damage system (f6b6390)
+
+## v1.3.0 (2026-07-20)
 
 #### Features
 
