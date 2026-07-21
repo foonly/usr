@@ -95,18 +95,36 @@ Sustaining significant physical injury risks immediate physical shock, severe he
 
 Bleeding represents ongoing fluid loss that actively depletes the character's Blood Pool over time.
 
-- **Low Bleeding:** The character loses **1 Blood Point every hour**.
-- _Triage:_ Requires an **Easy (5 dice) Medicine check** to completely stop.
+Any failed medicine check causes a point of bleeding at the end of the procedure.
 
-- **Medium Bleeding:** The character loses **1 Blood Point every minute** (or every 12 combat rounds).
+A Triage action done by the character on themselves has a -1 modifier.
 
-- _Triage:_ Requires a **Normal (4 dice) Medicine check** to reduce to _Low Bleeding_.
+### Low Bleeding:
 
-- **High Bleeding:** The character loses **1 Blood Point at the end of every combat round**.
+The character loses **1 Blood Point every hour**.
 
-- _Triage:_ Requires a **Tricky (3 dice) Medicine check** to reduce to _Medium Bleeding_.
+_Triage Options:_
 
-> Note: An ally performing emergency triage can intentionally increase the difficulty of their Medicine check by one step (e.g., transforming a Normal check into a Tricky check) to completely stabilize a wound and bypass the intermediate levels entirely.
+- **Stabilize:** Time: 5 minutes --- Requires a **Normal (4 dice) Treatment (Medicine) check** to stop all bleeding.
+
+### Medium Bleeding:
+
+The character loses **1 Blood Point every minute** (or every 12 combat rounds).
+
+_Triage Options:_
+
+- **Stop bleeding:** Time: 10 turns --- Requires a **Normal (4 dice) First Aid (Medicine) check** to reduce to _Low Bleeding_.
+- **Stabilize:** Time: 3 minutes --- Requires a **Tricky (3 dice) Surgery (Medicine) check** to completely stop bleeding.
+
+### High Bleeding:
+
+The character loses **1 Blood Point at the end of every combat round**. When performing triage, bleeding is temporarily halted.
+
+_Triage Options:_
+
+- **Keep alive:** Time: 1+ turn --- This action requires a Normal (4 dice) First Aid (Medicine) check. If successful bleeding is stopped for as long as the character keeps doing the action.
+- **Stop bleeding:** Time: 5 turns --- Requires a **Tricky (3 dice) First Aid (Medicine) check** to reduce to _Medium Bleeding_.
+- **Stabilize:** Time: 3 minutes --- Requires a **Hard (2 dice) Surgery (Medicine) check** to completely stop bleeding.
 
 ---
 

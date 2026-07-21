@@ -50,7 +50,7 @@
 
 		.card-stats {
 			display: grid;
-			grid-template-columns: repeat(3, 1fr);
+			grid-template-columns: repeat(4, 1fr);
 			gap: 0.5rem;
 			font-size: 0.9rem;
 
@@ -123,9 +123,11 @@
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 				gap: 0.4rem;
+				padding-top: 4px;
 			}
 
 			.range-roll {
+				position: relative;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -158,7 +160,9 @@
 				}
 
 				.range-label {
-					font-size: 0.7rem;
+					position: absolute;
+					top: -15px;
+					font-size: 0.6rem;
 					color: var(--usr-text-muted);
 					font-weight: 600;
 				}

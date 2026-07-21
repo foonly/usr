@@ -69,12 +69,13 @@ export async function addHealingPoints(actor) {
 
 function getArgs(dialog) {
 	const type = getDialogValue(dialog, "#wound") ?? "x";
+	const location = getDialogValue(dialog, "#location") ?? "none";
 	let amount = Number.parseInt(
 		getDialogValue(dialog, "#add-damage") ?? "0",
 		10,
 	);
 	const spendRed = dialog.element.querySelector("#spend-red")?.checked ?? false;
-	return { type, amount, spendRed };
+	return { type, location, amount, spendRed };
 }
 
 async function applyRedChipMitigation(actor, args) {
@@ -117,7 +118,7 @@ export async function addDamage(actor) {
 					await applyRedChipMitigation(actor, args);
 					setDamage(args.amount, args.type, actor);
 					if (["m", "s", "d"].includes(args.type) && args.amount > 0) {
-						triggerTraumaCheck(actor, args.type, args.amount);
+						triggerTraumaCheck(actor, args.type, args.amount, args.location);
 					}
 				},
 			},
@@ -129,14 +130,14 @@ export async function addDamage(actor) {
 				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
 					await applyRedChipMitigation(actor, args);
-					resistDamage(args.amount, args.type, actor);
+					resistDamage(args.amount, args.type, actor, args.location);
 				},
 			},
 		],
 	}).render({ force: true });
 }
 
-function resistDamage(amount, type, actor) {
+function resistDamage(amount, type, actor, location = "none") {
 	const resist = actor.system.damage.resistance[type];
 	const wound = usr.wounds[type];
 
@@ -176,16 +177,21 @@ function resistDamage(amount, type, actor) {
 			setDamage(remaining, type, actor);
 
 			if (["m", "s", "d"].includes(type)) {
-				triggerTraumaCheck(actor, type, remaining);
+				triggerTraumaCheck(actor, type, remaining, location);
 			}
 		}
 	});
 }
 
-export async function triggerTraumaCheck(actor, type, netDamage) {
+export async function triggerTraumaCheck(
+	actor,
+	type,
+	netDamage,
+	location = "none",
+) {
 	try {
 		console.log(
-			`USR | Triggering Trauma Check for ${actor.name} (Type: ${type}, Net Damage: ${netDamage})`,
+			`USR | Triggering Trauma Check for ${actor.name} (Type: ${type}, Net Damage: ${netDamage}, Location: ${location})`,
 		);
 
 		// Check for Red Chips
@@ -253,11 +259,32 @@ export async function triggerTraumaCheck(actor, type, netDamage) {
 			? localizedLabel.split(":")[0]
 			: "Trauma Check";
 
+		// Sub-table mapping for locations
+		const subTableKeyMap = {
+			"USR.TraumaGrizzledScar": "scar",
+			"USR.TraumaBoneFracture": "fracture",
+			"USR.TraumaSevereNerveInjury": "nerve",
+			"USR.TraumaCatastrophicMaiming": "maim",
+		};
+
+		let subTableText = "";
+		if (location !== "none") {
+			const subKey = subTableKeyMap[result.label];
+			if (subKey) {
+				const subTableStringKey = usr.traumaSubTable[location]?.[subKey];
+				if (subTableStringKey) {
+					subTableText = game.i18n.localize(subTableStringKey);
+				}
+			}
+		}
+
 		const content = `
 			<div class="trauma-roll">
 				<h3>Trauma Check: ${title}</h3>
 				<p><strong>Roll:</strong> ${roll.formula} = ${total}</p>
 				<p>${localizedLabel}</p>
+				${location !== "none" ? `<p><strong>Hit Location:</strong> ${location.charAt(0).toUpperCase() + location.slice(1)}</p>` : ""}
+				${subTableText ? `<div class="trauma-subeffect" style="margin-top: 0.5rem; padding: 0.4rem; background: rgba(0,0,0,0.15); border-left: 2px solid var(--usr-accent); border-radius: 2px;"><p><strong>Location Specific Injury:</strong> ${subTableText}</p></div>` : ""}
 				<p><strong>Systemic Bleeding:</strong> ${game.i18n.localize(`USR.Bleeding${result.bleeding.charAt(0).toUpperCase() + result.bleeding.slice(1)}`)}</p>
 			</div>
 		`;
