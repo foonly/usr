@@ -115,7 +115,7 @@ export async function editAsset(actor, index = -1) {
 			{
 				action: "save",
 				icon: "fa-solid fa-earth-europe",
-				label: "Save",
+				label: game.i18n.localize("USR.Save"),
 				default: true,
 				callback: (_event, _button, dialog) => {
 					const name = getDialogValue(dialog, "#asset");
@@ -178,7 +178,7 @@ export async function editLanguage(actor, index = -1) {
 			{
 				action: "save",
 				icon: "fa-solid fa-earth-europe",
-				label: "Save",
+				label: game.i18n.localize("USR.Save"),
 				default: true,
 				callback: (_event, _button, dialog) => {
 					const name = getDialogValue(dialog, "#language");
@@ -282,7 +282,7 @@ export async function editKnowledge(actor, index = -1) {
 			{
 				action: "save",
 				icon: "fa-solid fa-book",
-				label: "Save",
+				label: game.i18n.localize("USR.Save"),
 				default: true,
 				callback: (_event, _button, dialog) => {
 					let name = getDialogValue(dialog, "#knowledge");
@@ -309,6 +309,103 @@ export async function editKnowledge(actor, index = -1) {
 						knowledge.sort(knowledgeSort);
 						actor.update({ "system.knowledge": knowledge });
 					}
+				},
+			},
+		],
+	}).render({ force: true });
+}
+
+export async function editContact(actor, index = -1) {
+	const contacts = foundry.utils.deepClone(actor.system.contacts ?? []);
+	let name = "";
+	let type = "individual";
+	let level = 0;
+	let shortDescription = "";
+	let details = "";
+
+	if (index > -1) {
+		const contact = contacts[index];
+		name = contact.name;
+		type = contact.type;
+		level = contact.level;
+		shortDescription = contact.shortDescription;
+		details = contact.details;
+	}
+
+	const content = await foundry.applications.handlebars.renderTemplate(
+		"systems/usr/templates/helpers/contact-dialog.hbs",
+		{
+			name,
+			type,
+			level,
+			shortDescription,
+			details,
+			levelList: usr.contactLevels.map((label, i) => {
+				return { label: game.i18n.localize(label), active: i === level };
+			}),
+			typeList: Object.entries(usr.contactTypes).map(([key, label]) => {
+				return { key, label: game.i18n.localize(label), active: key === type };
+			}),
+		},
+	);
+
+	return new DialogV2({
+		classes: ["usr", "dialog", "contact"],
+		window: {
+			title: game.i18n.localize("USR.Contact"),
+		},
+		content,
+		buttons: [
+			{
+				action: "save",
+				icon: "fa-solid fa-address-book",
+				label: game.i18n.localize("USR.Save"),
+				default: true,
+				callback: (_event, _button, dialog) => {
+					const name = getDialogValue(dialog, "#contact-name");
+					const type = getDialogValue(dialog, "#contact-type");
+					let level = Number.parseInt(
+						getDialogValue(dialog, "#contact-level"),
+						10,
+					);
+					const shortDescription = getDialogValue(dialog, "#contact-short");
+					const details = getDialogValue(dialog, "#contact-details");
+
+					// Group contacts can only be at level 0 or 1.
+					if (type === "group" && level > 1) {
+						level = 1;
+					}
+
+					if (name.length) {
+						if (index === -1) {
+							contacts.push({
+								name,
+								type,
+								level,
+								shortDescription,
+								details,
+							});
+						} else {
+							contacts[index] = {
+								name,
+								type,
+								level,
+								shortDescription,
+								details,
+							};
+						}
+						actor.update({ "system.contacts": contacts });
+					}
+				},
+			},
+			{
+				action: "delete",
+				icon: "fa-solid fa-trash",
+				label: game.i18n.localize("USR.Delete"),
+				condition: index > -1,
+				callback: () => {
+					contacts.splice(index, 1);
+					actor.update({ "system.contacts": contacts });
 				},
 			},
 		],

@@ -213,6 +213,18 @@ usr.knowledgeCategories = {
 	politics: "USR.KnowPolitics",
 };
 
+usr.contactLevels = [
+	"USR.ContactLevel0",
+	"USR.ContactLevel1",
+	"USR.ContactLevel2",
+	"USR.ContactLevel3",
+];
+
+usr.contactTypes = {
+	individual: "USR.ContactTypeIndividual",
+	group: "USR.ContactTypeGroup",
+};
+
 usr.rangeTables = {
 	normal: [
 		[2, 3, 6, 11, 15], // Acc 0

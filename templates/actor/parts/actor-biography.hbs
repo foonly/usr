@@ -47,6 +47,35 @@
 	</div>
 </div>
 
+<hr />
+
+<div class="contacts-section">
+	<div class="section-header flexrow">
+		<h3>{{localize "USR.Contacts"}}</h3>
+		<a class="edit-contact" title="{{localize 'USR.AddContact'}}">
+			<i class="fas fa-plus"></i> {{localize "USR.Add"}}
+		</a>
+	</div>
+	<ul class="contacts-list plain-list">
+		{{#each contactList as |contact index|}}
+		<li class="contact-item flexrow" data-index="{{index}}">
+			<div class="contact-info">
+				<span class="contact-name"><strong>{{contact.name}}</strong></span>
+				<span class="contact-meta">({{contact.typeLabel}}, {{contact.levelLabel}})</span>
+				<div class="contact-short">{{contact.shortDescription}}</div>
+			</div>
+			<div class="contact-controls flexrow">
+				<a class="edit-contact" data-index="{{index}}" title="{{localize 'USR.EditContact'}}">
+					<i class="fas fa-edit"></i>
+				</a>
+			</div>
+		</li>
+		{{/each}}
+	</ul>
+</div>
+
+<hr />
+
 <div class="form-group stacked">
 	<label>Biography</label>
 	<div class="form-fields">

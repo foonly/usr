@@ -183,6 +183,24 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 				weight: new fields.StringField({ initial: "" }),
 			}),
 			biography: new fields.HTMLField({ initial: "" }), // Added because it's used in prose-mirror
+			contacts: new fields.ArrayField(
+				new fields.SchemaField({
+					name: new fields.StringField({ initial: "" }),
+					type: new fields.StringField({
+						initial: "individual",
+						choices: ["individual", "group"],
+					}),
+					level: new fields.NumberField({
+						initial: 0,
+						integer: true,
+						min: 0,
+						max: 3,
+					}),
+					shortDescription: new fields.StringField({ initial: "" }),
+					details: new fields.StringField({ initial: "" }),
+				}),
+				{ initial: [] },
+			),
 		};
 	}
 

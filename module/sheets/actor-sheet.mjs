@@ -8,6 +8,7 @@ import { TraitSheet } from "./trait-sheet.mjs";
 import {
 	editLanguage,
 	editKnowledge,
+	editContact,
 	editAsset,
 	useChip,
 } from "../helpers/dialog.mjs";
@@ -152,6 +153,14 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 					secrets: this.actor.isOwner,
 				},
 			);
+
+		context.contactList = (actorData.system.contacts || []).map((contact) => {
+			return {
+				...contact,
+				levelLabel: game.i18n.localize(usr.contactLevels[contact.level]),
+				typeLabel: game.i18n.localize(usr.contactTypes[contact.type]),
+			};
+		});
 
 		Object.assign(context, {
 			actor: actorData,
@@ -334,6 +343,16 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			event.preventDefault();
 			const element = event.currentTarget;
 			editKnowledge(this.actor, element.dataset.index ?? -1);
+		});
+
+		on(".edit-contact", (event) => {
+			event.preventDefault();
+			const element = event.currentTarget;
+			const index =
+				element.dataset.index !== undefined
+					? Number.parseInt(element.dataset.index, 10)
+					: -1;
+			editContact(this.actor, index);
 		});
 
 		on(".add-heal", () => addHealingPoints(this.actor));

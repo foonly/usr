@@ -1,0 +1,28 @@
+<div class="entry">
+    <label for="contact-name">{{localize "USR.ContactName"}}:</label>
+    <input id="contact-name" type="text" value="{{name}}" placeholder="{{localize 'USR.ContactName'}}"/>
+</div>
+<div class="entry">
+    <label for="contact-type">{{localize "USR.ContactType"}}:</label>
+    <select id="contact-type">
+        {{#each typeList}}
+        <option value="{{this.key}}" {{#if this.active}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+    </select>
+</div>
+<div class="entry">
+    <label for="contact-level">{{localize "USR.ContactLevel"}}:</label>
+    <select id="contact-level">
+        {{#each levelList}}
+        <option value="{{@index}}" {{#if this.active}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+    </select>
+</div>
+<div class="entry">
+    <label for="contact-short">{{localize "USR.ContactShort"}}:</label>
+    <input id="contact-short" type="text" value="{{shortDescription}}" placeholder="{{localize 'USR.ContactShort'}}"/>
+</div>
+<div class="entry stacked">
+    <label for="contact-details">{{localize "USR.ContactDetails"}}:</label>
+    <textarea id="contact-details" rows="4">{{details}}</textarea>
+</div>
