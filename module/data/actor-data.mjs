@@ -199,7 +199,6 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 					shortDescription: new fields.StringField({ initial: "" }),
 					details: new fields.StringField({ initial: "" }),
 				}),
-				{ initial: [] },
 			),
 		};
 	}
@@ -220,7 +219,6 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 					xp: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 					roll: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 				}),
-				{ initial: [] },
 			),
 		});
 	}
@@ -240,7 +238,6 @@ export class CharacterData extends BaseActorData {
 					speak: new fields.NumberField({ initial: 0, integer: true }),
 					write: new fields.NumberField({ initial: 0, integer: true }),
 				}),
-				{ initial: [] },
 			),
 			knowledge: new fields.ArrayField(
 				new fields.SchemaField({
@@ -248,14 +245,12 @@ export class CharacterData extends BaseActorData {
 					level: new fields.NumberField({ initial: 0, integer: true }),
 					approved: new fields.BooleanField({ initial: true }),
 				}),
-				{ initial: [] },
 			),
 			assets: new fields.ArrayField(
 				new fields.SchemaField({
 					name: new fields.StringField({ initial: "" }),
 					amount: new fields.StringField({ initial: "" }),
 				}),
-				{ initial: [] },
 			),
 			chips: new fields.SchemaField({
 				white: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
