@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.4.0 (2026-07-21)
+### 1.4.1 (2026-07-22)
+
+#### Refactor
+
+- data: remove redundant initial empty array options (98ef24e)
+
+## v1.4.0 (2026-07-21)
 
 #### Features
 
