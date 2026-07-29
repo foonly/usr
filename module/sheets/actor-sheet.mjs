@@ -24,8 +24,8 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 	static DEFAULT_OPTIONS = {
 		classes: ["usr", "sheet", "actor"],
 		position: {
-			width: 600,
-			height: 600,
+			width: 720,
+			height: 720,
 		},
 		window: {
 			contentClasses: ["standard-form"],
