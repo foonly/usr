@@ -32,16 +32,27 @@ export async function usrRoll(data) {
 	// Get values for trait and specialization if given.
 	let traitLabel = "";
 	if (data.trait) {
-		const trait = coreTraits[data.trait] || skillTraits?.[data.trait];
+		let trait = coreTraits[data.trait] || skillTraits?.[data.trait];
 		if (!trait) {
-			console.error(
-				`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
-				data.actor,
-			);
-			ui.notifications.warn(
-				`Could not find trait "${data.trait}" for this roll.`,
-			);
-			return { roll: null, result: null };
+			if (CONFIG.usr.traits.skills.includes(data.trait)) {
+				trait = {
+					label: `USR.Trait${data.trait.charAt(0).toUpperCase() + data.trait.slice(1)}`,
+					value: 1,
+					xp: 0,
+					roll: 0,
+					hasSpec: true,
+					spec: [],
+				};
+			} else {
+				console.error(
+					`USR | usrRoll: Could not find trait "${data.trait}" for actor:`,
+					data.actor,
+				);
+				ui.notifications.warn(
+					`Could not find trait "${data.trait}" for this roll.`,
+				);
+				return { roll: null, result: null };
+			}
 		}
 		traitLabel = game.i18n.localize(trait.label);
 		const traitValue = Number.isFinite(trait.value) ? trait.value : 0;
@@ -275,9 +286,20 @@ export async function usrRoll(data) {
 		const updatedTraits = foundry.utils.deepClone(traits);
 		let awarded = false;
 		if (data.trait) {
-			const trait = isCore
+			let trait = isCore
 				? updatedTraits[data.trait]
 				: updatedTraits[data.trait]; // Same access for skillTraits now it's an Object
+			if (!trait && !isCore && CONFIG.usr.traits.skills.includes(data.trait)) {
+				trait = {
+					label: `USR.Trait${data.trait.charAt(0).toUpperCase() + data.trait.slice(1)}`,
+					value: 1,
+					xp: 0,
+					roll: 0,
+					hasSpec: true,
+					spec: [],
+				};
+				updatedTraits[data.trait] = trait;
+			}
 			if (!trait) return { roll, result };
 			if (data.spec && Array.isArray(trait.spec)) {
 				trait.spec.forEach((spec) => {
@@ -640,7 +662,16 @@ export function rollXp(data) {
 	const skillTraits = data.actor.system.skillTraits;
 	const isCore = !!coreTraits[data.trait];
 	const traits = isCore ? coreTraits : skillTraits;
-	const trait = isCore ? coreTraits[data.trait] : skillTraits[data.trait];
+	const trait = isCore
+		? coreTraits[data.trait]
+		: skillTraits[data.trait] || {
+				label: `USR.Trait${data.trait.charAt(0).toUpperCase() + data.trait.slice(1)}`,
+				value: 1,
+				xp: 0,
+				roll: 0,
+				hasSpec: true,
+				spec: [],
+			};
 
 	if (data.spec) {
 		trait.spec.forEach((spec) => {
