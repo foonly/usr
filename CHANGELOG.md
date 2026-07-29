@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.4.2 (2026-07-29)
+### 1.4.3 (2026-07-29)
+
+#### Bug Fixes
+
+- sheet: increase default actor sheet dimensions (e7bf389)
+
+### v1.4.2 (2026-07-29)
 
 #### Bug Fixes
 
