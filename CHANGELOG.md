@@ -1,6 +1,12 @@
 # Changelog
 
-### 1.4.1 (2026-07-22)
+### 1.4.2 (2026-07-29)
+
+#### Bug Fixes
+
+- roll: initialize unedited skill traits on roll and XP roll (c11a91b)
+
+### v1.4.1 (2026-07-22)
 
 #### Refactor
 
