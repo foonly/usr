@@ -10,7 +10,23 @@
 				margin-bottom: 8px;
 			"
 		>
-			{{item.name}} — {{fireModeLabel}} ({{roundsFired}} Rounds)
+			{{item.name}} — {{fireModeLabel}}<br />
+			({{roundsFired}} Rounds) {{#if targetName}}
+			<div
+				class="target-name"
+				style="
+					font-size: 0.85em;
+					font-weight: normal;
+					color: var(--usr-text-muted);
+					margin-top: 4px;
+				"
+			>
+				Target:
+				<span style="font-weight: bold; color: var(--usr-text-strong)"
+					>{{targetName}}</span
+				>
+			</div>
+			{{/if}}
 		</div>
 
 		<div class="damage-details">
@@ -40,22 +56,42 @@
 				{{#each hits}}
 				<div
 					class="detail-row"
-					style="display: flex; justify-content: space-between; padding: 2px 0"
+					style="
+						display: flex;
+						justify-content: space-between;
+						padding: 2px 0;
+						align-items: center;
+					"
 				>
-					<span class="label" style="color: var(--usr-text-muted)"
+					<span
+						class="label"
+						style="color: var(--usr-text-muted); flex: 1 1 35%"
 						>• {{location}}</span
 					>
-					{{#if (eq damage 0)}}
 					<span
-						class="value deflected"
-						style="color: #c94c4c; font-style: italic; font-weight: bold"
-						>Deflected</span
+						class="formula-str"
+						style="
+							font-size: 0.85em;
+							font-weight: normal;
+							color: var(--usr-text-muted);
+							flex: 1 1 30%;
+							text-align: center;
+						"
+						>{{formulaString}}</span
 					>
-					{{else}}
-					<span class="value" style="font-weight: bold"
-						>{{damage}} {{lethality}}</span
-					>
-					{{/if}}
+					<div style="flex: 1 1 35%; text-align: right">
+						{{#if (eq damage 0)}}
+						<span
+							class="value deflected"
+							style="color: #c94c4c; font-style: italic; font-weight: bold"
+							>Deflected</span
+						>
+						{{else}}
+						<span class="value" style="font-weight: bold"
+							>{{damage}} {{lethality}}</span
+						>
+						{{/if}}
+					</div>
 				</div>
 				{{/each}}
 			</div>

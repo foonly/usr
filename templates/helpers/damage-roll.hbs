@@ -17,6 +17,12 @@
 			</section>
 		</div>
 		<div class="damage-details">
+			{{#if targetName}}
+			<div class="detail-row target-name">
+				<span class="label">Target:</span>
+				<span class="value" style="font-weight: bold">{{targetName}}</span>
+			</div>
+			{{/if}}
 			<div class="detail-row">
 				<span class="label">Location:</span>
 				<span class="value">{{location}}</span>

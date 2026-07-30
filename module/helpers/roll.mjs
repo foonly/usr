@@ -293,6 +293,12 @@ export async function usrRoll(data) {
 				if (roundsFired > 1) {
 					// Burst or Auto fire mode
 					const targetActor = game.user.targets.first()?.actor || null;
+					const target = game.user.targets.first();
+					const targetName = target
+						? target.name
+						: targetActor
+							? targetActor.name
+							: null;
 					const fireModeLabel =
 						fireMode === "burst" ? "Burst Fire" : "Auto Fire";
 
@@ -307,6 +313,7 @@ export async function usrRoll(data) {
 							finalLethality: "Stun",
 							finalLethalityKey: "x",
 							isMiss: true,
+							targetName,
 						};
 
 						const content =
@@ -397,6 +404,7 @@ export async function usrRoll(data) {
 							finalLethality,
 							finalLethalityKey,
 							isMiss: false,
+							targetName,
 						};
 
 						const content =
@@ -588,6 +596,16 @@ export async function rollDamage(
 		finalDamage = Math.max(0, totalDamage - deflectResult.netDeflect);
 	}
 
+	const target = game.user.targets.first();
+	const targetName = target
+		? target.name
+		: targetActor
+			? targetActor.name
+			: null;
+	const armorVal = deflectResult ? deflectResult.totalDeflect : 0;
+	const penetration = item.system?.penetration ?? 0;
+	const formulaString = `${totalDamage} + ${penetration} - ${armorVal}`;
+
 	const result = {
 		item: item.toObject ? item.toObject(false) : item,
 		location: location?.label ?? "Unknown",
@@ -600,6 +618,8 @@ export async function rollDamage(
 		dice: roll.dice[0].results.map((r) => r.result),
 		total: total,
 		deflectResult,
+		targetName,
+		formulaString,
 	};
 
 	if (skipMessage) {
