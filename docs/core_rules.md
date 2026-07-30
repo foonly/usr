@@ -23,8 +23,6 @@ USR uses **D10s** for all checks. The number of dice rolled depends on the **Dif
 - **Negative Difficulty:** For _Extremely Hard_ tasks, the character rolls the absolute number of dice (e.g., 2 dice for -2). To succeed, **every die** must roll $\le$ Trait Value. Success grants exactly 1 success (plus any Specialization bonuses).
 - **Critical Failure:** Occurs when the number of successes goes negative (by the rule of Tens). Critical failure may not be re-rolled.
 
----
-
 ## Character Traits
 
 ### Primary Traits
@@ -46,8 +44,6 @@ Knowledge is ranked as **None**, **Basic**, **Good**, or **Advanced**. These are
 
 Languages are tracked for both **Speaking** and **Writing**, ranked as **None**, **Basic**, **Good**, or **Advanced**.
 
----
-
 ## Fate & Fate Chips
 
 Characters use **Chips** (White, Green, Blue, Red, Black) to influence fate.
@@ -61,3 +57,22 @@ How the chips are used is up to every group, feel free to define your own effect
 - **Blue:** Roll an additional die if adding to an completed roll. Or two additional dice if adding to an upcoming roll.
 - **Red:** Negate taken damage.
 - **Black:** Gain position. In combat your position monitor is maxed out. Outside of combat, the GM will decide the effect.
+
+## Encumbrance
+
+The encumbrance system is completely optional, and if playing as pen & paper, only recommended as a guideline, since it's way too much calculation for a very small detail gain. However in Foundry everything is calculated automatically.
+
+The system uses lbs as the weight unit for everything. Both because of being more logical in historical settings, and because it's a smaller unit so that we can define most weights as integers.
+
+In foundry, different modules can change the diplayed weights to kg or anything else.
+
+The encumbrance system counts the weights of worn items as 50%, and assumes weapons and other items are packed in proper carrying rigs, so they are counted as 75%. Weight not packed properly would be counted as 100%.
+
+The base number for carrying capacity is calculated as 10 + 5 * Fortitude. Modifiers are then assigned according to the table below.
+
+| Base Factor | Mobility | General |
+| ----------- | -------- | ------- |
+| 1           | -1       | 0       |
+| 2           | -2       | 0       |
+| 3           | -3       | 0       |
+| 5           | -3       | -1      |
