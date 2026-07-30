@@ -89,6 +89,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				this.actor.system.equippedWeight * CONFIG.usr.weightFactor,
 			),
 			unit: CONFIG.usr.weightUnit || "lbs",
+			encumberance: this.actor.system.encumberance,
 		};
 
 		// Handle all traits localization and unification

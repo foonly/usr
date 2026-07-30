@@ -9,6 +9,7 @@
 @import "components/weapon-cards.css";
 @import "components/chat.css";
 @import "components/dialog.css";
+@import "components/prose-mirror.css";
 
 /* Add custom fonts by visiting and search https://fonts.google.com */
 @import url("https://fonts.googleapis.com/css2?family=Rye&family=Special+Elite&display=swap");

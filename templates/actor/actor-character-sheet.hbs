@@ -17,26 +17,23 @@
 				placeholder="Name"
 			/>
 		</h1>
-		<div class="meta-card readonly modifier">
+		<div class="meta-card readonly modifiers">
 			<span class="meta-label">Modifier</span>
 			<span class="meta-value">{{system.damage.modifierText}}</span>
 			<span class="meta-label">Carry</span>
 			<span class="meta-value">
 				{{system.equipped.weight}} {{system.equipped.unit}}
 			</span>
+			<span class="meta-value"> {{system.equipped.encumberance}} </span>
 		</div>
 		<div class="chips">
 			{{#each chipsList as |type index|}}
 			<div class="chip clickable-chip" data-chip="{{type}}"></div>
 			{{/each}}
 		</div>
-		<div class="dice">
-			<button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
-			<button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
-		</div>
-		<div class="meta-card form-group xp">
-			<label for="bonus-xp">XP</label>
-			<div class="form-fields">
+		<div class="meta-card form-group">
+			<div class="xp">
+				<label for="bonus-xp">XP</label>
 				<input
 					id="bonus-xp"
 					name="system.xp"
@@ -45,6 +42,10 @@
 					value="{{system.xp}}"
 					data-dtype="Number"
 				/>
+			</div>
+			<div class="dice">
+				<button class="rollable roll-chip die d6" data-roll-chip="1">1</button>
+				<button class="rollable roll-chip die d6" data-roll-chip="2">2</button>
 			</div>
 		</div>
 	</div>

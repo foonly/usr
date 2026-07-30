@@ -1,0 +1,27 @@
+.usr {
+	prose-mirror,
+	.prosemirror {
+		height: auto;
+		min-height: 100px; /* Gives the user an initial clickable area if it's empty */
+		max-height: none;
+		overflow-y: visible; /* Prevents the internal scrollbar */
+
+		/* Override Foundry's inactive prose-mirror scroll behavior */
+		&.inactive {
+			overflow: visible; /* Kills the internal scrollbar */
+			height: auto; /* Forces height to expand to content */
+			max-height: none; /* Prevents any height caps */
+			/* FIX: Force it to obey the parent's horizontal boundaries */
+			flex: 0 0 100% !important;
+			width: 100% !important;
+		}
+
+		/* Ensure inner editor wrapper doesn't trap overflow either */
+		.editor,
+		.editor-content {
+			height: auto;
+			overflow: visible;
+			word-break: break-word;
+		}
+	}
+}

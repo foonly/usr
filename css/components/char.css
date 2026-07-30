@@ -72,14 +72,33 @@
 		.header-fields {
 			display: grid;
 			grid-gap: 8px;
-			grid-template-columns: auto 32px 96px;
+			grid-template-columns: auto 72px 100px;
 
 			.charname {
 				grid-column: 1 / span 2;
 			}
 
-			.xp {
+			.modifiers {
+				grid-column: 3;
+				grid-row: 1 / span 2;
+			}
+
+			.xp,
+			.dice {
+				display: flex;
 				flex-direction: row;
+				align-items: center;
+			}
+
+			.xp {
+				label {
+					padding-right: 8px;
+				}
+				input {
+					padding: 0;
+					text-align: center;
+					width: 32px;
+				}
 			}
 
 			.chips {

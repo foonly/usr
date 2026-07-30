@@ -346,26 +346,6 @@
 		}
 	}
 
-	.editor,
-	prose-mirror {
-		min-height: 450px;
-
-		.tox-editor-container,
-		.editor-container {
-			display: flex;
-			flex-direction: column;
-			min-height: 450px;
-		}
-
-		.prosemirror,
-		.tox-edit-area__iframe,
-		.editor-content {
-			flex: 1;
-			min-height: 400px;
-			padding: 0.5rem;
-		}
-	}
-
 	@media (max-width: 720px) {
 		.sheet-header {
 			.header-top,

@@ -97,16 +97,12 @@ export class usrActor extends Actor {
 		};
 
 		let equippedWeight = 0;
+		let equippedEncumbrance = 0;
 		this.items.forEach((item) => {
 			if (item.system.equipped) {
-				const weight = Number.isFinite(item.system.weight)
-					? item.system.weight
-					: 0;
-				const qty = Number.isFinite(item.system.quantity)
-					? item.system.quantity
-					: 1;
-				equippedWeight += weight * qty;
+				let encumbranceFactor = 0.75;
 				if (item.type === "armor") {
+					encumbranceFactor = 0.5;
 					const locs = item.system.locations;
 					if (locs) {
 						if (locs.head) coverage.head = true;
@@ -115,11 +111,20 @@ export class usrActor extends Actor {
 						if (locs.legs) coverage.legs = true;
 					}
 				}
+				const weight = Number.isFinite(item.system.weight)
+					? item.system.weight
+					: 0;
+				const qty = Number.isFinite(item.system.quantity)
+					? item.system.quantity
+					: 1;
+				equippedWeight += weight * qty;
+				equippedEncumbrance += weight * qty * encumbranceFactor;
 			}
 		});
 
 		systemData.armorCoverage = coverage;
 		systemData.equippedWeight = equippedWeight;
+		systemData.equippedEncumbrance = equippedEncumbrance;
 
 		// Make separate methods for each Actor type (character, npc, etc.) to keep
 		// things organized.
