@@ -1,6 +1,19 @@
 # Changelog
 
-### 1.4.3 (2026-07-29)
+## 1.5.0 (2026-07-30)
+
+#### Features
+
+- roll: handle burst and auto-fire misses (f15c86d)
+- combat: implement burst and auto fire system for ranged weapons (aeb5b91)
+- actor: add encumbrance calculation and update sheet layout (73cb826)
+- actor: calculate and display total equipped weight (c6ccc2d)
+
+#### Bug Fixes
+
+- actor: implement configurable weight units and logic (4a2c8a4)
+
+### v1.4.3 (2026-07-29)
 
 #### Bug Fixes
 
