@@ -124,14 +124,20 @@ export async function usrRoll(data) {
 		return { roll: null, result };
 	}
 
-	// Apply damage penalty to difficulty (number of dice)
+	// Combine unified general modifier with mobility modifier if rolling mobility
+	let totalPenalty = damageMod;
+	if (data.actor?.system?.encumbrance && data.trait === "mobility") {
+		totalPenalty += data.actor.system.encumbrance.mobility ?? 0;
+	}
+
+	// Apply combined penalty to difficulty (number of dice)
 	const originalDifficulty = data.difficulty;
-	if (damageMod < 0) {
+	if (totalPenalty < 0) {
 		const diffSequence = [6, 5, 4, 3, 2, 1, -2, -3, -4, -5, -6, -7];
 		let currentIndex = diffSequence.indexOf(originalDifficulty);
 		if (currentIndex === -1) currentIndex = 2; // Default to Normal (Index 2)
 
-		const penalty = Math.abs(damageMod);
+		const penalty = Math.abs(totalPenalty);
 		const newIndex = Math.min(diffSequence.length - 1, currentIndex + penalty);
 		data.difficulty = diffSequence[newIndex];
 	}
@@ -149,7 +155,7 @@ export async function usrRoll(data) {
 		critical: false,
 		formula: "",
 		total: "",
-		damageModifier: damageMod,
+		damageModifier: totalPenalty,
 	};
 
 	/* Start tens and ones at -1, because we start counting from the second one. */

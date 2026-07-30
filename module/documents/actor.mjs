@@ -55,14 +55,6 @@ export class usrActor extends Actor {
 				}
 			});
 
-		const modifier = usr.damageModifier[damage] ?? -10;
-		let modifierText = modifier.toString();
-		if (modifier < -9) {
-			modifierText = "X";
-		} else if (modifier > -1) {
-			modifierText = "None";
-		}
-
 		const fortitudeTotal =
 			systemData.traits.fortitude.value +
 			(systemData.traits.fortitude.modifier ?? 0);
@@ -72,14 +64,6 @@ export class usrActor extends Actor {
 			m: Math.ceil(fortitudeTotal * 0.7),
 			s: Math.ceil(fortitudeTotal * 0.6),
 			d: Math.ceil(fortitudeTotal * 0.5),
-		};
-
-		systemData.damage = {
-			damage,
-			modifier,
-			modifierText,
-			resistance,
-			monitor,
 		};
 
 		// Blood Pool calculations.
@@ -125,6 +109,47 @@ export class usrActor extends Actor {
 		systemData.armorCoverage = coverage;
 		systemData.equippedWeight = equippedWeight;
 		systemData.equippedEncumbrance = equippedEncumbrance;
+
+		const baseCapacity = 10 + 4 * fortitudeTotal;
+		let encumbranceMobility = 0;
+		let encumbranceGeneral = 0;
+
+		if (equippedEncumbrance > baseCapacity * 5) {
+			encumbranceMobility = -3;
+			encumbranceGeneral = -1;
+		} else if (equippedEncumbrance > baseCapacity * 3) {
+			encumbranceMobility = -3;
+			encumbranceGeneral = 0;
+		} else if (equippedEncumbrance > baseCapacity * 2) {
+			encumbranceMobility = -2;
+			encumbranceGeneral = 0;
+		} else if (equippedEncumbrance > baseCapacity * 1) {
+			encumbranceMobility = -1;
+			encumbranceGeneral = 0;
+		}
+
+		systemData.encumbrance = {
+			base: baseCapacity,
+			mobility: encumbranceMobility,
+			general: encumbranceGeneral,
+		};
+
+		const baseModifier = usr.damageModifier[damage] ?? -10;
+		const modifier = baseModifier + encumbranceGeneral;
+		let modifierText = modifier.toString();
+		if (modifier < -9) {
+			modifierText = "X";
+		} else if (modifier > -1) {
+			modifierText = "None";
+		}
+
+		systemData.damage = {
+			damage,
+			modifier,
+			modifierText,
+			resistance,
+			monitor,
+		};
 
 		// Make separate methods for each Actor type (character, npc, etc.) to keep
 		// things organized.

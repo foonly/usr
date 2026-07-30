@@ -22,6 +22,11 @@
 		<div class="meta-card readonly modifiers">
 			<span class="meta-label">Modifier</span>
 			<span class="meta-value">{{system.damage.modifierText}}</span>
+			<span class="meta-label">Mobility</span>
+			<span class="meta-value">
+				{{#if system.encumbrance.mobility}} {{system.encumbrance.mobility}}
+				{{else}} None {{/if}}
+			</span>
 			<span class="meta-label">Carry</span>
 			<span class="meta-value">
 				{{system.equipped.weight}} {{system.equipped.unit}}

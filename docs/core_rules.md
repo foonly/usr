@@ -68,11 +68,11 @@ In foundry, different modules can change the diplayed weights to kg or anything 
 
 The encumbrance system counts the weights of worn items as 50%, and assumes weapons and other items are packed in proper carrying rigs, so they are counted as 75%. Weight not packed properly would be counted as 100%.
 
-The base number for carrying capacity is calculated as 10 + 5 * Fortitude. Modifiers are then assigned according to the table below.
+The base number for carrying capacity is calculated as 10 + 4 * Fortitude. Modifiers are then assigned according to the table below.
 
 | Base Factor | Mobility | General |
 | ----------- | -------- | ------- |
 | 1           | -1       | 0       |
 | 2           | -2       | 0       |
 | 3           | -3       | 0       |
-| 5           | -3       | -1      |
+| 4           | -3       | -1      |
