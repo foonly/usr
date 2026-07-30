@@ -1,0 +1,32 @@
+<div class="usr dice-roll damage-roll burst-damage-roll">
+	<div class="dice-result">
+		<div class="dice-formula" style="font-weight: bold; font-size: 1.1em; border-bottom: 1px solid var(--usr-border); padding-bottom: 4px; margin-bottom: 8px;">
+			{{item.name}} — {{fireModeLabel}} ({{roundsFired}} Rounds)
+		</div>
+
+		<div class="damage-details">
+			<h4 class="hits-title" style="margin: 0 0 6px 0; font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: var(--usr-text-muted);">Hits Summary</h4>
+
+			<div class="hits-list" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px;">
+				{{#each hits}}
+				<div class="detail-row" style="display: flex; justify-content: space-between; padding: 2px 0;">
+					<span class="label" style="color: var(--usr-text-muted);">• {{location}}</span>
+					{{#if (eq damage 0)}}
+					<span class="value deflected" style="color: #c94c4c; font-style: italic; font-weight: bold;">Deflected</span>
+					{{else}}
+					<span class="value" style="font-weight: bold;">{{damage}} {{lethality}}</span>
+					{{/if}}
+				</div>
+				{{/each}}
+			</div>
+
+			<div class="final-merged-damage" style="border-top: 2px dashed var(--usr-border); padding-top: 10px; margin-top: 8px;">
+				{{#if (eq finalDamage 0)}}
+				<div class="dice-total damage-total deflected" style="text-align: center; font-size: 1.5em; font-weight: bold; color: #c94c4c; text-transform: uppercase; letter-spacing: 0.05em;">Deflected</div>
+				{{else}}
+				<div class="dice-total damage-total" style="text-align: center; font-size: 1.5em; font-weight: bold; color: var(--usr-text-strong);">{{finalDamage}} {{finalLethality}} Damage</div>
+				{{/if}}
+			</div>
+		</div>
+	</div>
+</div>

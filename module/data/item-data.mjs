@@ -106,6 +106,11 @@ export class RangedData extends BaseItemData {
 			magazine: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
 			reload: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
 			ammo: new fields.NumberField({ initial: 1, integer: true, min: 0 }),
+			burst: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+			fireMode: new fields.StringField({
+				initial: "single",
+				choices: ["single", "burst", "auto"],
+			}),
 		};
 	}
 }

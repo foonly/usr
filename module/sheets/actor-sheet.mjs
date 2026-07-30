@@ -413,6 +413,16 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			});
 		});
 
+		for (const element of html.querySelectorAll(".fire-mode-select")) {
+			element.addEventListener("change", async (event) => {
+				event.preventDefault();
+				const item = this.actor.items.get(element.dataset.itemId);
+				if (item) {
+					await item.update({ "system.fireMode": element.value });
+				}
+			});
+		}
+
 		on(".rollable", this._onRoll.bind(this));
 
 		if (!this.isEditable) return;

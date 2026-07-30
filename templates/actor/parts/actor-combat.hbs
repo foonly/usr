@@ -126,7 +126,7 @@
 						></a>
 					</div>
 				</div>
-				<div class="card-stats">
+				<div class="card-stats {{#if (gt item.system.burst 1)}}has-fire-mode{{/if}}">
 					<div class="stat">
 						<span class="label">{{localize "USR.Damage"}}:</span>
 						<span class="value">{{item.system.damage}}</span>
@@ -145,6 +145,16 @@
 						<span class="label">Ammo:</span>
 						<span class="value">{{item.system.ammo}}</span>
 					</div>
+					{{#if (gt item.system.burst 1)}}
+					<div class="stat">
+						<span class="label">{{localize "USR.FireMode"}}:</span>
+						<select class="fire-mode-select" data-item-id="{{_id}}">
+							<option value="single" {{#if (eq item.system.fireMode "single")}}selected{{/if}}>{{localize "USR.FireModeSingle"}}</option>
+							<option value="burst" {{#if (eq item.system.fireMode "burst")}}selected{{/if}}>{{localize "USR.FireModeBurst"}}</option>
+							<option value="auto" {{#if (eq item.system.fireMode "auto")}}selected{{/if}}>{{localize "USR.FireModeAuto"}}</option>
+						</select>
+					</div>
+					{{/if}}
 				</div>
 
 				<div class="range-tables">

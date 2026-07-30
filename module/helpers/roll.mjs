@@ -13,8 +13,26 @@ export async function usrRoll(data) {
 		? data.specialization
 		: 0;
 
+	let roundsFired = 1;
+	let fireMode = "single";
+
 	// Ammunition check and consumption for ranged attacks
 	if (data.item && data.item.type === "ranged" && data.skipDamage !== true) {
+		const burstVal = data.item.system.burst ?? 0;
+		fireMode = data.item.system.fireMode ?? "single";
+
+		if (burstVal > 1) {
+			if (fireMode === "burst") {
+				const min = Math.round(burstVal * 0.5);
+				const max = Math.round(burstVal * 1.5);
+				roundsFired = Math.floor(Math.random() * (max - min + 1)) + min;
+			} else if (fireMode === "auto") {
+				const min = Math.round(burstVal * 2.0);
+				const max = Math.round(burstVal * 3.0);
+				roundsFired = Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+		}
+
 		const magazine = data.item.system.magazine ?? 0;
 		if (magazine <= 0) {
 			ui.notifications.error("Magazine is empty! Reload first.");
@@ -24,8 +42,11 @@ export async function usrRoll(data) {
 			});
 			return { roll: null, result: null };
 		}
+
+		roundsFired = Math.min(roundsFired, magazine);
+
 		if (typeof data.item.update === "function") {
-			await data.item.update({ "system.magazine": magazine - 1 });
+			await data.item.update({ "system.magazine": magazine - roundsFired });
 		}
 	}
 
@@ -270,9 +291,106 @@ export async function usrRoll(data) {
 
 				// Ranged or out-of-combat untargeted: resolve immediately if hit
 				if (result.successes > 0) {
-					const bonusDamage = result.successes;
 					const targetActor = game.user.targets.first()?.actor || null;
-					await rollDamage(data.actor, item, bonusDamage, targetActor);
+
+					if (roundsFired > 1 && result.successes > 1) {
+						// Burst or Auto fire mode with multiple successes.
+						const numHits = Math.min(result.successes, roundsFired);
+						const hits = [];
+
+						for (let i = 0; i < numHits; i++) {
+							// Each hit has 1 success for damage resolution (bonusDamage = 1)
+							const hitResult = await rollDamage(
+								data.actor,
+								item,
+								1,
+								targetActor,
+								true,
+							);
+							hits.push(hitResult);
+						}
+
+						// Resolve merging logic
+						const nonDeflectedHits = hits.filter((h) => h.damage > 0);
+
+						let finalDamage = 0;
+						let finalLethality = "Stun";
+						let finalLethalityKey = "x";
+
+						if (nonDeflectedHits.length > 0) {
+							const weightMap = { x: 1, l: 2, m: 3, s: 4, d: 5 };
+
+							// Calculate values for each non-deflected hit
+							nonDeflectedHits.forEach((h) => {
+								const weight = weightMap[h.lethalityKey] || 1;
+								h.calcValue = h.damage * weight;
+							});
+
+							// Find the base hit (highest calcValue, tie-breaker: highest weight)
+							let baseHit = null;
+							for (const hit of nonDeflectedHits) {
+								if (!baseHit) {
+									baseHit = hit;
+									continue;
+								}
+								const hitWeight = weightMap[hit.lethalityKey] || 1;
+								const baseWeight = weightMap[baseHit.lethalityKey] || 1;
+
+								if (hit.calcValue > baseHit.calcValue) {
+									baseHit = hit;
+								} else if (hit.calcValue === baseHit.calcValue) {
+									if (hitWeight > baseWeight) {
+										baseHit = hit;
+									}
+								}
+							}
+
+							// Sum the others
+							let otherSum = 0;
+							nonDeflectedHits.forEach((hit) => {
+								if (hit !== baseHit) {
+									otherSum += hit.calcValue;
+								}
+							});
+
+							const totalCalcValue = baseHit.calcValue + otherSum / 2;
+							const baseWeight = weightMap[baseHit.lethalityKey] || 1;
+
+							finalDamage = Math.ceil(totalCalcValue / baseWeight);
+							finalLethality = baseHit.lethality;
+							finalLethalityKey = baseHit.lethalityKey;
+						}
+
+						// Render the burst/auto fire chat message!
+						const fireModeLabel =
+							fireMode === "burst" ? "Burst Fire" : "Auto Fire";
+
+						const messageData = {
+							item: item.toObject ? item.toObject(false) : item,
+							fireModeLabel,
+							roundsFired,
+							hits,
+							finalDamage,
+							finalLethality,
+							finalLethalityKey,
+						};
+
+						const content =
+							await foundry.applications.handlebars.renderTemplate(
+								"systems/usr/templates/helpers/burst-damage-roll.hbs",
+								messageData,
+							);
+
+						await ChatMessage.create({
+							content,
+							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+							flavor: `${item.name} — ${fireModeLabel} Damage`,
+						});
+					} else {
+						// Single shot or only 1 success
+						const bonusDamage = result.successes;
+						await rollDamage(data.actor, item, bonusDamage, targetActor);
+					}
 				}
 			} catch (err) {
 				console.error("USR | Damage roll failed:", err);
@@ -339,6 +457,7 @@ export async function rollDamage(
 	item,
 	bonusDamage = 0,
 	targetActor = null,
+	skipMessage = false,
 ) {
 	const roll = await new Roll("2d10").evaluate();
 	const total = roll.total;
@@ -455,6 +574,10 @@ export async function rollDamage(
 		total: total,
 		deflectResult,
 	};
+
+	if (skipMessage) {
+		return result;
+	}
 
 	const content = await foundry.applications.handlebars.renderTemplate(
 		"systems/usr/templates/helpers/damage-roll.hbs",

@@ -54,6 +54,10 @@
 			gap: 0.5rem;
 			font-size: 0.9rem;
 
+			&.has-fire-mode {
+				grid-template-columns: repeat(5, 1fr);
+			}
+
 			.stat {
 				display: flex;
 				flex-direction: column;
@@ -69,6 +73,20 @@
 				.value {
 					color: var(--usr-text);
 					font-weight: 600;
+				}
+
+				select {
+					background: var(--usr-surface-3);
+					color: var(--usr-text);
+					border: 1px solid var(--usr-border);
+					border-radius: 4px;
+					padding: 1px 4px;
+					font-family: inherit;
+					font-size: 0.8rem;
+					font-weight: 600;
+					cursor: pointer;
+					outline: none;
+					height: 1.5rem;
 				}
 			}
 		}

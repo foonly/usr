@@ -16,5 +16,6 @@ export const preloadHandlebarsTemplates = async function () {
 		// Helper partials
 		"systems/usr/templates/helpers/roll.hbs",
 		"systems/usr/templates/helpers/damage-roll.hbs",
+		"systems/usr/templates/helpers/burst-damage-roll.hbs",
 	]);
 };
