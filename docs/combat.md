@@ -140,6 +140,42 @@ If the character is in aggressive stance, they can pay position to perform extra
 - **Lethality Modifier:** -4 to +2, usually 0. Can modify the weapon to be less or more lethal.
 - **Accuracy:** 1 to 7. Determines the accuracy and effective range of the weapon.
 - **Shots:** 1+ Determines how many shots the weapon can fire between reloads.
+- **Burst Value:** Optional numeric value for firearms representing the approximate number of rounds fired in a short burst. Allows the selection of Burst and Auto fire modes.
+
+### Burst Fire and Auto Fire
+
+For firearms that support rapid fire, a weapon may have a **Burst Value** greater than 1. This unlocks three fire modes:
+
+- **Single Shot:** Resolves as a normal ranged attack, consuming 1 round.
+- **Burst Fire:** Randomizes the number of rounds fired between 50% and 150% of the weapon's Burst Value (capped by the remaining magazine size).
+- **Auto Fire:** Randomizes the number of rounds fired between 200% and 300% of the weapon's Burst Value (capped by the remaining magazine size).
+
+#### Resolution and Hits
+
+Rounds fired are subtracted from the weapon's magazine.
+
+- If the attack roll fails (0 successes), the attack is resolved as a complete miss with a dedicated summary card showing how many rounds were fired and missed.
+- If the attack roll yields 1 success, the attack is resolved as a single normal hit.
+- If the attack roll yields more than 1 success, each additional success represents an additional hit on the target, up to the total number of rounds fired (i.e. `Total Hits = Math.min(successes, roundsFired)`).
+
+#### Hit Location, Deflection, and Armor
+
+Each individual hit is calculated as having exactly 1 success for damage resolution. Roll 2d10 for hit location and resolve armor/deflection individually for each hit. Deflected hits (damage reduced to 0 by armor) are ignored.
+
+#### Merging Damage
+
+All non-deflected hits have their damage and lethality merged into a single final attack value:
+
+1. Assign a calculated value to each non-deflected hit using its damage and a lethality weight multiplier:
+   - **Stun:** x1
+   - **Light:** x2
+   - **Moderate:** x3
+   - **Serious:** x4
+   - **Deadly:** x5
+2. The hit with the highest calculated value is used as the **base hit** (defining the base damage and base lethality type). In case of a tie, the higher lethality type is preferred.
+3. The calculated values of all other hits are summed up, divided by 2, and added to the base hit's calculated value:
+   $$\text{Total Value} = \text{Base Value} + \frac{\sum \text{Other Values}}{2}$$
+4. Divide the total value by the base hit's damage type weight and round up to find the final damage value of the merged attack.
 
 ### Melee Weapons
 
