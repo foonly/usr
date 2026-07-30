@@ -180,6 +180,8 @@ usr.bleedingLevels = {
 };
 
 usr.traitMax = 7;
+usr.weightUnit = "lbs";
+usr.weightFactor = 1;
 usr.traits = {
 	core: [
 		"fortitude",

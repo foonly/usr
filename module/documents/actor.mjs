@@ -106,14 +106,14 @@ export class usrActor extends Actor {
 					? item.system.quantity
 					: 1;
 				equippedWeight += weight * qty;
-			}
-			if (item.type === "armor" && item.system.equipped) {
-				const locs = item.system.locations;
-				if (locs) {
-					if (locs.head) coverage.head = true;
-					if (locs.torso) coverage.torso = true;
-					if (locs.arms) coverage.arms = true;
-					if (locs.legs) coverage.legs = true;
+				if (item.type === "armor") {
+					const locs = item.system.locations;
+					if (locs) {
+						if (locs.head) coverage.head = true;
+						if (locs.torso) coverage.torso = true;
+						if (locs.arms) coverage.arms = true;
+						if (locs.legs) coverage.legs = true;
+					}
 				}
 			}
 		});

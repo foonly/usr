@@ -85,8 +85,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		actorData.system.blood = this.actor.system.blood;
 		actorData.system.armorCoverage = this.actor.system.armorCoverage;
 		actorData.system.equipped = {
-			weight: this.actor.system.equippedWeight,
-			unit: "lbs",
+			weight: Math.round(
+				this.actor.system.equippedWeight * CONFIG.usr.weightFactor,
+			),
+			unit: CONFIG.usr.weightUnit || "lbs",
 		};
 
 		// Handle all traits localization and unification

@@ -9,7 +9,7 @@ export class usrItemSheet extends HandlebarsApplicationMixin(ItemSheet) {
 		classes: ["usr", "sheet", "item"],
 		position: {
 			width: 520,
-			height: 480,
+			height: 580,
 		},
 		window: {
 			contentClasses: ["standard-form"],
