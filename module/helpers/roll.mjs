@@ -290,11 +290,38 @@ export async function usrRoll(data) {
 				}
 
 				// Ranged or out-of-combat untargeted: resolve immediately if hit
-				if (result.successes > 0) {
+				if (roundsFired > 1) {
+					// Burst or Auto fire mode
 					const targetActor = game.user.targets.first()?.actor || null;
+					const fireModeLabel =
+						fireMode === "burst" ? "Burst Fire" : "Auto Fire";
 
-					if (roundsFired > 1 && result.successes > 1) {
-						// Burst or Auto fire mode with multiple successes.
+					if (result.successes === 0) {
+						// Missed completely!
+						const messageData = {
+							item: item.toObject ? item.toObject(false) : item,
+							fireModeLabel,
+							roundsFired,
+							hits: [],
+							finalDamage: 0,
+							finalLethality: "Stun",
+							finalLethalityKey: "x",
+							isMiss: true,
+						};
+
+						const content =
+							await foundry.applications.handlebars.renderTemplate(
+								"systems/usr/templates/helpers/burst-damage-roll.hbs",
+								messageData,
+							);
+
+						await ChatMessage.create({
+							content,
+							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+							flavor: `${item.name} — ${fireModeLabel} Missed`,
+						});
+					} else {
+						// Hit! (successes >= 1)
 						const numHits = Math.min(result.successes, roundsFired);
 						const hits = [];
 
@@ -361,10 +388,6 @@ export async function usrRoll(data) {
 							finalLethalityKey = baseHit.lethalityKey;
 						}
 
-						// Render the burst/auto fire chat message!
-						const fireModeLabel =
-							fireMode === "burst" ? "Burst Fire" : "Auto Fire";
-
 						const messageData = {
 							item: item.toObject ? item.toObject(false) : item,
 							fireModeLabel,
@@ -373,6 +396,7 @@ export async function usrRoll(data) {
 							finalDamage,
 							finalLethality,
 							finalLethalityKey,
+							isMiss: false,
 						};
 
 						const content =
@@ -386,9 +410,12 @@ export async function usrRoll(data) {
 							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
 							flavor: `${item.name} — ${fireModeLabel} Damage`,
 						});
-					} else {
-						// Single shot or only 1 success
+					}
+				} else {
+					// Single shot / normal attack (roundsFired === 1)
+					if (result.successes > 0) {
 						const bonusDamage = result.successes;
+						const targetActor = game.user.targets.first()?.actor || null;
 						await rollDamage(data.actor, item, bonusDamage, targetActor);
 					}
 				}
