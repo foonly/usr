@@ -7,8 +7,6 @@
 		data-edit="img"
 		title="{{actor.name}}"
 		alt="{{actor.name}}"
-		height="100"
-		width="100"
 	/>
 	<div class="header-fields">
 		<h1 class="charname">
@@ -22,6 +20,10 @@
 		<div class="meta-card readonly modifier">
 			<span class="meta-label">Modifier</span>
 			<span class="meta-value">{{system.damage.modifierText}}</span>
+			<span class="meta-label">Weight</span>
+			<span class="meta-value">
+				{{system.equipped.weight}} {{system.equipped.unit}}
+			</span>
 		</div>
 		<div class="chips">
 			{{#each chipsList as |type index|}}
