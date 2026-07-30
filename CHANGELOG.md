@@ -1,6 +1,18 @@
 # Changelog
 
-## 1.5.0 (2026-07-30)
+## 1.6.0 (2026-07-30)
+
+#### Features
+
+- actor: implement encumbrance system (2fadc66)
+- docs/actor: add encumbrance rules and fix spelling (9b708ff)
+- combat: show target name and individual hit math on burst and damage rolls (20b0347)
+
+#### Documentation
+
+- combat: document burst and auto fire rules (331c73a)
+
+## v1.5.0 (2026-07-30)
 
 #### Features
 
