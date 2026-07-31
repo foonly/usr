@@ -119,6 +119,25 @@ export class RangedData extends BaseItemData {
  * Data model for Armor.
  */
 export class ArmorData extends BaseItemData {
+	/** @override */
+	get minDeflection() {
+		const bonus = this.deflectBonus ?? 0;
+		return bonus + (this.deflectDie === "none" ? 0 : 2);
+	}
+
+	/** @override */
+	get maxDeflection() {
+		const dieValue =
+			{
+				none: 0,
+				d4: 4,
+				d6: 6,
+				d8: 8,
+			}[this.deflectDie] ?? 0;
+		const bonus = this.deflectBonus ?? 0;
+		return bonus + 2 * dieValue;
+	}
+
 	static defineSchema() {
 		return {
 			...super.defineSchema(),

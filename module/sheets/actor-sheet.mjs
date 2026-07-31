@@ -259,6 +259,17 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 					})),
 				};
 			} else if (item.type === "armor") {
+				const bonus = item.system.deflectBonus ?? 0;
+				const dieValue =
+					{
+						none: 0,
+						d4: 4,
+						d6: 6,
+						d8: 8,
+					}[item.system.deflectDie] ?? 0;
+				item.system.minDeflection =
+					bonus + (item.system.deflectDie === "none" ? 0 : 2);
+				item.system.maxDeflection = bonus + 2 * dieValue;
 				armor.push(item);
 				if (item.system.equipped) equippedArmor.push(item);
 			}

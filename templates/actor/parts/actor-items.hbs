@@ -174,6 +174,7 @@
 			<th class="col-stat text-center">{{localize "USR.Impact"}}</th>
 			<th class="col-stat text-center">{{localize "USR.DeflectDie"}}</th>
 			<th class="col-stat text-center">{{localize "USR.DeflectBonus"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Deflection"}}</th>
 			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
@@ -230,6 +231,9 @@
 			<td class="text-center">{{item.system.impact}}</td>
 			<td class="text-center">{{item.system.deflectDie}}</td>
 			<td class="text-center">{{item.system.deflectBonus}}</td>
+			<td class="text-center font-weight-bold">
+				{{item.system.minDeflection}}-{{item.system.maxDeflection}}
+			</td>
 			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
