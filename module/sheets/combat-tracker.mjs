@@ -303,52 +303,14 @@ export class usrCombatTracker
 		const combat = this.viewed;
 		if (!combat) return;
 
-		// If there was a previous active combatant, mark them as acted
-		if (combat.turn !== null) {
-			const previousCombatant = combat.turns[combat.turn];
-			if (previousCombatant && previousCombatant.id !== combatantId) {
-				await previousCombatant.setFlag("usr", "action.acted", true);
-			}
-		}
-
 		const turnIndex = combat.turns.findIndex((t) => t.id === combatantId);
 		if (turnIndex === -1) return;
 
 		await combat.update({ turn: turnIndex });
-
-		const combatant = combat.turns[turnIndex];
-		const action = combatant.getFlag("usr", "action");
-
-		const token = combatant.token?.object;
-
-		// Select the token
-		if (token && token.isVisible && token.control) {
-			token.control({ releaseOthers: true });
-			if (canvas.ready) {
-				canvas.animatePan({
-					x: token.center.x,
-					y: token.center.y,
-					duration: 250,
-				});
-			}
-		}
-
-		// Handle targeting
-		if (action?.targetId && !action.targetId.startsWith("custom:")) {
-			const targetCombatant = combat.combatants.get(action.targetId);
-			const targetToken = targetCombatant?.token?.object;
-			if (targetToken && targetToken.isVisible) {
-				targetToken.setTarget(true, { releaseOthers: true });
-			} else {
-				canvas.tokens.setTargets([]);
-			}
-		} else {
-			canvas.tokens.setTargets([]);
-		}
 	}
 
 	/**
-	 * Handle moving to the next phase.
+	 * Handle moving to the next phase or turn.
 	 */
 	static async #onNextPhase(event, target) {
 		const combat = this.viewed;
@@ -357,19 +319,38 @@ export class usrCombatTracker
 		let currentPhase = combat.getFlag("usr", "phase");
 		if (currentPhase === undefined) currentPhase = 1;
 
-		// If transitioning from Phase 2 to Phase 3, we should ensure all comparisons are done
-		if (currentPhase === 2) {
-			await usrCombatTracker.#resolveAllInitiatives(combat);
+		if (currentPhase === 3) {
+			if (combat.turn === null) {
+				await combat.update({ turn: 0 });
+			} else {
+				await combat.nextTurn();
+			}
+			return;
 		}
 
 		await combat.nextPhase();
 	}
 
 	/**
-	 * Handle moving to the previous phase.
+	 * Handle moving to the previous phase or turn.
 	 */
 	static async #onPreviousPhase(event, target) {
-		if (this.viewed) await this.viewed.previousPhase();
+		const combat = this.viewed;
+		if (!combat) return;
+
+		let currentPhase = combat.getFlag("usr", "phase");
+		if (currentPhase === undefined) currentPhase = 1;
+
+		if (currentPhase === 3) {
+			if (combat.turn === 0 || combat.turn === null) {
+				await combat.update({ "flags.usr.phase": 2, turn: null });
+			} else {
+				await combat.previousTurn();
+			}
+			return;
+		}
+
+		await combat.previousPhase();
 	}
 
 	/**
@@ -399,47 +380,6 @@ export class usrCombatTracker
 		const current = combatant.getFlag("usr", "position") ?? 4;
 		if (current > 0) {
 			await combatant.setFlag("usr", "position", current - 1);
-		}
-	}
-
-	/**
-	 * Resolve all initiatives and compare against targets.
-	 * @param {Combat} combat
-	 */
-	static async #resolveAllInitiatives(combat) {
-		const updates = [];
-		for (const combatant of combat.combatants) {
-			const action = combatant.getFlag("usr", "action");
-			if (!action) continue;
-
-			let status = null;
-			if (action.targetId && !action.targetId.startsWith("custom:")) {
-				const target = combat.combatants.get(action.targetId);
-				if (target) {
-					const attackerSuccesses = combatant.initiative || 0;
-					const targetSuccesses = target.initiative || 0;
-
-					status = "failed";
-					if (attackerSuccesses === 0) status = "failed";
-					else if (attackerSuccesses > targetSuccesses) status = "win";
-					else if (attackerSuccesses === targetSuccesses) status = "tie";
-					else status = "loss";
-				}
-			} else if (action.stance === "defensive") {
-				status = "defensive";
-			}
-
-			if (status) {
-				updates.push({
-					_id: combatant.id,
-					"flags.usr.action.status": status,
-				});
-			}
-			// Custom targets or no targets are handled manually by the GM or remain null
-		}
-
-		if (updates.length) {
-			await combat.updateEmbeddedDocuments("Combatant", updates);
 		}
 	}
 }

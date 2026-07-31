@@ -90,6 +90,44 @@ export class usrCombat extends Combat {
 			return this.update({ "flags.usr.phase": nextPhase, turn: null });
 		}
 
+		// If moving to Phase 3, resolve all initiatives and compare against targets
+		if (nextPhase === 3) {
+			const updates = [];
+			for (const combatant of this.combatants) {
+				const action = combatant.getFlag("usr", "action");
+				if (!action) continue;
+
+				let status = null;
+				if (action.targetId && !action.targetId.startsWith("custom:")) {
+					const target = this.combatants.get(action.targetId);
+					if (target) {
+						const attackerSuccesses = combatant.initiative || 0;
+						const targetSuccesses = target.initiative || 0;
+
+						status = "failed";
+						if (attackerSuccesses === 0) status = "failed";
+						else if (attackerSuccesses > targetSuccesses) status = "win";
+						else if (attackerSuccesses === targetSuccesses) status = "tie";
+						else status = "loss";
+					}
+				} else if (action.stance === "defensive") {
+					status = "defensive";
+				}
+
+				if (status) {
+					updates.push({
+						_id: combatant.id,
+						"flags.usr.action.status": status,
+					});
+				}
+			}
+
+			if (updates.length) {
+				await this.updateEmbeddedDocuments("Combatant", updates);
+			}
+			return this.update({ "flags.usr.phase": nextPhase, turn: null });
+		}
+
 		return this.update({ "flags.usr.phase": nextPhase });
 	}
 

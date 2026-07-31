@@ -480,12 +480,116 @@ Hooks.on("refreshToken", (token) => {
 });
 
 /**
- * Refresh token when combatant position changes.
+ * Handle combatant updates:
+ * 1. Refresh token when combatant position changes.
+ * 2. Automatic phase transitions (Phase 1 -> Phase 2 and Phase 2 -> Phase 3).
  */
-Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
+Hooks.on("updateCombatant", async (combatant, changed, options, userId) => {
 	if (foundry.utils.hasProperty(changed, "flags.usr.position")) {
 		const token = combatant.token?.object;
 		if (token) token.renderFlags.set({ refreshState: true });
+	}
+
+	// Automatic transitions
+	const combat = combatant.parent;
+	if (!combat || !combat.active) return;
+
+	// Only active GM should perform the automatic transitions
+	const activeGM = game.users.activeGM;
+	if (!activeGM || game.user.id !== activeGM.id) return;
+
+	const phase = combat.getFlag("usr", "phase") || 1;
+
+	// Phase 1 -> Phase 2 transition when all non-defeated combatants have defined their actions
+	if (phase === 1 && foundry.utils.hasProperty(changed, "flags.usr.action")) {
+		const activeCombatants = combat.combatants.filter((c) => !c.isDefeated);
+		if (activeCombatants.length > 0) {
+			const allDefined = activeCombatants.every((c) => {
+				const action = c.getFlag("usr", "action");
+				return !!action?.stance;
+			});
+			if (allDefined) {
+				await combat.nextPhase();
+			}
+		}
+	}
+
+	// Phase 2 -> Phase 3 transition when all non-defeated combatants have rolled initiative
+	if (phase === 2 && "initiative" in changed) {
+		const activeCombatants = combat.combatants.filter((c) => !c.isDefeated);
+		if (activeCombatants.length > 0) {
+			const allRolled = activeCombatants.every((c) => c.initiative !== null);
+			if (allRolled) {
+				await combat.nextPhase();
+			}
+		}
+	}
+});
+
+/**
+ * Handle turn changes in combat (Phase 3 only):
+ * 1. Mark the previous combatant as acted (for GM only).
+ * 2. Select, target, and pan to the active combatant's token (for GM & owner).
+ */
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+	if (!combat.active) return;
+
+	const phase = combat.getFlag("usr", "phase");
+	if (phase !== 3) return;
+
+	// Only trigger if turn index has changed
+	if (!("turn" in changed)) return;
+
+	const currentTurn = changed.turn;
+	const activeGM = game.users.activeGM;
+
+	// 1. Mark previous active combatant as acted (GM only)
+	if (activeGM && game.user.id === activeGM.id) {
+		const priorTurn = combat.previous?.turn ?? null;
+		if (
+			priorTurn !== null &&
+			priorTurn !== undefined &&
+			priorTurn !== currentTurn
+		) {
+			const priorCombatant = combat.turns[priorTurn];
+			if (priorCombatant && !priorCombatant.getFlag("usr", "action.acted")) {
+				await priorCombatant.setFlag("usr", "action.acted", true);
+			}
+		}
+	}
+
+	// 2. Select and pan to the new active combatant's token
+	if (currentTurn === null || currentTurn === undefined) return;
+	const combatant = combat.turns[currentTurn];
+	if (!combatant) return;
+
+	// Only proceed if the current user is the owner of the combatant or a GM
+	if (!combatant.isOwner && !game.user.isGM) return;
+
+	const token = combatant.token?.object;
+	if (token && token.isVisible && token.control) {
+		token.control({ releaseOthers: true });
+		if (canvas.ready) {
+			canvas.animatePan({
+				x: token.center.x,
+				y: token.center.y,
+				duration: 250,
+			});
+		}
+	}
+
+	// Handle targeting
+	const action = combatant.getFlag("usr", "action");
+	if (action?.targetId && !action.targetId.startsWith("custom:")) {
+		const targetCombatant = combat.combatants.get(action.targetId);
+		const targetToken = targetCombatant?.token?.object;
+		if (targetToken && targetToken.isVisible) {
+			targetToken.setTarget(true, { releaseOthers: true });
+		} else {
+			canvas.tokens.setTargets([]);
+		}
+	} else {
+		canvas.tokens.setTargets([]);
 	}
 });
 
