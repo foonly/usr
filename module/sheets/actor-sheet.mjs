@@ -260,16 +260,16 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				};
 			} else if (item.type === "armor") {
 				const bonus = item.system.deflectBonus ?? 0;
-				const dieValue =
-					{
-						none: 0,
-						d4: 4,
-						d6: 6,
-						d8: 8,
-					}[item.system.deflectDie] ?? 0;
-				item.system.minDeflection =
-					bonus + (item.system.deflectDie === "none" ? 0 : 2);
-				item.system.maxDeflection = bonus + 2 * dieValue;
+				if (item.system.deflectDie === "none") {
+					item.system.deflection = bonus;
+					item.system.deflectionText = bonus;
+				} else {
+					const dieValue = usr.deflectDieMaxValues[item.system.deflectDie] ?? 0;
+					const minDeflection = bonus + 2;
+					const maxDeflection = bonus + 2 * dieValue;
+					item.system.deflection = bonus + 1 + dieValue;
+					item.system.deflectionText = `${item.system.deflection} (${minDeflection} - ${maxDeflection})`;
+				}
 				armor.push(item);
 				if (item.system.equipped) equippedArmor.push(item);
 			}

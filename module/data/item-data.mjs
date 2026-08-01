@@ -1,3 +1,5 @@
+import { usr } from "../helpers/config.mjs";
+
 const fields = foundry.data.fields;
 
 /**
@@ -127,13 +129,7 @@ export class ArmorData extends BaseItemData {
 
 	/** @override */
 	get maxDeflection() {
-		const dieValue =
-			{
-				none: 0,
-				d4: 4,
-				d6: 6,
-				d8: 8,
-			}[this.deflectDie] ?? 0;
+		const dieValue = usr.deflectDieMaxValues[this.deflectDie] ?? 0;
 		const bonus = this.deflectBonus ?? 0;
 		return bonus + 2 * dieValue;
 	}
@@ -150,7 +146,7 @@ export class ArmorData extends BaseItemData {
 			impact: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
 			deflectDie: new fields.StringField({
 				initial: "none",
-				choices: ["none", "d4", "d6", "d8"],
+				choices: Object.keys(usr.deflectDice),
 			}),
 			deflectBonus: new fields.NumberField({
 				initial: 0,

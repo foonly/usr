@@ -554,7 +554,7 @@ export async function rollDamage(
 				let maxDie = "none";
 				let maxBonus = 0;
 
-				const dieWeight = { none: 0, d4: 1, d6: 2, d8: 3 };
+				const dieWeight = usr.deflectDieWeights;
 
 				equippedArmors.forEach((armor) => {
 					const die = armor.system.deflectDie ?? "none";

@@ -59,9 +59,26 @@ usr.lethalityTypes = {
 
 usr.deflectDice = {
 	none: "USR.None",
+	d2: "d2",
 	d4: "d4",
 	d6: "d6",
 	d8: "d8",
+};
+
+usr.deflectDieWeights = {
+	none: 0,
+	d2: 1,
+	d4: 2,
+	d6: 3,
+	d8: 4,
+};
+
+usr.deflectDieMaxValues = {
+	none: 0,
+	d2: 2,
+	d4: 4,
+	d6: 6,
+	d8: 8,
 };
 
 usr.specializations = {
