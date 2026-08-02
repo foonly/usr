@@ -59,12 +59,7 @@
 			</td>
 			<td class="item-name">
 				<div class="item-image">
-					<img
-						src="{{item.img}}"
-						title="{{item.name}}"
-						width="24"
-						height="24"
-					/>
+					<img src="{{item.img}}" title="{{item.name}}" />
 				</div>
 				<span class="name">{{item.name}}</span>
 			</td>
@@ -126,12 +121,7 @@
 			</td>
 			<td class="item-name">
 				<div class="item-image">
-					<img
-						src="{{item.img}}"
-						title="{{item.name}}"
-						width="24"
-						height="24"
-					/>
+					<img src="{{item.img}}" title="{{item.name}}" />
 				</div>
 				<span class="name">{{item.name}}</span>
 			</td>
@@ -170,10 +160,9 @@
 		<tr>
 			<th class="col-eq">Eq</th>
 			<th class="col-name">{{localize "USR.Item"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Weight"}}</th>
 			<th class="col-stat text-center">{{localize "USR.Cover"}}</th>
 			<th class="col-stat text-center">{{localize "USR.Impact"}}</th>
-			<th class="col-stat text-center">{{localize "USR.DeflectDie"}}</th>
-			<th class="col-stat text-center">{{localize "USR.DeflectBonus"}}</th>
 			<th class="col-stat text-center">{{localize "USR.Deflection"}}</th>
 			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
@@ -197,12 +186,7 @@
 			</td>
 			<td class="item-name">
 				<div class="item-image">
-					<img
-						src="{{item.img}}"
-						title="{{item.name}}"
-						width="24"
-						height="24"
-					/>
+					<img src="{{item.img}}" title="{{item.name}}" />
 				</div>
 				<div class="item-name-wrapper">
 					<span class="name">{{item.name}}</span>
@@ -227,10 +211,9 @@
 					{{/if}}
 				</div>
 			</td>
+			<td class="text-center">{{item.system.calcWeight}}</td>
 			<td class="text-center">{{item.system.cover}}</td>
 			<td class="text-center">{{item.system.impact}}</td>
-			<td class="text-center">{{item.system.deflectDie}}</td>
-			<td class="text-center">{{item.system.deflectBonus}}</td>
 			<td class="text-center font-weight-bold">
 				{{item.system.deflectionText}}
 			</td>
@@ -276,12 +259,7 @@
 		<tr class="item draggable" data-item-id="{{item._id}}">
 			<td class="item-name">
 				<div class="item-image">
-					<img
-						src="{{item.img}}"
-						title="{{item.name}}"
-						width="24"
-						height="24"
-					/>
+					<img src="{{item.img}}" title="{{item.name}}" />
 				</div>
 				<span class="name">{{item.name}}</span>
 			</td>

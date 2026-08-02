@@ -236,6 +236,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 
 		for (const item of context.items) {
 			item.img ||= CONST.DEFAULT_TOKEN;
+			item.system.calcWeight = Math.round(
+				item.system.weight * CONFIG.usr.weightFactor,
+			);
+
 			if (item.type === "item") {
 				gear.push(item);
 			} else if (item.type === "melee") {
@@ -265,10 +269,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 					item.system.deflectionText = bonus;
 				} else {
 					const dieValue = usr.deflectDieMaxValues[item.system.deflectDie] ?? 0;
-					const minDeflection = bonus + 2;
-					const maxDeflection = bonus + 2 * dieValue;
+					const deviation = dieValue - 1;
 					item.system.deflection = bonus + 1 + dieValue;
-					item.system.deflectionText = `${item.system.deflection} (${minDeflection} - ${maxDeflection})`;
+					item.system.deflectionText = `${item.system.deflection} ±${deviation}`;
 				}
 				armor.push(item);
 				if (item.system.equipped) equippedArmor.push(item);
