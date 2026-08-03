@@ -1,6 +1,19 @@
 # Changelog
 
-## 1.6.0 (2026-07-30)
+## 1.7.0 (2026-08-03)
+
+#### Features
+
+- sheet: update item display and weight calculation (ef272b3)
+- sheet: update item display and armor calculations (cae772b)
+- data: calculate and display armor deflection range (d01cff1)
+- combat: automate phase transitions and turn handling (6deb73e)
+
+#### Refactor
+
+- config: update deflect dice logic and add d2 support (80292f2)
+
+## v1.6.0 (2026-07-30)
 
 #### Features
 
