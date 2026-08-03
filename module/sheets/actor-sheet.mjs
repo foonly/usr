@@ -86,9 +86,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		actorData.system.armorCoverage = this.actor.system.armorCoverage;
 		actorData.system.encumbrance = this.actor.system.encumbrance;
 		actorData.system.equipped = {
-			weight: Math.round(
-				this.actor.system.equippedWeight * CONFIG.usr.weightFactor,
-			),
+			weight:
+				Math.round(
+					2 * this.actor.system.equippedWeight * CONFIG.usr.weightFactor,
+				) / 2,
 			unit: CONFIG.usr.weightUnit || "lbs",
 		};
 
@@ -236,16 +237,29 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 
 		for (const item of context.items) {
 			item.img ||= CONST.DEFAULT_TOKEN;
-			item.system.calcWeight = Math.round(
-				item.system.weight * CONFIG.usr.weightFactor,
-			);
+			item.system.calcWeight =
+				Math.round(2 * item.system.weight * CONFIG.usr.weightFactor) / 2;
 
 			if (item.type === "item") {
 				gear.push(item);
 			} else if (item.type === "melee") {
+				const specKey = item.system.specialization;
+				const specConfig = usr.specializations.melee[specKey];
+				item.system.specializationLabel = specConfig
+					? game.i18n.localize(specConfig)
+					: specKey;
 				melee.push(item);
 				if (item.system.equipped) equippedMelee.push(item);
 			} else if (item.type === "ranged") {
+				const specKey = item.system.specialization;
+				const specConfig = usr.specializations.ranged[specKey];
+				item.system.specializationLabel = specConfig
+					? game.i18n.localize(specConfig)
+					: specKey;
+				item.system.damageText = `${item.system.damage + 1}+`;
+				if (item.system.penetration > 0) {
+					item.system.damageText += ` (${item.system.penetration + item.system.damage + 1}+)`;
+				}
 				ranged.push(item);
 				if (item.system.equipped) equippedRanged.push(item);
 				// Prepare range tables for combat cards

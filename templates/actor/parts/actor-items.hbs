@@ -63,7 +63,7 @@
 				</div>
 				<span class="name">{{item.name}}</span>
 			</td>
-			<td class="item-type text-center">{{item.system.specialization}}</td>
+			<td class="item-type text-center">{{item.system.specializationLabel}}</td>
 			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
@@ -97,8 +97,10 @@
 		<tr>
 			<th class="col-eq">Eq</th>
 			<th class="col-name">{{localize "USR.Item"}}</th>
-			<th class="col-type">{{localize "USR.Type"}}</th>
+			<th class="col-stat text-center">{{localize "USR.Weight"}}</th>
 			<th class="col-ammo text-center">{{localize "USR.Ammo"}}</th>
+			<th class="col-type text-center">{{localize "USR.Damage"}}</th>
+			<th class="col-type text-center">{{localize "USR.Type"}}</th>
 			<th class="col-actions text-right">{{localize "USR.Actions"}}</th>
 		</tr>
 	</thead>
@@ -125,8 +127,12 @@
 				</div>
 				<span class="name">{{item.name}}</span>
 			</td>
-			<td class="item-type text-center">{{item.system.specialization}}</td>
+			<td class="text-center">
+				{{item.system.calcWeight}} {{../config.weightUnit}}
+			</td>
 			<td class="item-ammo text-center">{{item.system.ammo}}</td>
+			<td class="item-damage text-center">{{item.system.damageText}}</td>
+			<td class="item-type text-center">{{item.system.specializationLabel}}</td>
 			<td class="item-controls text-right">
 				<a
 					class="item-control item-edit"
@@ -211,7 +217,9 @@
 					{{/if}}
 				</div>
 			</td>
-			<td class="text-center">{{item.system.calcWeight}}</td>
+			<td class="text-center">
+				{{item.system.calcWeight}} {{../config.weightUnit}}
+			</td>
 			<td class="text-center">{{item.system.cover}}</td>
 			<td class="text-center">{{item.system.impact}}</td>
 			<td class="text-center font-weight-bold">
