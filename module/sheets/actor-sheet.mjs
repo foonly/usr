@@ -93,6 +93,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			unit: CONFIG.usr.weightUnit || "lbs",
 		};
 
+		const showEmptySpecs = !!this.actor.getFlag("usr", "showEmptySpecs");
+		context.showEmptySpecs = showEmptySpecs;
+
 		// Handle all traits localization and unification
 		context.allTraits = [];
 
@@ -111,15 +114,42 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			};
 			trait.starLevel = getStarLevel(trait.roll);
 
-			if (trait.spec) {
-				const specConfig = usr.specializations[key];
-				trait.spec.forEach((spec) => {
-					spec.localizedTitle = specConfig?.[spec.title]
-						? game.i18n.localize(specConfig[spec.title])
-						: spec.title;
-					spec.isLegacy = specConfig && !specConfig[spec.title];
-					spec.starLevel = getStarLevel(spec.roll);
-				});
+			if (trait.hasSpec) {
+				const specConfig = usr.specializations[key] || {};
+				const processedSpecs = [];
+				const existingSpecs = new Map();
+
+				if (Array.isArray(trait.spec)) {
+					trait.spec.forEach((spec) => {
+						spec.localizedTitle = specConfig[spec.title]
+							? game.i18n.localize(specConfig[spec.title])
+							: spec.title;
+						spec.isLegacy = specConfig && !specConfig[spec.title];
+						spec.starLevel = getStarLevel(spec.roll);
+						existingSpecs.set(spec.title, spec);
+						processedSpecs.push(spec);
+					});
+				}
+
+				if (showEmptySpecs) {
+					for (const [slug, labelKey] of Object.entries(specConfig)) {
+						if (!existingSpecs.has(slug)) {
+							processedSpecs.push({
+								title: slug,
+								localizedTitle: game.i18n.localize(labelKey),
+								value: 0,
+								modifier: 0,
+								roll: 0,
+								xp: 0,
+								isLegacy: false,
+								starLevel: 0,
+							});
+						}
+					}
+				}
+				trait.spec = processedSpecs;
+			} else {
+				trait.spec = [];
 			}
 			return trait;
 		};
@@ -514,6 +544,17 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		});
 
 		on(".effect-control", (event) => onManageActiveEffect(event, this.actor));
+
+		const toggleEmptySpecs = html.querySelector(".toggle-empty-specs");
+		if (toggleEmptySpecs) {
+			toggleEmptySpecs.addEventListener("change", async (event) => {
+				await this.actor.setFlag(
+					"usr",
+					"showEmptySpecs",
+					event.currentTarget.checked,
+				);
+			});
+		}
 	}
 
 	/**

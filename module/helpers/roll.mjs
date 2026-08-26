@@ -461,8 +461,10 @@ export async function usrRoll(data) {
 			}
 			if (!trait) return { roll, result };
 			if (data.spec && Array.isArray(trait.spec)) {
+				let specFound = false;
 				trait.spec.forEach((spec) => {
 					if (data.spec === spec.title) {
+						specFound = true;
 						const specValue = Number.isFinite(spec.value) ? spec.value : 0;
 						const specRoll = Number.isFinite(spec.roll) ? spec.roll : 0;
 						if (specValue < (CONFIG.usr.traitMax || 7)) {
@@ -474,6 +476,22 @@ export async function usrRoll(data) {
 						}
 					}
 				});
+				if (!specFound) {
+					const specConfig = CONFIG.usr.specializations[data.trait];
+					if (specConfig && specConfig[data.spec]) {
+						let increment = 1;
+						if (data.difficulty === 4) increment = 2;
+						else if (data.difficulty <= 3) increment = 3;
+						trait.spec.push({
+							title: data.spec,
+							value: 1,
+							modifier: 0,
+							roll: increment,
+							xp: 0,
+						});
+						awarded = true;
+					}
+				}
 			}
 			if (!awarded) {
 				const traitValue = Number.isFinite(trait.value) ? trait.value : 0;

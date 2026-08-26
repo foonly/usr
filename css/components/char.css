@@ -142,6 +142,32 @@
 		}
 	}
 
+	.traits-controls {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		margin-bottom: 0.5rem;
+		font-size: var(--usr-font-size-small);
+
+		.toggle-control {
+			display: flex;
+			align-items: center;
+			gap: 0.3rem;
+			cursor: pointer;
+			user-select: none;
+			color: var(--usr-text-muted);
+
+			input[type="checkbox"] {
+				margin: 0;
+				cursor: pointer;
+			}
+
+			&:hover {
+				color: var(--usr-text-strong);
+			}
+		}
+	}
+
 	.traits-table {
 		.trait-label {
 			white-space: nowrap;

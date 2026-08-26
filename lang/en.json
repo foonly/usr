@@ -172,6 +172,7 @@
 	"USR.Normal": "Normal",
 	"USR.Aimed": "Aimed",
 	"USR.Specialization": "Specialization",
+	"USR.ShowEmptySpecializations": "Show Empty Specializations",
 	"USR.WeaponType": "Weapon Type",
 	"USR.Type": "Type",
 	"USR.Actions": "Actions",
