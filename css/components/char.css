@@ -146,7 +146,6 @@
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
-		margin-bottom: 0.5rem;
 		font-size: var(--usr-font-size-small);
 
 		.toggle-control {
