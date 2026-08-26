@@ -1,6 +1,16 @@
 # Changelog
 
-## 1.7.0 (2026-08-03)
+## 1.8.0 (2026-08-26)
+
+#### Features
+
+- actor: add toggle for empty specializations (26c5c00)
+
+#### Styles
+
+- actor: improve layout of specialization toggle (c4f894c)
+
+## v1.7.0 (2026-08-03)
 
 #### Features
 
