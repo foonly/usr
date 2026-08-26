@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.8.0 (2026-08-26)
+### 1.8.1 (2026-08-26)
+
+#### Styles
+
+- actor: improve trait table layout and responsiveness (b8440cc)
+
+## v1.8.0 (2026-08-26)
 
 #### Features
 
