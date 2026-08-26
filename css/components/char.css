@@ -168,6 +168,32 @@
 	}
 
 	.traits-table {
+		th,
+		td {
+			&.trait-label {
+				width: 100%;
+				text-align: left;
+			}
+
+			&.trait-value {
+				width: 1%;
+				white-space: nowrap;
+				text-align: center;
+			}
+
+			&.trait-xp {
+				width: 1%;
+				white-space: nowrap;
+				text-align: center;
+			}
+
+			&.trait-roll {
+				width: 1%;
+				white-space: nowrap;
+				text-align: right;
+			}
+		}
+
 		.trait-label {
 			white-space: nowrap;
 		}
@@ -209,11 +235,15 @@
 
 		.trait-roll {
 			min-width: 140px;
-			display: flex;
-			flex-wrap: nowrap;
-			justify-content: flex-end;
-			gap: 2px;
 			white-space: nowrap;
+
+			.roll-buttons {
+				display: inline-flex;
+				flex-wrap: nowrap;
+				justify-content: flex-end;
+				gap: 2px;
+				vertical-align: middle;
+			}
 
 			button {
 				flex: 0 0 24px;

@@ -20,37 +20,39 @@
 		<a class="roll-xp" data-trait="{{key}}">{{trait.xp}}/5</a>
 	</td>
 	<td class="trait-roll">
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="4"
-			data-trait="{{key}}"
-			data-label="{{trait.localizedLabel}}"
-		>
-			4
-		</button>
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="3"
-			data-trait="{{key}}"
-			data-label="{{trait.localizedLabel}}"
-		>
-			3
-		</button>
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="2"
-			data-trait="{{key}}"
-			data-label="{{trait.localizedLabel}}"
-		>
-			2
-		</button>
-		<button
-			class="roll-dialog roll die d10"
-			data-trait="{{key}}"
-			data-label="{{trait.localizedLabel}}"
-		>
-			?
-		</button>
+		<div class="roll-buttons">
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="4"
+				data-trait="{{key}}"
+				data-label="{{trait.localizedLabel}}"
+			>
+				4
+			</button>
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="3"
+				data-trait="{{key}}"
+				data-label="{{trait.localizedLabel}}"
+			>
+				3
+			</button>
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="2"
+				data-trait="{{key}}"
+				data-label="{{trait.localizedLabel}}"
+			>
+				2
+			</button>
+			<button
+				class="roll-dialog roll die d10"
+				data-trait="{{key}}"
+				data-label="{{trait.localizedLabel}}"
+			>
+				?
+			</button>
+		</div>
 	</td>
 </tr>
 {{#each trait.spec }}
@@ -74,41 +76,43 @@
 		>
 	</td>
 	<td class="trait-roll">
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="4"
-			data-trait="{{ ../key }}"
-			data-spec="{{title}}"
-			data-label="{{ localizedTitle }}"
-		>
-			4
-		</button>
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="3"
-			data-trait="{{ ../key }}"
-			data-spec="{{title}}"
-			data-label="{{ localizedTitle }}"
-		>
-			3
-		</button>
-		<button
-			class="rollable roll die d10"
-			data-roll-usr="2"
-			data-trait="{{ ../key }}"
-			data-spec="{{title}}"
-			data-label="{{ localizedTitle }}"
-		>
-			2
-		</button>
-		<button
-			class="roll-dialog roll die d10"
-			data-trait="{{ ../key }}"
-			data-spec="{{title}}"
-			data-label="{{ localizedTitle }}"
-		>
-			?
-		</button>
+		<div class="roll-buttons">
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="4"
+				data-trait="{{ ../key }}"
+				data-spec="{{title}}"
+				data-label="{{ localizedTitle }}"
+			>
+				4
+			</button>
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="3"
+				data-trait="{{ ../key }}"
+				data-spec="{{title}}"
+				data-label="{{ localizedTitle }}"
+			>
+				3
+			</button>
+			<button
+				class="rollable roll die d10"
+				data-roll-usr="2"
+				data-trait="{{ ../key }}"
+				data-spec="{{title}}"
+				data-label="{{ localizedTitle }}"
+			>
+				2
+			</button>
+			<button
+				class="roll-dialog roll die d10"
+				data-trait="{{ ../key }}"
+				data-spec="{{title}}"
+				data-label="{{ localizedTitle }}"
+			>
+				?
+			</button>
+		</div>
 	</td>
 </tr>
 {{/each}}
