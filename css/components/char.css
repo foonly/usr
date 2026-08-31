@@ -72,7 +72,7 @@
 		.header-fields {
 			display: grid;
 			grid-gap: 8px;
-			grid-template-columns: auto 72px 100px;
+			grid-template-columns: auto 72px 115px;
 
 			.charname {
 				grid-column: 1 / span 2;
@@ -81,6 +81,55 @@
 			.modifiers {
 				grid-column: 3;
 				grid-row: 1 / span 2;
+
+				.card-divider {
+					margin: 0.4rem 0;
+					border: none;
+					border-top: 1px dashed var(--usr-border);
+					opacity: 0.5;
+				}
+
+				.custom-mod-controls {
+					display: flex;
+					flex-direction: column;
+					gap: 0.3rem;
+					margin-top: 0.2rem;
+
+					.custom-mod-select {
+						width: 100%;
+						padding: 2px 4px;
+						font-size: var(--usr-font-size-small);
+						background: var(--usr-surface-3);
+						color: var(--usr-text-strong);
+						border: 1px solid var(--usr-border);
+						border-radius: 4px;
+						font-family: inherit;
+						height: auto;
+					}
+
+					.custom-mod-checkbox-label {
+						display: flex;
+						align-items: center;
+						gap: 0.3rem;
+						cursor: pointer;
+						font-size: 10px;
+						color: var(--usr-text-muted);
+						text-transform: uppercase;
+						font-weight: 700;
+						user-select: none;
+
+						input[type="checkbox"] {
+							margin: 0;
+							cursor: pointer;
+							width: 16px;
+							height: 16px;
+						}
+
+						&:hover {
+							color: var(--usr-text-strong);
+						}
+					}
+				}
 			}
 
 			.xp,

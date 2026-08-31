@@ -19,7 +19,7 @@
 				placeholder="Name"
 			/>
 		</h1>
-		<div class="meta-card readonly modifiers">
+		<div class="meta-card modifiers">
 			<span class="meta-label">Modifier</span>
 			<span class="meta-value">{{system.damage.modifierText}}</span>
 			<span class="meta-label">Mobility</span>
@@ -31,6 +31,29 @@
 			<span class="meta-value">
 				{{system.equipped.weight}} {{system.equipped.unit}}
 			</span>
+			<hr class="card-divider" />
+			<span class="meta-label">Custom Mod</span>
+			<div class="custom-mod-controls">
+				<select
+					name="flags.usr.customModifier"
+					class="custom-mod-select"
+					data-dtype="Number"
+				>
+					{{selectOptions customModOptions selected=customModifier}}
+				</select>
+				<label
+					class="custom-mod-checkbox-label"
+					title="Keep modifier continuous across rolls"
+				>
+					<input
+						type="checkbox"
+						name="flags.usr.customModifierContinuous"
+						{{checked
+						customModifierContinuous}}
+					/>
+					<span>Continuous</span>
+				</label>
+			</div>
 		</div>
 	</div>
 </header>

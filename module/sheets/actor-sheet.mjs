@@ -200,6 +200,21 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			};
 		});
 
+		const customModifier = this.actor.getFlag("usr", "customModifier") ?? 0;
+		const customModifierContinuous = !!this.actor.getFlag(
+			"usr",
+			"customModifierContinuous",
+		);
+		const customModOptions = {
+			2: "+2",
+			1: "+1",
+			0: "None",
+			"-1": "-1",
+			"-2": "-2",
+			"-3": "-3",
+			"-4": "-4",
+		};
+
 		Object.assign(context, {
 			actor: actorData,
 			items,
@@ -211,6 +226,9 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			effects: prepareActiveEffectCategories(this.actor.effects),
 			documentUUID: this.actor.uuid,
 			enrichedBiography,
+			customModifier,
+			customModifierContinuous,
+			customModOptions,
 		});
 
 		if (actorData.type === "character") {
@@ -381,15 +399,6 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			const element = event.currentTarget;
 			const item = this.actor.items.get(element.dataset.itemId);
 			item?.sheet.render({ force: true });
-		});
-
-		on(".roll-dialog", (event) => {
-			const element = event.currentTarget;
-			makeRoll({
-				label: element.dataset.label,
-				skill: element.dataset.rollUsr,
-				actor: this.actor,
-			});
 		});
 
 		on(".edit-asset", (event) => {

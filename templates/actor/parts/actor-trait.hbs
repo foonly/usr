@@ -23,6 +23,14 @@
 		<div class="roll-buttons">
 			<button
 				class="rollable roll die d10"
+				data-roll-usr="5"
+				data-trait="{{key}}"
+				data-label="{{trait.localizedLabel}}"
+			>
+				5
+			</button>
+			<button
+				class="rollable roll die d10"
 				data-roll-usr="4"
 				data-trait="{{key}}"
 				data-label="{{trait.localizedLabel}}"
@@ -46,11 +54,12 @@
 				2
 			</button>
 			<button
-				class="roll-dialog roll die d10"
+				class="rollable roll die d10"
+				data-roll-usr="1"
 				data-trait="{{key}}"
 				data-label="{{trait.localizedLabel}}"
 			>
-				?
+				1
 			</button>
 		</div>
 	</td>
@@ -79,6 +88,15 @@
 		<div class="roll-buttons">
 			<button
 				class="rollable roll die d10"
+				data-roll-usr="5"
+				data-trait="{{ ../key }}"
+				data-spec="{{title}}"
+				data-label="{{ localizedTitle }}"
+			>
+				5
+			</button>
+			<button
+				class="rollable roll die d10"
 				data-roll-usr="4"
 				data-trait="{{ ../key }}"
 				data-spec="{{title}}"
@@ -105,12 +123,13 @@
 				2
 			</button>
 			<button
-				class="roll-dialog roll die d10"
+				class="rollable roll die d10"
+				data-roll-usr="1"
 				data-trait="{{ ../key }}"
 				data-spec="{{title}}"
 				data-label="{{ localizedTitle }}"
 			>
-				?
+				1
 			</button>
 		</div>
 	</td>

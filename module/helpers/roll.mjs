@@ -124,21 +124,24 @@ export async function usrRoll(data) {
 		return { roll: null, result };
 	}
 
-	// Combine unified general modifier with mobility modifier if rolling mobility
-	let totalPenalty = damageMod;
+	// Combine unified general modifier with mobility modifier if rolling mobility, and add custom modifier
+	const customMod = data.actor?.getFlag("usr", "customModifier") ?? 0;
+	let totalPenalty = damageMod + customMod;
 	if (data.actor?.system?.encumbrance && data.trait === "mobility") {
 		totalPenalty += data.actor.system.encumbrance.mobility ?? 0;
 	}
 
 	// Apply combined penalty to difficulty (number of dice)
 	const originalDifficulty = data.difficulty;
-	if (totalPenalty < 0) {
+	if (totalPenalty !== 0) {
 		const diffSequence = [6, 5, 4, 3, 2, 1, -2, -3, -4, -5, -6, -7];
 		let currentIndex = diffSequence.indexOf(originalDifficulty);
 		if (currentIndex === -1) currentIndex = 2; // Default to Normal (Index 2)
 
-		const penalty = Math.abs(totalPenalty);
-		const newIndex = Math.min(diffSequence.length - 1, currentIndex + penalty);
+		const newIndex = Math.max(
+			0,
+			Math.min(diffSequence.length - 1, currentIndex - totalPenalty),
+		);
 		data.difficulty = diffSequence[newIndex];
 	}
 
@@ -209,8 +212,9 @@ export async function usrRoll(data) {
 		}
 	}
 
-	if (result.damageModifier < 0) {
-		result.formula = `Difficulty: ${result.difficulty} (${result.originalDifficulty}${result.damageModifier}) / Skill: ${result.skill}`;
+	if (result.damageModifier !== 0) {
+		const modSign = result.damageModifier > 0 ? "+" : "";
+		result.formula = `Difficulty: ${result.difficulty} (${result.originalDifficulty}${modSign}${result.damageModifier}) / Skill: ${result.skill}`;
 	} else {
 		result.formula = `Difficulty: ${result.difficulty} / Skill: ${result.skill}`;
 	}
@@ -506,6 +510,17 @@ export async function usrRoll(data) {
 		}
 		const updateKey = isCore ? "system.traits" : "system.skillTraits";
 		await data.actor.update({ [updateKey]: updatedTraits });
+	}
+
+	// Reset custom modifier if it's not continuous
+	if (data.actor) {
+		const continuous = !!data.actor.getFlag("usr", "customModifierContinuous");
+		if (!continuous) {
+			const currentMod = data.actor.getFlag("usr", "customModifier") ?? 0;
+			if (currentMod !== 0) {
+				await data.actor.setFlag("usr", "customModifier", 0);
+			}
+		}
 	}
 
 	return { roll, result };
