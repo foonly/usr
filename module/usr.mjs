@@ -12,7 +12,7 @@ import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
-import { usrRoll, rollDamage } from "./helpers/roll.mjs";
+import { usrRoll, rollDamage, handleReroll } from "./helpers/roll.mjs";
 import { migrateWorld } from "./helpers/migration.mjs";
 
 /* -------------------------------------------- */
@@ -142,6 +142,40 @@ Hooks.once("ready", async function () {
 /* -------------------------------------------- */
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+	// Handle reroll buttons for trait/specialization rolls
+	const rollData = message.getFlag("usr", "rollData");
+	if (rollData) {
+		const actor = game.actors.get(rollData.actorId);
+		const rerollButtons = html.querySelector(".reroll-buttons");
+
+		if (rerollButtons) {
+			if (rollData.rerolled || !actor || (!actor.isOwner && !game.user.isGM)) {
+				rerollButtons.remove();
+			} else {
+				const whiteBtn = rerollButtons.querySelector(".white-reroll");
+				if (whiteBtn) {
+					whiteBtn.addEventListener("click", async (event) => {
+						event.preventDefault();
+						rerollButtons
+							.querySelectorAll("button")
+							.forEach((btn) => (btn.disabled = true));
+						await handleReroll(message, actor, rollData, "white");
+					});
+				}
+				const greenBtn = rerollButtons.querySelector(".green-reroll");
+				if (greenBtn) {
+					greenBtn.addEventListener("click", async (event) => {
+						event.preventDefault();
+						rerollButtons
+							.querySelectorAll("button")
+							.forEach((btn) => (btn.disabled = true));
+						await handleReroll(message, actor, rollData, "green");
+					});
+				}
+			}
+		}
+	}
+
 	const interaction = html.querySelector(".combat-interaction");
 	if (!interaction) return;
 

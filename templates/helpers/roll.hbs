@@ -15,6 +15,27 @@
 						</li>
 						{{/each}}
 					</ol>
+					{{#if hasRerollChips}}
+					<div class="reroll-buttons">
+						{{#if hasWhiteChip}}
+						<button
+							class="reroll-btn white-reroll"
+							data-chip="white"
+							title="Reroll using a White Fate Chip"
+						>
+							<i class="fas fa-redo"></i> Reroll
+						</button>
+						{{/if}} {{#if hasGreenChip}}
+						<button
+							class="reroll-btn green-reroll"
+							data-chip="green"
+							title="Reroll +1 die using a Green Fate Chip (Max 1 Success)"
+						>
+							<i class="fas fa-redo"></i> Reroll +1
+						</button>
+						{{/if}}
+					</div>
+					{{/if}}
 				</div>
 			</section>
 		</div>

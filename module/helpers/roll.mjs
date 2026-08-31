@@ -147,6 +147,17 @@ export async function usrRoll(data) {
 
 	const nr = Math.abs(data.difficulty) + (data.diceBonus || 0);
 	const roll = await new Roll(`${nr}d10`).evaluate();
+
+	const chips = data.actor?.system?.chips || {
+		white: 0,
+		green: 0,
+		blue: 0,
+		red: 0,
+		black: 0,
+	};
+	const hasWhiteChip = chips.white > 0;
+	const hasGreenChip = chips.green > 0;
+
 	const result = {
 		difficulty: data.difficulty,
 		originalDifficulty: originalDifficulty,
@@ -159,6 +170,20 @@ export async function usrRoll(data) {
 		formula: "",
 		total: "",
 		damageModifier: totalPenalty,
+		isTraitRoll: true,
+		actorId: data.actor?.id,
+		hasWhiteChip,
+		hasGreenChip,
+		hasRerollChips: hasWhiteChip || hasGreenChip,
+		rollMetadata: {
+			actorId: data.actor?.id,
+			trait: data.trait,
+			spec: data.spec,
+			difficulty: originalDifficulty,
+			skill: data.skill,
+			specialization: data.specialization,
+			flavor: data.flavor || "",
+		},
 	};
 
 	/* Start tens and ones at -1, because we start counting from the second one. */
@@ -209,6 +234,13 @@ export async function usrRoll(data) {
 			result.successes = 0;
 		} else {
 			result.successes++;
+		}
+	}
+
+	if (Number.isFinite(data.maxSuccesses)) {
+		result.successes = Math.min(result.successes, data.maxSuccesses);
+		if (result.successes < data.maxSuccesses) {
+			result.critical = false;
 		}
 	}
 
@@ -771,7 +803,19 @@ export function showRoll(roll, result, speaker, flavor = "") {
 				flavor,
 			};
 
-			roll.toMessage(messageData);
+			if (result.isTraitRoll && result.rollMetadata) {
+				messageData.flags = {
+					usr: {
+						rollData: result.rollMetadata,
+					},
+				};
+			}
+
+			if (roll) {
+				roll.toMessage(messageData);
+			} else {
+				ChatMessage.create(messageData);
+			}
 		});
 }
 
@@ -1033,5 +1077,49 @@ export function rollChip(actor, dice = 1) {
 		} else {
 			showRoll(roll, result, speaker, "Fate Chip");
 		}
+	});
+}
+
+export async function handleReroll(message, actor, rollData, chipType) {
+	const chips = actor.system.chips || { white: 0, green: 0 };
+	if (chipType === "white") {
+		if (chips.white <= 0) {
+			ui.notifications.error("You don't have any White Fate Chips left!");
+			return;
+		}
+		// Consume 1 white chip
+		await actor.update({ "system.chips.white": chips.white - 1 });
+
+		// Perform White Reroll (same parameters)
+		await usrRoll({
+			actor: actor,
+			trait: rollData.trait,
+			spec: rollData.spec,
+			difficulty: rollData.difficulty,
+			flavor: `${rollData.flavor} (White Chip Reroll)`,
+		});
+	} else if (chipType === "green") {
+		if (chips.green <= 0) {
+			ui.notifications.error("You don't have any Green Fate Chips left!");
+			return;
+		}
+		// Consume 1 green chip
+		await actor.update({ "system.chips.green": chips.green - 1 });
+
+		// Perform Green Reroll (+1 die, max 1 success)
+		await usrRoll({
+			actor: actor,
+			trait: rollData.trait,
+			spec: rollData.spec,
+			difficulty: rollData.difficulty,
+			diceBonus: 1,
+			maxSuccesses: 1,
+			flavor: `${rollData.flavor} (Green Chip Reroll)`,
+		});
+	}
+
+	// Update original message to mark it as already rerolled, hiding the reroll buttons
+	await message.update({
+		"flags.usr.rollData.rerolled": true,
 	});
 }
