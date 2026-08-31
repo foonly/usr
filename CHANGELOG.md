@@ -1,6 +1,13 @@
 # Changelog
 
-### 1.8.1 (2026-08-26)
+## 1.9.0 (2026-08-31)
+
+#### Features
+
+- roll: implement fate chip reroll system (12b565b)
+- actor: add custom roll modifier controls (142e63f)
+
+### v1.8.1 (2026-08-26)
 
 #### Styles
 
