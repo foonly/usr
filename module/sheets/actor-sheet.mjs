@@ -598,6 +598,14 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 	_onRoll(event) {
 		event.preventDefault();
 		const element = event.currentTarget;
+
+		// Cooldown to prevent double-click / rapid double trigger issues (500ms cooldown)
+		const now = Date.now();
+		if (this._lastRollTime && now - this._lastRollTime < 500) {
+			return;
+		}
+		this._lastRollTime = now;
+
 		const dataset = element.dataset;
 
 		if (
