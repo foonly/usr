@@ -14,7 +14,8 @@ export class usrItem extends Item {
 	getRollData() {
 		// If present, return the actor's roll data.
 		if (!this.actor) return null;
-		const rollData = this.actor.getRollData();
+		// Copy, so adding the item doesn't write onto the actor's data.
+		const rollData = { ...this.actor.getRollData() };
 		// Grab the item's system data as well.
 		rollData.item = foundry.utils.deepClone(this.system);
 
