@@ -15,6 +15,7 @@
 		}
 	],
 	"esmodules": ["module/usr.mjs"],
+	"socket": true,
 	"documentTypes": {
 		"Actor": {
 			"character": {},

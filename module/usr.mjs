@@ -186,6 +186,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
 	const attacker = fromUuidSync(attackData.attacker.uuid);
 	const target = fromUuidSync(attackData.target.uuid);
+	if (!attacker || !target) return;
 
 	// Defend Button (Opens Dialog)
 	const defendButton = html.querySelector(".open-defense-dialog");
@@ -197,6 +198,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
 		defendButton.addEventListener("click", async (event) => {
 			event.preventDefault();
+			if (isInteractionResolved(message)) return;
 
 			const defenseWeapons = target.items
 				.filter((i) => i.type === "melee" && i.system.equipped)
@@ -389,6 +391,24 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 	}
 });
 
+/**
+ * Message ids of combat interactions currently being resolved by this client.
+ * @type {Set<string>}
+ */
+const resolvingInteractions = new Set();
+
+/**
+ * Check whether a combat interaction message has already been resolved.
+ * @param {ChatMessage} message
+ * @returns {boolean}
+ */
+function isInteractionResolved(message) {
+	return (
+		resolvingInteractions.has(message.id) ||
+		!!message.getFlag("usr", "attackData")?.resolved
+	);
+}
+
 async function resolveInteraction(
 	attackMsg,
 	attackData,
@@ -396,6 +416,8 @@ async function resolveInteraction(
 	target,
 	attacker,
 ) {
+	if (isInteractionResolved(attackMsg)) return;
+	resolvingInteractions.add(attackMsg.id);
 	console.log("USR | Resolving Combat Interaction", {
 		attackData,
 		defenseRoll,
@@ -429,12 +451,19 @@ async function resolveInteraction(
 	};
 	await ChatMessage.create(summaryMessageData);
 
-	// 2. We can still TRY to update the original message to hide the button if we are the owner
-	// but we don't rely on it for the result.
-	if (attackMsg.isOwner || game.user.isGM) {
-		await attackMsg.update({
-			"flags.usr.attackData.resolved": true,
-			content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
+	// 2. Mark the original message as resolved. Non-owners ask the active GM
+	// (or the message author) to do it via socket.
+	const resolvedUpdate = {
+		"flags.usr.attackData.resolved": true,
+		content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
+	};
+	if (attackMsg.isOwner) {
+		await attackMsg.update(resolvedUpdate);
+	} else {
+		game.socket.emit("system.usr", {
+			type: "updateChatMessage",
+			messageId: attackMsg.id,
+			updateData: resolvedUpdate,
 		});
 	}
 
@@ -672,12 +701,11 @@ Hooks.once("ready", async function () {
 			const message = game.messages.get(request.messageId);
 			if (!message) return;
 
-			// Handle update if we are the owner or an active GM
-			const isOwner = game.user.id === message.author.id;
+			// Exactly one client handles the update: the active GM, or the
+			// message author if no GM is connected.
 			const activeGM = game.users.activeGM;
-			const isActiveGM = game.user.isGM && game.user.id === activeGM?.id;
-
-			if (isOwner || isActiveGM) {
+			const handler = activeGM ?? (message.author?.active ? message.author : null);
+			if (handler?.id === game.user.id) {
 				await message.update(request.updateData);
 			}
 		}
