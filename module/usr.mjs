@@ -145,7 +145,9 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 	// Handle reroll buttons for trait/specialization rolls
 	const rollData = message.getFlag("usr", "rollData");
 	if (rollData) {
-		const actor = game.actors.get(rollData.actorId);
+		const actor = rollData.actorUuid
+			? fromUuidSync(rollData.actorUuid)
+			: game.actors.get(rollData.actorId);
 		const rerollButtons = html.querySelector(".reroll-buttons");
 
 		if (rerollButtons) {
@@ -409,6 +411,18 @@ function isInteractionResolved(message) {
 	);
 }
 
+/**
+ * Chat message updates that non-owners may request through the system socket.
+ * Only these fixed updates are applied, never data sent by the client.
+ */
+const SOCKET_MESSAGE_UPDATES = {
+	resolveInteraction: {
+		"flags.usr.attackData.resolved": true,
+		content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
+	},
+	markRerolled: { "flags.usr.rollData.rerolled": true },
+};
+
 async function resolveInteraction(
 	attackMsg,
 	attackData,
@@ -453,17 +467,12 @@ async function resolveInteraction(
 
 	// 2. Mark the original message as resolved. Non-owners ask the active GM
 	// (or the message author) to do it via socket.
-	const resolvedUpdate = {
-		"flags.usr.attackData.resolved": true,
-		content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
-	};
 	if (attackMsg.isOwner) {
-		await attackMsg.update(resolvedUpdate);
+		await attackMsg.update(SOCKET_MESSAGE_UPDATES.resolveInteraction);
 	} else {
 		game.socket.emit("system.usr", {
-			type: "updateChatMessage",
+			type: "resolveInteraction",
 			messageId: attackMsg.id,
-			updateData: resolvedUpdate,
 		});
 	}
 
@@ -700,17 +709,17 @@ Hooks.once("ready", async function () {
 
 	// Register socket listener for message updates (required for non-owners to update attack messages)
 	game.socket.on("system.usr", async (request) => {
-		if (request.type === "updateChatMessage") {
-			const message = game.messages.get(request.messageId);
-			if (!message) return;
+		const updateData = SOCKET_MESSAGE_UPDATES[request?.type];
+		if (!updateData) return;
+		const message = game.messages.get(request.messageId);
+		if (!message) return;
 
-			// Exactly one client handles the update: the active GM, or the
-			// message author if no GM is connected.
-			const activeGM = game.users.activeGM;
-			const handler = activeGM ?? (message.author?.active ? message.author : null);
-			if (handler?.id === game.user.id) {
-				await message.update(request.updateData);
-			}
+		// Exactly one client handles the update: the active GM, or the
+		// message author if no GM is connected.
+		const activeGM = game.users.activeGM;
+		const handler = activeGM ?? (message.author?.active ? message.author : null);
+		if (handler?.id === game.user.id) {
+			await message.update(updateData);
 		}
 	});
 

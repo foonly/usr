@@ -16,8 +16,17 @@ export async function usrRoll(data) {
 	let roundsFired = 1;
 	let fireMode = "single";
 
+	// Rerolls reuse the rounds fired by the original attack and don't spend ammo again.
+	if (Number.isFinite(data.roundsFired)) {
+		roundsFired = data.roundsFired;
+		fireMode = data.item?.system?.fireMode ?? "single";
+	}
 	// Ammunition check and consumption for ranged attacks
-	if (data.item && data.item.type === "ranged" && data.skipDamage !== true) {
+	else if (
+		data.item &&
+		data.item.type === "ranged" &&
+		data.skipDamage !== true
+	) {
 		const burstVal = data.item.system.burst ?? 0;
 		fireMode = data.item.system.fireMode ?? "single";
 
@@ -125,7 +134,8 @@ export async function usrRoll(data) {
 	}
 
 	// Combine unified general modifier with mobility modifier if rolling mobility, and add custom modifier
-	const customMod = data.actor?.getFlag("usr", "customModifier") ?? 0;
+	const customMod =
+		data.customModifier ?? data.actor?.getFlag("usr", "customModifier") ?? 0;
 	let totalPenalty = damageMod + customMod;
 	if (data.actor?.system?.encumbrance && data.trait === "mobility") {
 		totalPenalty += data.actor.system.encumbrance.mobility ?? 0;
@@ -157,6 +167,7 @@ export async function usrRoll(data) {
 	};
 	const hasWhiteChip = chips.white > 0;
 	const hasGreenChip = chips.green > 0;
+	const item = data.item;
 
 	const result = {
 		difficulty: data.difficulty,
@@ -178,9 +189,17 @@ export async function usrRoll(data) {
 		hasRerollChips: hasWhiteChip || hasGreenChip,
 		rollMetadata: {
 			actorId: data.actor?.id,
+			actorUuid: data.actor?.uuid,
+			itemUuid: item?.uuid ?? null,
+			// Items without a document (e.g. unarmed) are stored as plain data.
+			itemData: item && !item.uuid ? foundry.utils.deepClone(item) : null,
 			trait: data.trait,
 			spec: data.spec,
 			difficulty: originalDifficulty,
+			diceBonus: data.diceBonus || 0,
+			customModifier: customMod,
+			roundsFired,
+			skipDamage: data.skipDamage === true,
 			skill: data.skill,
 			specialization: data.specialization,
 			flavor: data.flavor || "",
@@ -489,7 +508,8 @@ export async function usrRoll(data) {
 		}
 	}
 
-	if (data.trait && data.actor) {
+	// Rerolls count as the same use of the trait, so don't award usage again.
+	if (data.trait && data.actor && data.awardUsage !== false) {
 		const isCore = !!coreTraits[data.trait];
 		const traits = isCore ? coreTraits : skillTraits;
 		const updatedTraits = foundry.utils.deepClone(traits);
@@ -558,8 +578,8 @@ export async function usrRoll(data) {
 		await data.actor.update({ [updateKey]: updatedTraits });
 	}
 
-	// Reset custom modifier if it's not continuous
-	if (data.actor) {
+	// Reset custom modifier if it's not continuous (rerolls reuse the original one)
+	if (data.actor && data.customModifier === undefined) {
 		const continuous = !!data.actor.getFlag("usr", "customModifierContinuous");
 		if (!continuous) {
 			const currentMod = data.actor.getFlag("usr", "customModifier") ?? 0;
@@ -1094,46 +1114,56 @@ export function rollChip(actor, dice = 1) {
 	});
 }
 
+/**
+ * Message ids of rolls currently being rerolled by this client.
+ * @type {Set<string>}
+ */
+const rerollingMessages = new Set();
+
 export async function handleReroll(message, actor, rollData, chipType) {
-	const chips = actor.system.chips || { white: 0, green: 0 };
-	if (chipType === "white") {
-		if (chips.white <= 0) {
-			ui.notifications.error("You don't have any White Fate Chips left!");
-			return;
-		}
-		// Consume 1 white chip
-		await actor.update({ "system.chips.white": chips.white - 1 });
+	if (rollData.rerolled || rerollingMessages.has(message.id)) return;
+	const chipKey = chipType === "green" ? "green" : "white";
+	const chipCount = actor.system.chips?.[chipKey] ?? 0;
+	if (chipCount <= 0) {
+		ui.notifications.error(
+			chipKey === "green"
+				? "You don't have any Green Fate Chips left!"
+				: "You don't have any White Fate Chips left!",
+		);
+		return;
+	}
+	rerollingMessages.add(message.id);
 
-		// Perform White Reroll (same parameters)
-		await usrRoll({
-			actor: actor,
-			trait: rollData.trait,
-			spec: rollData.spec,
-			difficulty: rollData.difficulty,
-			flavor: `${rollData.flavor} (White Chip Reroll)`,
-		});
-	} else if (chipType === "green") {
-		if (chips.green <= 0) {
-			ui.notifications.error("You don't have any Green Fate Chips left!");
-			return;
-		}
-		// Consume 1 green chip
-		await actor.update({ "system.chips.green": chips.green - 1 });
-
-		// Perform Green Reroll (+1 die, max 1 success)
-		await usrRoll({
-			actor: actor,
-			trait: rollData.trait,
-			spec: rollData.spec,
-			difficulty: rollData.difficulty,
-			diceBonus: 1,
-			maxSuccesses: 1,
-			flavor: `${rollData.flavor} (Green Chip Reroll)`,
+	// Mark the original message as rerolled first, so the buttons can't be used
+	// again even if a later step fails. Non-owners ask the GM via socket.
+	if (message.isOwner) {
+		await message.update({ "flags.usr.rollData.rerolled": true });
+	} else {
+		game.socket.emit("system.usr", {
+			type: "markRerolled",
+			messageId: message.id,
 		});
 	}
 
-	// Update original message to mark it as already rerolled, hiding the reroll buttons
-	await message.update({
-		"flags.usr.rollData.rerolled": true,
+	await actor.update({ [`system.chips.${chipKey}`]: chipCount - 1 });
+
+	let item = rollData.itemData ?? null;
+	if (rollData.itemUuid) item = await fromUuid(rollData.itemUuid);
+
+	const isGreen = chipKey === "green";
+	await usrRoll({
+		actor,
+		item,
+		trait: rollData.trait,
+		spec: rollData.spec,
+		difficulty: rollData.difficulty,
+		// Green: reroll with an extra die, but only one success counts.
+		diceBonus: (rollData.diceBonus ?? 0) + (isGreen ? 1 : 0),
+		maxSuccesses: isGreen ? 1 : undefined,
+		customModifier: rollData.customModifier ?? 0,
+		roundsFired: rollData.roundsFired,
+		skipDamage: rollData.skipDamage === true,
+		awardUsage: false,
+		flavor: `${rollData.flavor} (${isGreen ? "Green" : "White"} Chip Reroll)`,
 	});
 }
