@@ -13,7 +13,11 @@ import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
 import { usrRoll, rollDamage, handleReroll } from "./helpers/roll.mjs";
-import { migrateWorld } from "./helpers/migration.mjs";
+import {
+	MIGRATION_VERSION,
+	migrateWorld,
+	needsMigration,
+} from "./helpers/migration.mjs";
 import { getCombatant } from "./helpers/combat.mjs";
 
 /* -------------------------------------------- */
@@ -115,26 +119,21 @@ Hooks.once("init", async function () {
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
-	// Only run migration for the GM
-	if (!game.user.isGM) return;
-
-	// Check if migration is needed
-	const currentVersion = game.system.version;
-	const lastVersion = game.settings.get("usr", "systemVersion");
+	// Only the active GM migrates, so several connected GMs don't all do it.
+	if (!game.users.activeGM?.isSelf) return;
+	if (!needsMigration()) return;
 
 	console.log(
-		`USR | Current Version: ${currentVersion}, Last Version: ${lastVersion}`,
+		`USR | Stored data version ${game.settings.get("usr", "systemVersion")} is older than ${MIGRATION_VERSION}, running migration...`,
 	);
-
-	if (foundry.utils.isNewerVersion(currentVersion, lastVersion)) {
-		console.log("USR | System version is newer, running migration...");
-		try {
-			await migrateWorld();
-			await game.settings.set("usr", "systemVersion", currentVersion);
-			console.log(`USR | Version setting updated to ${currentVersion}`);
-		} catch (err) {
-			console.error("USR | Migration failed:", err);
+	try {
+		// Only record the new version if every document migrated, so failures are retried.
+		if (await migrateWorld()) {
+			await game.settings.set("usr", "systemVersion", MIGRATION_VERSION);
+			console.log(`USR | Version setting updated to ${MIGRATION_VERSION}`);
 		}
+	} catch (err) {
+		console.error("USR | Migration failed:", err);
 	}
 });
 
