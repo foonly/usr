@@ -1,5 +1,6 @@
 import { usr } from "./config.mjs";
 import { getCombatant } from "./combat.mjs";
+import { messageModeOptions } from "./chat.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -832,7 +833,6 @@ export function showRoll(roll, result, speaker, flavor = "") {
 			const messageData = {
 				content,
 				speaker,
-				rollMode: game.settings.get("core", "rollMode"),
 				flavor,
 			};
 
@@ -845,9 +845,9 @@ export function showRoll(roll, result, speaker, flavor = "") {
 			}
 
 			if (roll) {
-				roll.toMessage(messageData);
+				roll.toMessage(messageData, messageModeOptions());
 			} else {
-				ChatMessage.create(messageData);
+				ChatMessage.create(messageData, messageModeOptions());
 			}
 		});
 }
@@ -989,11 +989,13 @@ export function rollXp(data) {
 							}
 						}
 						const label = `Roll for XP on ${spec.title} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
-						roll.toMessage({
-							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
-							flavor: label,
-							rollMode: game.settings.get("core", "rollMode"),
-						});
+						roll.toMessage(
+							{
+								speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+								flavor: label,
+							},
+							messageModeOptions(),
+						);
 						if (isCore) {
 							const updatedTraits = foundry.utils.deepClone(coreTraits);
 							data.actor.update({ "system.traits": updatedTraits });
@@ -1037,11 +1039,13 @@ export function rollXp(data) {
 				}
 				const traitLabel = game.i18n.localize(trait.label);
 				const label = `Roll for XP on ${traitLabel} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
-				roll.toMessage({
-					speaker: ChatMessage.getSpeaker({ actor: data.actor }),
-					flavor: label,
-					rollMode: game.settings.get("core", "rollMode"),
-				});
+				roll.toMessage(
+					{
+						speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+						flavor: label,
+					},
+					messageModeOptions(),
+				);
 				if (isCore) {
 					const updatedTraits = foundry.utils.deepClone(coreTraits);
 					data.actor.update({ "system.traits": updatedTraits });

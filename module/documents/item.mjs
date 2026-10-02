@@ -1,6 +1,7 @@
 // Import helper/utility classes and constants.
 import { usrRoll } from "../helpers/roll.mjs";
 import { getStance } from "../helpers/combat.mjs";
+import { messageModeOptions } from "../helpers/chat.mjs";
 
 /**
  * Extend the basic Item with some very simple modifications.
@@ -83,17 +84,18 @@ export class usrItem extends Item {
 
 		// Initialize chat data.
 		const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-		const rollMode = game.settings.get("core", "rollMode");
 		const label = `[${item.type}] ${item.name}`;
 
 		// If there's no roll data, send a chat message.
 		if (!this.system.formula) {
-			ChatMessage.create({
-				speaker: speaker,
-				rollMode: rollMode,
-				flavor: label,
-				content: item.system.description ?? "",
-			});
+			return ChatMessage.create(
+				{
+					speaker: speaker,
+					flavor: label,
+					content: item.system.description ?? "",
+				},
+				messageModeOptions(),
+			);
 		}
 		// Otherwise, create a roll and send a chat message from it.
 		else {
@@ -104,11 +106,13 @@ export class usrItem extends Item {
 			const roll = new Roll(rollData.item.formula, rollData);
 			// If you need to store the value first, uncomment the next line.
 			// let result = await roll.roll({async: true});
-			roll.toMessage({
-				speaker: speaker,
-				rollMode: rollMode,
-				flavor: label,
-			});
+			await roll.toMessage(
+				{
+					speaker: speaker,
+					flavor: label,
+				},
+				messageModeOptions(),
+			);
 			return roll;
 		}
 	}

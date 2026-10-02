@@ -14,6 +14,7 @@ import {
 } from "../helpers/dialog.mjs";
 import { usr } from "../helpers/config.mjs";
 import { getStance } from "../helpers/combat.mjs";
+import { messageModeOptions } from "../helpers/chat.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheet } = foundry.applications.sheets;
@@ -475,17 +476,10 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 
 			const speaker = ChatMessage.getSpeaker({ actor });
 			const content = `Uses ${result} fate chip.`;
-			const messageData = {
-				user: game.user.id,
-				content,
-				speaker,
-				flavor: "Fate Chip.",
-			};
-
-			const msg = new ChatMessage(messageData);
-			ChatMessage.create(msg.toObject(), {
-				rollMode: game.settings.get("core", "rollMode"),
-			});
+			ChatMessage.create(
+				{ content, speaker, flavor: "Fate Chip." },
+				messageModeOptions(),
+			);
 		});
 
 		for (const element of html.querySelectorAll(".fire-mode-select")) {
@@ -700,11 +694,13 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		} else if (dataset.roll) {
 			const label = dataset.label ? `[ability] ${dataset.label}` : "";
 			const roll = new Roll(dataset.roll, this.actor.getRollData());
-			roll.toMessage({
-				speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-				flavor: label,
-				rollMode: game.settings.get("core", "rollMode"),
-			});
+			await roll.toMessage(
+				{
+					speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+					flavor: label,
+				},
+				messageModeOptions(),
+			);
 			return roll;
 		}
 	}

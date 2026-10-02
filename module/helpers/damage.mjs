@@ -1,5 +1,6 @@
 import { usr } from "./config.mjs";
 import { showRoll } from "./roll.mjs";
+import { messageModeOptions } from "./chat.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -313,9 +314,7 @@ export async function triggerTraumaCheck(
 				flavor: "Trauma Check",
 				content,
 			},
-			{
-				rollMode: game.settings.get("core", "rollMode"),
-			},
+			messageModeOptions(),
 		);
 		console.log(
 			"USR | Trauma Check message created successfully via roll.toMessage.",
@@ -334,15 +333,8 @@ function setDamage(amount, type, actor) {
 
 	const speaker = ChatMessage.getSpeaker({ actor });
 	const content = `${amount} boxes of ${wound.label} damage.`;
-	const messageData = {
-		user: game.user.id,
-		content,
-		speaker,
-		flavor: "Received Damage",
-	};
-
-	const msg = new ChatMessage(messageData);
-	ChatMessage.create(msg.toObject(), {
-		rollMode: game.settings.get("core", "rollMode"),
-	});
+	ChatMessage.create(
+		{ content, speaker, flavor: "Received Damage" },
+		messageModeOptions(),
+	);
 }
