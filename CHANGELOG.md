@@ -1,6 +1,36 @@
 # Changelog
 
-## 1.9.0 (2026-08-31)
+### 1.9.1 (2026-10-02)
+
+#### Bug Fixes
+
+- migration: use a fresh operation object for each update (91c7c92)
+- chat: apply the user's roll mode to roll messages (70a5ec1)
+- health: start with a full blood pool and enforce healing rule (7c0c5be)
+- manifest: use the blood pool for the default token bar (66b21a3)
+- actor: stop roll data from writing onto actor data (4ef820e)
+- migration: persist migrated data and retry failed migrations (93cb6b8)
+- data: don't fill trait defaults into partial actor updates (72464a6)
+- data: make the weapon specialization migration run (94fb0f2)
+- sheet: stop accidental and blocked rolls (6a960f1)
+- sheet: only give owners the controls that change the actor (5c31d85)
+- knowledge: don't let players approve their own knowledge (74bc105)
+- actor: apply general encumbrance penalty at 4x capacity (685327e)
+- damage: correct red chip halving and empty damage input (edd01e0)
+- combat: find the right combatant for unlinked tokens (caf3075)
+- reroll: make fate chip rerolls safe and keep roll context (d213f1b)
+- roll: award usage XP and reset modifiers on melee attacks (fc3e82e)
+- roll: follow the rules for critical success and failure (75fe05b)
+- dialog: fix red chip choice and new-contact delete (a12d32a)
+- trait-sheet: stop the trait editor losing data (e81c3a8)
+- macro: stop core creating a duplicate hotbar macro (2a2179b)
+- combat: prevent repeated phase 1 to 2 transitions (132093c)
+- combat: resolve attack messages for non-owner defenders (1733cba)
+- effects: use v13+ ActiveEffect fields (bb4c068)
+- manifest: require Foundry v13 (441d349)
+- sheet: add 500ms debounce to actor rolls (d3a5139)
+
+## v1.9.0 (2026-08-31)
 
 #### Features
 
@@ -174,7 +204,8 @@
 
 - css: Refactor actor items tables and UI (c4130ba)
 
-### Misc
+#### Misc
+
 - Version (1076693)
 
 ### v0.8.1 (2026-06-14)
@@ -291,29 +322,34 @@
 
 ### v0.3.3 (2025-10-29)
 
-### Misc
+#### Misc
+
 - Update heal dialog to use foundry's handlebars renderer (a29cb6d)
 - Refactor damage and roll helpers for async and style (fbe9669)
 - Reorganize success counting logic for negative difficulty (cb90c39)
 
 ### v0.3.2 (2025-07-03)
 
-### Misc
+#### Misc
+
 - Fix successes calculation when rolling tens (85bedb3)
 
 ### v0.3.1 (2025-07-02)
 
-### Misc
+#### Misc
+
 - Update GitHub Actions workflow dependencies and setup (0de04a9)
 
 ## v0.3.0 (2025-07-02)
 
-### Misc
+#### Misc
+
 - Migrate to PNPM and V13 compatibility (c103c64)
 
 ## v0.2.0 (2024-07-15)
 
-### Misc
+#### Misc
+
 - v12 compat changes (212d5bb)
 
 ### v0.1.23 (2023-12-12)
@@ -322,60 +358,71 @@
 
 - assets: Working basic asset manager. (120405e)
 
-### Misc
+#### Misc
+
 - chore (chips): Chip roller and removal. (d4cbac3)
 - Generic Dice roller message function added. Working Fate chip roller. (fa30e07)
 
 ### v0.1.22 (2023-11-28)
 
-### Misc
+#### Misc
+
 - Created fate chip roller. (8fe482c)
 
 ### v0.1.21 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Temporary Chip fix. (3c92ffc)
 - Individual hip display. (74f8a7f)
 
 ### v0.1.20 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Release file fix (b8d0e9e)
 
 ### v0.1.19 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Switched to zip (75ff110)
 
 ### v0.1.18 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Should now hopefully be able to update self. (2f25d35)
 
 ### v0.1.17 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Push system.json separately. (1eda130)
 
 ### v0.1.16 (2023-11-21)
 
-### Misc
+#### Misc
+
 - For some reason lock file was ignored. (81480ad)
 
 ### v0.1.15 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Forgot the install step (8a9cf17)
 
 ### v0.1.14 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Postversion script (e603ca3)
 - Release workflow (36ab8a0)
 
 ### v0.1.13 (2023-11-21)
 
-### Misc
+#### Misc
+
 - Even more testing (7f79ff9)
 - More testing (97b105e)
 - Versioning Test (a1ea7ff)
