@@ -166,7 +166,8 @@ export async function usrRoll(data) {
 		type: "d10",
 		dice: [],
 		successes: 0,
-		critical: false,
+		criticalSuccess: false,
+		criticalFailure: false,
 		formula: "",
 		total: "",
 		damageModifier: totalPenalty,
@@ -218,14 +219,16 @@ export async function usrRoll(data) {
 
 	if (ones > 0) {
 		result.successes += ones;
-		result.critical = true;
+		result.criticalSuccess = true;
 	}
 
+	// A critical failure is only when tens push the successes below zero.
 	if (tens > 0) {
 		result.successes -= tens;
 		if (result.successes < 0) {
 			result.successes = 0;
-			result.critical = true;
+			result.criticalSuccess = false;
+			result.criticalFailure = true;
 		}
 	}
 
@@ -240,7 +243,7 @@ export async function usrRoll(data) {
 	if (Number.isFinite(data.maxSuccesses)) {
 		result.successes = Math.min(result.successes, data.maxSuccesses);
 		if (result.successes < data.maxSuccesses) {
-			result.critical = false;
+			result.criticalSuccess = false;
 		}
 	}
 
@@ -255,9 +258,23 @@ export async function usrRoll(data) {
 		result.formula += ` (${result.specialization})`;
 	}
 
-	result.total =
-		(result.critical ? "Critical " : "") +
-		(result.successes ? result.successes + " Successes" : "Fail");
+	if (result.criticalFailure) {
+		result.total = "Critical Fail";
+	} else if (result.successes > 0) {
+		result.total =
+			(result.criticalSuccess ? "Critical " : "") +
+			result.successes +
+			" Successes";
+	} else {
+		result.total = "Fail";
+	}
+
+	// Critical failures may not be rerolled.
+	if (result.criticalFailure) {
+		result.hasWhiteChip = false;
+		result.hasGreenChip = false;
+		result.hasRerollChips = false;
+	}
 
 	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 	let flavor = data.flavor || "";
