@@ -4,7 +4,7 @@
 	"description": "The Universal Simple Role-Playing System for FoundryVTT!",
 	"version": "1.9.0",
 	"compatibility": {
-		"minimum": 12,
+		"minimum": 13,
 		"verified": 14
 	},
 	"authors": [
@@ -15,6 +15,7 @@
 		}
 	],
 	"esmodules": ["module/usr.mjs"],
+	"socket": true,
 	"documentTypes": {
 		"Actor": {
 			"character": {},
@@ -41,8 +42,7 @@
 		"distance": 1,
 		"units": "m"
 	},
-	"primaryTokenAttribute": "health",
-	"secondaryTokenAttribute": "power",
+	"primaryTokenAttribute": "blood",
 	"url": "https://github.com/foonly/usr",
 	"manifest": "https://github.com/foonly/usr/releases/latest/download/system.json",
 	"download": "https://github.com/foonly/usr/releases/latest/download/usr.zip",

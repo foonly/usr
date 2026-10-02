@@ -1,201 +1,83 @@
 /**
- * Perform a system migration for the entire world.
- * @returns {Promise}
+ * The data migration level of the system.
+ * Bump this when a change to a data model's migrateData() should be written
+ * back to the documents stored in existing worlds. It is stored in the
+ * "systemVersion" world setting once the world migration has completed.
+ * @type {string}
+ */
+export const MIGRATION_VERSION = "1.9.1";
+
+/**
+ * Whether the world's stored data is older than the current migration level.
+ * @returns {boolean}
+ */
+export function needsMigration() {
+	const lastVersion = game.settings.get("usr", "systemVersion");
+	return foundry.utils.isNewerVersion(MIGRATION_VERSION, lastVersion);
+}
+
+/**
+ * Write the migrated data of every world Actor and Item back to the database.
+ *
+ * The data models' migrateData() methods already transform documents as they
+ * load, and Foundry migrates the loaded data in place, so the original stored
+ * data isn't available to compare against. Instead, each document's (already
+ * migrated) system data is saved as a full replacement, which also removes
+ * stale keys from the stored data.
+ *
+ * Unlinked token actors and compendium content are not rewritten; they are
+ * still migrated in memory whenever they load.
+ *
+ * @returns {Promise<boolean>} Whether every document was migrated successfully
  */
 export async function migrateWorld() {
-	const systemVersion = game.system.version;
-	ui.notifications.info(`Migrating USR System to version ${systemVersion}...`);
-	console.log(`USR | Starting migration to ${systemVersion}`);
+	ui.notifications.info(
+		`Migrating USR System data to version ${MIGRATION_VERSION}...`,
+	);
+	console.log(`USR | Starting migration to ${MIGRATION_VERSION}`);
 
-	const actorUpdates = [];
+	// Foundry writes into the operation object (parent, pack, updates), so each
+	// call needs a fresh one.
+	const options = () => ({ diff: false, recursive: false, render: false });
+	let failures = 0;
+
+	// World Actors and the Items they own
 	for (const actor of game.actors) {
 		try {
-			const updateData = await migrateActorData(actor);
-			if (!foundry.utils.isEmpty(updateData)) {
-				actorUpdates.push({ _id: actor.id, ...updateData });
+			const source = actor.toObject();
+			await actor.update({ system: source.system }, options());
+			const itemUpdates = source.items.map((i) => ({
+				_id: i._id,
+				system: i.system,
+			}));
+			if (itemUpdates.length > 0) {
+				await actor.updateEmbeddedDocuments("Item", itemUpdates, options());
 			}
 		} catch (err) {
+			failures++;
 			console.error(`USR | Failed migration for Actor ${actor.name}:`, err);
 		}
 	}
 
-	if (actorUpdates.length > 0) {
-		console.log(`USR | Migrating ${actorUpdates.length} Actors...`);
-		await Actor.updateDocuments(actorUpdates);
-	}
-
-	const itemUpdates = [];
+	// World Items
 	for (const item of game.items) {
 		try {
-			const updateData = await migrateItemData(item);
-			if (!foundry.utils.isEmpty(updateData)) {
-				itemUpdates.push({ _id: item.id, ...updateData });
-			}
+			await item.update({ system: item.toObject().system }, options());
 		} catch (err) {
+			failures++;
 			console.error(`USR | Failed migration for Item ${item.name}:`, err);
 		}
 	}
 
-	if (itemUpdates.length > 0) {
-		console.log(`USR | Migrating ${itemUpdates.length} Items...`);
-		await Item.updateDocuments(itemUpdates);
+	if (failures > 0) {
+		ui.notifications.error(
+			`USR System migration failed for ${failures} document(s). See the console for details. It will be retried on the next load.`,
+			{ permanent: true },
+		);
+		return false;
 	}
 
 	console.log("USR | System migration complete!");
 	ui.notifications.info("USR System migration complete!");
-}
-
-/**
- * Migrate a single Actor document to perform any transformations.
- * @param {Actor} actor
- * @returns {Object} The update data to apply
- */
-async function migrateActorData(actor) {
-	const updateData = {};
-	const source = actor.toObject(false);
-	const system = source.system || {};
-	const traits = system.traits || {};
-	const skillTraits = system.skillTraits || {};
-
-	const skillTraitKeys = CONFIG.usr.traits.skills;
-	const newSkillTraits = {};
-	let hasNewSkills = false;
-
-	// Helper to migrate specializations to slugs
-	const migrateSpecs = (traitKey, trait) => {
-		if (!trait?.spec || !Array.isArray(trait.spec)) return;
-		const specConfig = CONFIG.usr.specializations[traitKey];
-		if (!specConfig) return;
-
-		trait.spec.forEach((s) => {
-			if (!s.title) return;
-			const title = s.title.trim().toLowerCase();
-
-			if (specConfig[title]) {
-				if (s.title !== title) s.title = title;
-				return;
-			}
-
-			for (const [slug, labelKey] of Object.entries(specConfig)) {
-				const label = game.i18n.localize(labelKey).trim().toLowerCase();
-				if (title === label) {
-					s.title = slug;
-					return;
-				}
-			}
-		});
-	};
-
-	for (const key of skillTraitKeys) {
-		const oldTrait = traits[key] || system[key];
-		const existingTrait = skillTraits[key];
-
-		if (oldTrait) {
-			// Migrate if not in skillTraits, or if existing is incomplete
-			if (!existingTrait || !existingTrait.value || !existingTrait.label) {
-				console.log(`USR | Migrating ${key} for ${actor.name}`);
-				newSkillTraits[key] = {
-					label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
-					value: 1,
-					xp: 0,
-					roll: 0,
-					hasSpec: true,
-					spec: [],
-					...foundry.utils.deepClone(oldTrait),
-					...foundry.utils.deepClone(existingTrait || {}),
-				};
-				migrateSpecs(key, newSkillTraits[key]);
-				hasNewSkills = true;
-			}
-			updateData[`system.traits.-=${key}`] = null;
-			updateData[`system.-=${key}`] = null;
-		} else if (
-			existingTrait &&
-			(!existingTrait.value || !existingTrait.label)
-		) {
-			// Fix incomplete data even if no oldTrait
-			newSkillTraits[key] = {
-				label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
-				value: 1,
-				xp: 0,
-				roll: 0,
-				hasSpec: true,
-				spec: [],
-				...foundry.utils.deepClone(existingTrait),
-			};
-			hasNewSkills = true;
-		}
-	}
-
-	if (hasNewSkills) {
-		updateData["system.skillTraits"] = {
-			...skillTraits,
-			...newSkillTraits,
-		};
-	}
-
-	// Core Traits
-	for (const key of CONFIG.usr.traits.core) {
-		const trait = traits[key];
-		if (trait) {
-			const updatedTrait = foundry.utils.deepClone(trait);
-			migrateSpecs(key, updatedTrait);
-
-			if (typeof trait.label === "string" && !trait.label.startsWith("USR.")) {
-				updateData[`system.traits.${key}.label`] = `USR.Trait${
-					key.charAt(0).toUpperCase() + key.slice(1)
-				}`;
-			}
-			if (JSON.stringify(updatedTrait.spec) !== JSON.stringify(trait.spec)) {
-				updateData[`system.traits.${key}.spec`] = updatedTrait.spec;
-			}
-		}
-	}
-
-	// Knowledge
-	if (actor.system.knowledge) {
-		let changed = false;
-		const knowledge = actor.system.knowledge.map((k) => {
-			if (k.approved === undefined) {
-				changed = true;
-				return { ...k, approved: true };
-			}
-			return k;
-		});
-		if (changed) updateData["system.knowledge"] = knowledge;
-	}
-
-	return updateData;
-}
-
-/**
- * Migrate a single Item document to perform any transformations.
- * @param {Item} item
- * @returns {Object} The update data to apply
- */
-async function migrateItemData(item) {
-	const updateData = {};
-
-	// Migrate specialization strings to slugs
-	if (
-		(item.type === "melee" || item.type === "ranged") &&
-		item.system.specialization
-	) {
-		const spec = item.system.specialization.toLowerCase();
-		const specConfig = CONFIG.usr.specializations[item.type];
-
-		// If it's already a slug, skip
-		if (specConfig[spec]) return updateData;
-
-		// Try to find a slug that matches the localized name
-		for (const [slug, labelKey] of Object.entries(specConfig)) {
-			const label = game.i18n.localize(labelKey).toLowerCase();
-			if (spec === label) {
-				updateData["system.specialization"] = slug;
-				break;
-			}
-		}
-	}
-
-	return updateData;
+	return true;
 }

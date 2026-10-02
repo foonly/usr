@@ -1,4 +1,6 @@
 import { usr } from "./config.mjs";
+import { getCombatant } from "./combat.mjs";
+import { messageModeOptions } from "./chat.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -16,8 +18,17 @@ export async function usrRoll(data) {
 	let roundsFired = 1;
 	let fireMode = "single";
 
+	// Rerolls reuse the rounds fired by the original attack and don't spend ammo again.
+	if (Number.isFinite(data.roundsFired)) {
+		roundsFired = data.roundsFired;
+		fireMode = data.item?.system?.fireMode ?? "single";
+	}
 	// Ammunition check and consumption for ranged attacks
-	if (data.item && data.item.type === "ranged" && data.skipDamage !== true) {
+	else if (
+		data.item &&
+		data.item.type === "ranged" &&
+		data.skipDamage !== true
+	) {
 		const burstVal = data.item.system.burst ?? 0;
 		fireMode = data.item.system.fireMode ?? "single";
 
@@ -125,7 +136,8 @@ export async function usrRoll(data) {
 	}
 
 	// Combine unified general modifier with mobility modifier if rolling mobility, and add custom modifier
-	const customMod = data.actor?.getFlag("usr", "customModifier") ?? 0;
+	const customMod =
+		data.customModifier ?? data.actor?.getFlag("usr", "customModifier") ?? 0;
 	let totalPenalty = damageMod + customMod;
 	if (data.actor?.system?.encumbrance && data.trait === "mobility") {
 		totalPenalty += data.actor.system.encumbrance.mobility ?? 0;
@@ -157,6 +169,7 @@ export async function usrRoll(data) {
 	};
 	const hasWhiteChip = chips.white > 0;
 	const hasGreenChip = chips.green > 0;
+	const item = data.item;
 
 	const result = {
 		difficulty: data.difficulty,
@@ -166,7 +179,8 @@ export async function usrRoll(data) {
 		type: "d10",
 		dice: [],
 		successes: 0,
-		critical: false,
+		criticalSuccess: false,
+		criticalFailure: false,
 		formula: "",
 		total: "",
 		damageModifier: totalPenalty,
@@ -177,9 +191,17 @@ export async function usrRoll(data) {
 		hasRerollChips: hasWhiteChip || hasGreenChip,
 		rollMetadata: {
 			actorId: data.actor?.id,
+			actorUuid: data.actor?.uuid,
+			itemUuid: item?.uuid ?? null,
+			// Items without a document (e.g. unarmed) are stored as plain data.
+			itemData: item && !item.uuid ? foundry.utils.deepClone(item) : null,
 			trait: data.trait,
 			spec: data.spec,
 			difficulty: originalDifficulty,
+			diceBonus: data.diceBonus || 0,
+			customModifier: customMod,
+			roundsFired,
+			skipDamage: data.skipDamage === true,
 			skill: data.skill,
 			specialization: data.specialization,
 			flavor: data.flavor || "",
@@ -218,14 +240,16 @@ export async function usrRoll(data) {
 
 	if (ones > 0) {
 		result.successes += ones;
-		result.critical = true;
+		result.criticalSuccess = true;
 	}
 
+	// A critical failure is only when tens push the successes below zero.
 	if (tens > 0) {
 		result.successes -= tens;
 		if (result.successes < 0) {
 			result.successes = 0;
-			result.critical = true;
+			result.criticalSuccess = false;
+			result.criticalFailure = true;
 		}
 	}
 
@@ -240,7 +264,7 @@ export async function usrRoll(data) {
 	if (Number.isFinite(data.maxSuccesses)) {
 		result.successes = Math.min(result.successes, data.maxSuccesses);
 		if (result.successes < data.maxSuccesses) {
-			result.critical = false;
+			result.criticalSuccess = false;
 		}
 	}
 
@@ -255,9 +279,23 @@ export async function usrRoll(data) {
 		result.formula += ` (${result.specialization})`;
 	}
 
-	result.total =
-		(result.critical ? "Critical " : "") +
-		(result.successes ? result.successes + " Successes" : "Fail");
+	if (result.criticalFailure) {
+		result.total = "Critical Fail";
+	} else if (result.successes > 0) {
+		result.total =
+			(result.criticalSuccess ? "Critical " : "") +
+			result.successes +
+			" Successes";
+	} else {
+		result.total = "Fail";
+	}
+
+	// Critical failures may not be rerolled.
+	if (result.criticalFailure) {
+		result.hasWhiteChip = false;
+		result.hasGreenChip = false;
+		result.hasRerollChips = false;
+	}
 
 	const speaker = ChatMessage.getSpeaker({ actor: data.actor });
 	let flavor = data.flavor || "";
@@ -316,23 +354,20 @@ export async function usrRoll(data) {
 				const target = game.user.targets.first();
 
 				// Melee attack flow
-				if (item.type === "melee") {
-					if (target) {
-						return await createCombatInteraction(
-							data.actor,
-							target.actor,
-							item,
-							result,
-							flavor,
-						);
-					} else if (game.combat?.active) {
-						ui.notifications.warn("Please select a target for melee attacks.");
-						return { roll, result };
-					}
+				if (item.type === "melee" && target) {
+					await createCombatInteraction(
+						data.actor,
+						target.actor,
+						item,
+						result,
+						flavor,
+					);
+				} else if (item.type === "melee" && game.combat?.active) {
+					ui.notifications.warn("Please select a target for melee attacks.");
 				}
 
 				// Ranged or out-of-combat untargeted: resolve immediately if hit
-				if (roundsFired > 1) {
+				else if (roundsFired > 1) {
 					// Burst or Auto fire mode
 					const targetActor = game.user.targets.first()?.actor || null;
 					const target = game.user.targets.first();
@@ -475,7 +510,8 @@ export async function usrRoll(data) {
 		}
 	}
 
-	if (data.trait && data.actor) {
+	// Rerolls count as the same use of the trait, so don't award usage again.
+	if (data.trait && data.actor && data.awardUsage !== false) {
 		const isCore = !!coreTraits[data.trait];
 		const traits = isCore ? coreTraits : skillTraits;
 		const updatedTraits = foundry.utils.deepClone(traits);
@@ -544,8 +580,8 @@ export async function usrRoll(data) {
 		await data.actor.update({ [updateKey]: updatedTraits });
 	}
 
-	// Reset custom modifier if it's not continuous
-	if (data.actor) {
+	// Reset custom modifier if it's not continuous (rerolls reuse the original one)
+	if (data.actor && data.customModifier === undefined) {
 		const continuous = !!data.actor.getFlag("usr", "customModifierContinuous");
 		if (!continuous) {
 			const currentMod = data.actor.getFlag("usr", "customModifier") ?? 0;
@@ -735,9 +771,7 @@ export async function createCombatInteraction(
 		defenseBonus: -1,
 	});
 
-	const combatant = game.combat?.combatants.find(
-		(c) => c.actorId === target.id,
-	);
+	const combatant = getCombatant(target);
 	const inCombat = !!game.combat?.active && !!combatant;
 
 	const data = {
@@ -799,7 +833,6 @@ export function showRoll(roll, result, speaker, flavor = "") {
 			const messageData = {
 				content,
 				speaker,
-				rollMode: game.settings.get("core", "rollMode"),
 				flavor,
 			};
 
@@ -812,9 +845,9 @@ export function showRoll(roll, result, speaker, flavor = "") {
 			}
 
 			if (roll) {
-				roll.toMessage(messageData);
+				roll.toMessage(messageData, messageModeOptions());
 			} else {
-				ChatMessage.create(messageData);
+				ChatMessage.create(messageData, messageModeOptions());
 			}
 		});
 }
@@ -956,11 +989,13 @@ export function rollXp(data) {
 							}
 						}
 						const label = `Roll for XP on ${spec.title} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
-						roll.toMessage({
-							speaker: ChatMessage.getSpeaker({ actor: data.actor }),
-							flavor: label,
-							rollMode: game.settings.get("core", "rollMode"),
-						});
+						roll.toMessage(
+							{
+								speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+								flavor: label,
+							},
+							messageModeOptions(),
+						);
 						if (isCore) {
 							const updatedTraits = foundry.utils.deepClone(coreTraits);
 							data.actor.update({ "system.traits": updatedTraits });
@@ -1004,11 +1039,13 @@ export function rollXp(data) {
 				}
 				const traitLabel = game.i18n.localize(trait.label);
 				const label = `Roll for XP on ${traitLabel} (Level ${originalValue}). Needs > ${target}: <strong>${isSuccess ? "Success!" : "Failure"}</strong>`;
-				roll.toMessage({
-					speaker: ChatMessage.getSpeaker({ actor: data.actor }),
-					flavor: label,
-					rollMode: game.settings.get("core", "rollMode"),
-				});
+				roll.toMessage(
+					{
+						speaker: ChatMessage.getSpeaker({ actor: data.actor }),
+						flavor: label,
+					},
+					messageModeOptions(),
+				);
 				if (isCore) {
 					const updatedTraits = foundry.utils.deepClone(coreTraits);
 					data.actor.update({ "system.traits": updatedTraits });
@@ -1080,46 +1117,56 @@ export function rollChip(actor, dice = 1) {
 	});
 }
 
+/**
+ * Message ids of rolls currently being rerolled by this client.
+ * @type {Set<string>}
+ */
+const rerollingMessages = new Set();
+
 export async function handleReroll(message, actor, rollData, chipType) {
-	const chips = actor.system.chips || { white: 0, green: 0 };
-	if (chipType === "white") {
-		if (chips.white <= 0) {
-			ui.notifications.error("You don't have any White Fate Chips left!");
-			return;
-		}
-		// Consume 1 white chip
-		await actor.update({ "system.chips.white": chips.white - 1 });
+	if (rollData.rerolled || rerollingMessages.has(message.id)) return;
+	const chipKey = chipType === "green" ? "green" : "white";
+	const chipCount = actor.system.chips?.[chipKey] ?? 0;
+	if (chipCount <= 0) {
+		ui.notifications.error(
+			chipKey === "green"
+				? "You don't have any Green Fate Chips left!"
+				: "You don't have any White Fate Chips left!",
+		);
+		return;
+	}
+	rerollingMessages.add(message.id);
 
-		// Perform White Reroll (same parameters)
-		await usrRoll({
-			actor: actor,
-			trait: rollData.trait,
-			spec: rollData.spec,
-			difficulty: rollData.difficulty,
-			flavor: `${rollData.flavor} (White Chip Reroll)`,
-		});
-	} else if (chipType === "green") {
-		if (chips.green <= 0) {
-			ui.notifications.error("You don't have any Green Fate Chips left!");
-			return;
-		}
-		// Consume 1 green chip
-		await actor.update({ "system.chips.green": chips.green - 1 });
-
-		// Perform Green Reroll (+1 die, max 1 success)
-		await usrRoll({
-			actor: actor,
-			trait: rollData.trait,
-			spec: rollData.spec,
-			difficulty: rollData.difficulty,
-			diceBonus: 1,
-			maxSuccesses: 1,
-			flavor: `${rollData.flavor} (Green Chip Reroll)`,
+	// Mark the original message as rerolled first, so the buttons can't be used
+	// again even if a later step fails. Non-owners ask the GM via socket.
+	if (message.isOwner) {
+		await message.update({ "flags.usr.rollData.rerolled": true });
+	} else {
+		game.socket.emit("system.usr", {
+			type: "markRerolled",
+			messageId: message.id,
 		});
 	}
 
-	// Update original message to mark it as already rerolled, hiding the reroll buttons
-	await message.update({
-		"flags.usr.rollData.rerolled": true,
+	await actor.update({ [`system.chips.${chipKey}`]: chipCount - 1 });
+
+	let item = rollData.itemData ?? null;
+	if (rollData.itemUuid) item = await fromUuid(rollData.itemUuid);
+
+	const isGreen = chipKey === "green";
+	await usrRoll({
+		actor,
+		item,
+		trait: rollData.trait,
+		spec: rollData.spec,
+		difficulty: rollData.difficulty,
+		// Green: reroll with an extra die, but only one success counts.
+		diceBonus: (rollData.diceBonus ?? 0) + (isGreen ? 1 : 0),
+		maxSuccesses: isGreen ? 1 : undefined,
+		customModifier: rollData.customModifier ?? 0,
+		roundsFired: rollData.roundsFired,
+		skipDamage: rollData.skipDamage === true,
+		awardUsage: false,
+		flavor: `${rollData.flavor} (${isGreen ? "Green" : "White"} Chip Reroll)`,
 	});
 }

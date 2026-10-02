@@ -1,5 +1,6 @@
 import { usr } from "./config.mjs";
 import { showRoll } from "./roll.mjs";
+import { messageModeOptions } from "./chat.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -35,14 +36,30 @@ export async function addHealingPoints(actor) {
 				default: true,
 				callback: (_event, _button, dialog) => {
 					let total = 0;
-					const health = actor.system.health;
-					health.hp =
-						(health.hp ?? 0) +
-						Number.parseInt(getDialogValue(dialog, "#add-hp") ?? "0", 10);
+					const health = foundry.utils.deepClone(actor.system.health);
+					const added = Number.parseInt(getDialogValue(dialog, "#add-hp"), 10);
+					health.hp = (health.hp ?? 0) + (Number.isFinite(added) ? added : 0);
+
+					// Wounds can't be healed while the Blood Pool isn't full; HP is kept.
+					const blood = actor.system.blood;
+					const canHealWounds = blood.value >= blood.max;
+					const hasWounds = Object.entries(usr.wounds).some(
+						([key, wound]) => wound.hp > 0 && health[key] > 0,
+					);
+					if (!canHealWounds && hasWounds) {
+						ui.notifications.info(
+							"The Blood Pool must be full before Healing Points can clear wounds.",
+						);
+					}
+
 					if (health.hp > 0) {
 						Object.keys(usr.wounds).forEach((key) => {
 							const wound = usr.wounds[key];
 							if (wound.hp > 0) {
+								if (!canHealWounds) {
+									total += health[key];
+									return;
+								}
 								let nr = health[key];
 								if (nr > 0) {
 									let healNr = Math.floor(health.hp / wound.hp);
@@ -70,10 +87,9 @@ export async function addHealingPoints(actor) {
 function getArgs(dialog) {
 	const type = getDialogValue(dialog, "#wound") ?? "x";
 	const location = getDialogValue(dialog, "#location") ?? "none";
-	let amount = Number.parseInt(
-		getDialogValue(dialog, "#add-damage") ?? "0",
-		10,
-	);
+	// An empty field gives "", so fall back to 0 for anything that isn't a number.
+	let amount = Number.parseInt(getDialogValue(dialog, "#add-damage"), 10);
+	amount = Number.isFinite(amount) ? Math.max(0, amount) : 0;
 	const spendRed = dialog.element.querySelector("#spend-red")?.checked ?? false;
 	return { type, location, amount, spendRed };
 }
@@ -83,7 +99,8 @@ async function applyRedChipMitigation(actor, args) {
 		const redChips = actor.system.chips?.red ?? 0;
 		if (redChips > 0) {
 			await actor.update({ "system.chips.red": redChips - 1 });
-			args.amount = Math.floor(args.amount / 2);
+			// Negate half the damage, rounded down.
+			args.amount -= Math.floor(args.amount / 2);
 			ChatMessage.create({
 				speaker: ChatMessage.getSpeaker({ actor }),
 				content: "Spent a Red Chip to negate half the damage.",
@@ -115,6 +132,7 @@ export async function addDamage(actor) {
 				label: "Damage",
 				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					if (args.amount <= 0) return;
 					await applyRedChipMitigation(actor, args);
 					setDamage(args.amount, args.type, actor);
 					if (["m", "s", "d"].includes(args.type) && args.amount > 0) {
@@ -129,6 +147,7 @@ export async function addDamage(actor) {
 				default: true,
 				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					if (args.amount <= 0) return;
 					await applyRedChipMitigation(actor, args);
 					resistDamage(args.amount, args.type, actor, args.location);
 				},
@@ -295,9 +314,7 @@ export async function triggerTraumaCheck(
 				flavor: "Trauma Check",
 				content,
 			},
-			{
-				rollMode: game.settings.get("core", "rollMode"),
-			},
+			messageModeOptions(),
 		);
 		console.log(
 			"USR | Trauma Check message created successfully via roll.toMessage.",
@@ -316,15 +333,8 @@ function setDamage(amount, type, actor) {
 
 	const speaker = ChatMessage.getSpeaker({ actor });
 	const content = `${amount} boxes of ${wound.label} damage.`;
-	const messageData = {
-		user: game.user.id,
-		content,
-		speaker,
-		flavor: "Received Damage",
-	};
-
-	const msg = new ChatMessage(messageData);
-	ChatMessage.create(msg.toObject(), {
-		rollMode: game.settings.get("core", "rollMode"),
-	});
+	ChatMessage.create(
+		{ content, speaker, flavor: "Received Damage" },
+		messageModeOptions(),
+	);
 }

@@ -5,7 +5,7 @@ const fields = foundry.data.fields;
  */
 class BaseActorData extends foundry.abstract.TypeDataModel {
 	/** @override */
-	static migrateData(source) {
+	static migrateData(source, options) {
 		const skillTraitKeys = [
 			"medicine",
 			"engineering",
@@ -86,10 +86,12 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 					// Remove from original traits object to prevent schema validation issues
 					delete source.traits[key];
 				} else if (source.skillTraits[key]) {
-					// It's already in skillTraits, but we might still need to fix incomplete data
+					// It's already in skillTraits, but we might still need to fix incomplete data.
+					// Skip this for partial update data: a missing value there just means
+					// it isn't being changed, and filling defaults would reset it and its specs.
 					if (
-						!source.skillTraits[key].value ||
-						!source.skillTraits[key].label
+						!options?.partial &&
+						(!source.skillTraits[key].value || !source.skillTraits[key].label)
 					) {
 						source.skillTraits[key] = {
 							label: `USR.Trait${key.charAt(0).toUpperCase() + key.slice(1)}`,
@@ -133,7 +135,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
 			}
 		}
 
-		return super.migrateData(source);
+		return super.migrateData(source, options);
 	}
 
 	static defineSchema() {

@@ -6,7 +6,7 @@
 				<label>{{localize 'USR.Level'}}</label>
 				<input
 					type="number"
-					min="0"
+					min="1"
 					max="7"
 					name="value"
 					value="{{trait.value}}"
@@ -34,7 +34,6 @@
 					>
 						<i class="fas fa-times"></i>
 					</button>
-					<input type="hidden" name="roll" value="{{trait.roll}}" />
 				</div>
 			</div>
 			<div class="form-group">
@@ -99,11 +98,6 @@
 				>
 					<i class="fas fa-times"></i>
 				</button>
-				<input
-					type="hidden"
-					name="spec-{{spec.slug}}-roll"
-					value="{{spec.roll}}"
-				/>
 			</div>
 			<input
 				type="number"

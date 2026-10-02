@@ -13,7 +13,12 @@ import { usrCombatTracker } from "./sheets/combat-tracker.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
 import { usrRoll, rollDamage, handleReroll } from "./helpers/roll.mjs";
-import { migrateWorld } from "./helpers/migration.mjs";
+import {
+	MIGRATION_VERSION,
+	migrateWorld,
+	needsMigration,
+} from "./helpers/migration.mjs";
+import { getCombatant } from "./helpers/combat.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -114,26 +119,21 @@ Hooks.once("init", async function () {
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
-	// Only run migration for the GM
-	if (!game.user.isGM) return;
-
-	// Check if migration is needed
-	const currentVersion = game.system.version;
-	const lastVersion = game.settings.get("usr", "systemVersion");
+	// Only the active GM migrates, so several connected GMs don't all do it.
+	if (!game.users.activeGM?.isSelf) return;
+	if (!needsMigration()) return;
 
 	console.log(
-		`USR | Current Version: ${currentVersion}, Last Version: ${lastVersion}`,
+		`USR | Stored data version ${game.settings.get("usr", "systemVersion")} is older than ${MIGRATION_VERSION}, running migration...`,
 	);
-
-	if (foundry.utils.isNewerVersion(currentVersion, lastVersion)) {
-		console.log("USR | System version is newer, running migration...");
-		try {
-			await migrateWorld();
-			await game.settings.set("usr", "systemVersion", currentVersion);
-			console.log(`USR | Version setting updated to ${currentVersion}`);
-		} catch (err) {
-			console.error("USR | Migration failed:", err);
+	try {
+		// Only record the new version if every document migrated, so failures are retried.
+		if (await migrateWorld()) {
+			await game.settings.set("usr", "systemVersion", MIGRATION_VERSION);
+			console.log(`USR | Version setting updated to ${MIGRATION_VERSION}`);
 		}
+	} catch (err) {
+		console.error("USR | Migration failed:", err);
 	}
 });
 
@@ -145,7 +145,9 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 	// Handle reroll buttons for trait/specialization rolls
 	const rollData = message.getFlag("usr", "rollData");
 	if (rollData) {
-		const actor = game.actors.get(rollData.actorId);
+		const actor = rollData.actorUuid
+			? fromUuidSync(rollData.actorUuid)
+			: game.actors.get(rollData.actorId);
 		const rerollButtons = html.querySelector(".reroll-buttons");
 
 		if (rerollButtons) {
@@ -186,6 +188,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
 	const attacker = fromUuidSync(attackData.attacker.uuid);
 	const target = fromUuidSync(attackData.target.uuid);
+	if (!attacker || !target) return;
 
 	// Defend Button (Opens Dialog)
 	const defendButton = html.querySelector(".open-defense-dialog");
@@ -197,6 +200,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
 		defendButton.addEventListener("click", async (event) => {
 			event.preventDefault();
+			if (isInteractionResolved(message)) return;
 
 			const defenseWeapons = target.items
 				.filter((i) => i.type === "melee" && i.system.equipped)
@@ -214,9 +218,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 				defenseBonus: -1,
 			});
 
-			const combatant = game.combat?.combatants.find(
-				(c) => c.actorId === target.id,
-			);
+			const combatant = getCombatant(target);
 			const inCombat = !!game.combat?.active && !!combatant;
 
 			const templateData = {
@@ -389,6 +391,36 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 	}
 });
 
+/**
+ * Message ids of combat interactions currently being resolved by this client.
+ * @type {Set<string>}
+ */
+const resolvingInteractions = new Set();
+
+/**
+ * Check whether a combat interaction message has already been resolved.
+ * @param {ChatMessage} message
+ * @returns {boolean}
+ */
+function isInteractionResolved(message) {
+	return (
+		resolvingInteractions.has(message.id) ||
+		!!message.getFlag("usr", "attackData")?.resolved
+	);
+}
+
+/**
+ * Chat message updates that non-owners may request through the system socket.
+ * Only these fixed updates are applied, never data sent by the client.
+ */
+const SOCKET_MESSAGE_UPDATES = {
+	resolveInteraction: {
+		"flags.usr.attackData.resolved": true,
+		content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
+	},
+	markRerolled: { "flags.usr.rollData.rerolled": true },
+};
+
 async function resolveInteraction(
 	attackMsg,
 	attackData,
@@ -396,6 +428,8 @@ async function resolveInteraction(
 	target,
 	attacker,
 ) {
+	if (isInteractionResolved(attackMsg)) return;
+	resolvingInteractions.add(attackMsg.id);
 	console.log("USR | Resolving Combat Interaction", {
 		attackData,
 		defenseRoll,
@@ -429,12 +463,14 @@ async function resolveInteraction(
 	};
 	await ChatMessage.create(summaryMessageData);
 
-	// 2. We can still TRY to update the original message to hide the button if we are the owner
-	// but we don't rely on it for the result.
-	if (attackMsg.isOwner || game.user.isGM) {
-		await attackMsg.update({
-			"flags.usr.attackData.resolved": true,
-			content: `<div class="usr resolved-placeholder">Combat Resolved. See result above/below.</div>`,
+	// 2. Mark the original message as resolved. Non-owners ask the active GM
+	// (or the message author) to do it via socket.
+	if (attackMsg.isOwner) {
+		await attackMsg.update(SOCKET_MESSAGE_UPDATES.resolveInteraction);
+	} else {
+		game.socket.emit("system.usr", {
+			type: "resolveInteraction",
+			messageId: attackMsg.id,
 		});
 	}
 
@@ -535,7 +571,10 @@ Hooks.on("updateCombatant", async (combatant, changed, options, userId) => {
 	const phase = combat.getFlag("usr", "phase") || 1;
 
 	// Phase 1 -> Phase 2 transition when all non-defeated combatants have defined their actions
-	if (phase === 1 && foundry.utils.hasProperty(changed, "flags.usr.action")) {
+	if (
+		phase === 1 &&
+		foundry.utils.hasProperty(changed, "flags.usr.action.stance")
+	) {
 		const activeCombatants = combat.combatants.filter((c) => !c.isDefeated);
 		if (activeCombatants.length > 0) {
 			const allDefined = activeCombatants.every((c) => {
@@ -668,23 +707,27 @@ Hooks.once("ready", async function () {
 
 	// Register socket listener for message updates (required for non-owners to update attack messages)
 	game.socket.on("system.usr", async (request) => {
-		if (request.type === "updateChatMessage") {
-			const message = game.messages.get(request.messageId);
-			if (!message) return;
+		const updateData = SOCKET_MESSAGE_UPDATES[request?.type];
+		if (!updateData) return;
+		const message = game.messages.get(request.messageId);
+		if (!message) return;
 
-			// Handle update if we are the owner or an active GM
-			const isOwner = game.user.id === message.author.id;
-			const activeGM = game.users.activeGM;
-			const isActiveGM = game.user.isGM && game.user.id === activeGM?.id;
-
-			if (isOwner || isActiveGM) {
-				await message.update(request.updateData);
-			}
+		// Exactly one client handles the update: the active GM, or the
+		// message author if no GM is connected.
+		const activeGM = game.users.activeGM;
+		const handler = activeGM ?? (message.author?.active ? message.author : null);
+		if (handler?.id === game.user.id) {
+			await message.update(updateData);
 		}
 	});
 
 	// Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
-	Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
+	// The hook must return false synchronously to stop core creating its own macro.
+	Hooks.on("hotbarDrop", (bar, data, slot) => {
+		if (data.type !== "Item") return;
+		createItemMacro(data, slot);
+		return false;
+	});
 });
 
 /* -------------------------------------------- */
@@ -696,11 +739,10 @@ Hooks.once("ready", async function () {
  * Get an existing item macro if one exists, otherwise create a new one.
  * @param {Object} data     The dropped data
  * @param {number} slot     The hotbar slot to use
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 async function createItemMacro(data, slot) {
 	// First, determine if this is a valid owned item.
-	if (data.type !== "Item") return;
 	if (!data.uuid.includes("Actor.") && !data.uuid.includes("Token.")) {
 		return ui.notifications.warn(
 			"You can only create macro buttons for owned Items",
@@ -723,8 +765,7 @@ async function createItemMacro(data, slot) {
 			flags: { "usr.itemMacro": true },
 		});
 	}
-	game.user.assignHotbarMacro(macro, slot);
-	return false;
+	await game.user.assignHotbarMacro(macro, slot);
 }
 
 /**

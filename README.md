@@ -6,7 +6,7 @@ This project is an implementation of the **Universal Simple Role-Playing (USR)**
 
 ## Compatibility
 
-- **Foundry VTT**: Compatible with v12 and v14.
+- **Foundry VTT**: Compatible with v13 and v14.
 
 ## Features
 

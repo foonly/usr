@@ -6,6 +6,22 @@ import { usr } from "../helpers/config.mjs";
  */
 export class usrActor extends Actor {
 	/** @override */
+	async _preCreate(data, options, user) {
+		const allowed = await super._preCreate(data, options, user);
+		if (allowed === false) return false;
+
+		// Start with a full Blood Pool. Its maximum depends on Fortitude, so it
+		// can't be a schema default.
+		if (foundry.utils.getProperty(data, "system.blood.value") === undefined) {
+			const fortitude = this.system.traits?.fortitude;
+			if (fortitude) {
+				const maxBlood = 4 + fortitude.value + (fortitude.modifier ?? 0);
+				this.updateSource({ "system.blood.value": maxBlood });
+			}
+		}
+	}
+
+	/** @override */
 	prepareBaseData() {
 		super.prepareBaseData();
 	}
@@ -114,7 +130,7 @@ export class usrActor extends Actor {
 		let encumbranceMobility = 0;
 		let encumbranceGeneral = 0;
 
-		if (equippedEncumbrance > baseCapacity * 5) {
+		if (equippedEncumbrance > baseCapacity * 4) {
 			encumbranceMobility = -3;
 			encumbranceGeneral = -1;
 		} else if (equippedEncumbrance > baseCapacity * 3) {
@@ -182,36 +198,8 @@ export class usrActor extends Actor {
 	 * Override getRollData() that's supplied to rolls.
 	 */
 	getRollData() {
-		const data = super.getRollData();
-
-		// Prepare character roll data.
-		this._getCharacterRollData(data);
-		this._getNpcRollData(data);
-
-		return data;
-	}
-
-	/**
-	 * Prepare character roll data.
-	 */
-	_getCharacterRollData(data) {
-		if (this.type !== "character") return;
-
-		// Copy the ability scores to the top level, so that rolls can use
-		// formulas like `@str.mod + 4`.
-		if (data.abilities) {
-			for (let [k, v] of Object.entries(data.abilities)) {
-				data[k] = foundry.utils.deepClone(v);
-			}
-		}
-	}
-
-	/**
-	 * Prepare NPC roll data.
-	 */
-	_getNpcRollData(data) {
-		if (this.type !== "npc") return;
-
-		// Process additional NPC data here.
+		// Core returns the actor's system data itself, so return a copy that
+		// callers can add to without changing the actor.
+		return { ...super.getRollData() };
 	}
 }

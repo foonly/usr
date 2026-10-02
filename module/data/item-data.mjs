@@ -6,29 +6,30 @@ const fields = foundry.data.fields;
  * Shared fields for all Item types.
  */
 class BaseItemData extends foundry.abstract.TypeDataModel {
-	/** @override */
-	static migrateData(source) {
-		// Migrate specialization strings to slugs for Melee and Ranged
-		if (
-			(source.type === "melee" || source.type === "ranged") &&
-			source.system?.specialization
-		) {
-			const spec = source.system.specialization.toLowerCase();
-			const specConfig = CONFIG.usr.specializations[source.type];
+	/**
+	 * Migrate a weapon's specialization from its localized name to its slug.
+	 * migrateData only receives the system data, so the caller passes the type.
+	 * @param {object} source         The item's system source data
+	 * @param {string} weaponType     "melee" or "ranged"
+	 */
+	static migrateSpecialization(source, weaponType) {
+		if (typeof source.specialization !== "string" || !source.specialization) {
+			return;
+		}
+		const spec = source.specialization.toLowerCase();
+		const specConfig = CONFIG.usr?.specializations?.[weaponType];
 
-			// If it's already a slug or known config, we're good
-			if (specConfig && !specConfig[spec]) {
-				// Try to find a slug that matches the localized name
-				for (const [slug, labelKey] of Object.entries(specConfig)) {
-					const label = game.i18n.localize(labelKey).toLowerCase();
-					if (spec === label) {
-						source.system.specialization = slug;
-						break;
-					}
-				}
+		// If it's already a slug or there's no config, we're good
+		if (!specConfig || specConfig[spec]) return;
+
+		// Try to find a slug that matches the localized name
+		for (const [slug, labelKey] of Object.entries(specConfig)) {
+			const label = game.i18n.localize(labelKey).toLowerCase();
+			if (spec === label) {
+				source.specialization = slug;
+				return;
 			}
 		}
-		return super.migrateData(source);
 	}
 
 	static defineSchema() {
@@ -57,6 +58,12 @@ export class ItemData extends BaseItemData {
  * Data model for Melee weapons.
  */
 export class MeleeData extends BaseItemData {
+	/** @override */
+	static migrateData(source) {
+		this.migrateSpecialization(source, "melee");
+		return super.migrateData(source);
+	}
+
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
@@ -82,6 +89,12 @@ export class MeleeData extends BaseItemData {
  * Data model for Ranged weapons.
  */
 export class RangedData extends BaseItemData {
+	/** @override */
+	static migrateData(source) {
+		this.migrateSpecialization(source, "ranged");
+		return super.migrateData(source);
+	}
+
 	static defineSchema() {
 		return {
 			...super.defineSchema(),

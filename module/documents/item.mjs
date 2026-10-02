@@ -1,5 +1,7 @@
 // Import helper/utility classes and constants.
 import { usrRoll } from "../helpers/roll.mjs";
+import { getStance } from "../helpers/combat.mjs";
+import { messageModeOptions } from "../helpers/chat.mjs";
 
 /**
  * Extend the basic Item with some very simple modifications.
@@ -13,7 +15,8 @@ export class usrItem extends Item {
 	getRollData() {
 		// If present, return the actor's roll data.
 		if (!this.actor) return null;
-		const rollData = this.actor.getRollData();
+		// Copy, so adding the item doesn't write onto the actor's data.
+		const rollData = { ...this.actor.getRollData() };
 		// Grab the item's system data as well.
 		rollData.item = foundry.utils.deepClone(this.system);
 
@@ -63,15 +66,9 @@ export class usrItem extends Item {
 			let label = `${item.name} (${item.type === "melee" ? "Melee" : "Ranged"} Attack)`;
 
 			let diceBonus = 0;
-			if (game.combat) {
-				const combatant = game.combat.combatants.find(
-					(c) => c.actorId === actor.id,
-				);
-				const stance = combatant?.getFlag("usr", "action.stance");
-				if (stance === "defensive") {
-					diceBonus = -1;
-					label += " [Defensive Stance]";
-				}
+			if (getStance(actor) === "defensive") {
+				diceBonus = -1;
+				label += " [Defensive Stance]";
 			}
 
 			return usrRoll({
@@ -87,17 +84,18 @@ export class usrItem extends Item {
 
 		// Initialize chat data.
 		const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-		const rollMode = game.settings.get("core", "rollMode");
 		const label = `[${item.type}] ${item.name}`;
 
 		// If there's no roll data, send a chat message.
 		if (!this.system.formula) {
-			ChatMessage.create({
-				speaker: speaker,
-				rollMode: rollMode,
-				flavor: label,
-				content: item.system.description ?? "",
-			});
+			return ChatMessage.create(
+				{
+					speaker: speaker,
+					flavor: label,
+					content: item.system.description ?? "",
+				},
+				messageModeOptions(),
+			);
 		}
 		// Otherwise, create a roll and send a chat message from it.
 		else {
@@ -108,11 +106,13 @@ export class usrItem extends Item {
 			const roll = new Roll(rollData.item.formula, rollData);
 			// If you need to store the value first, uncomment the next line.
 			// let result = await roll.roll({async: true});
-			roll.toMessage({
-				speaker: speaker,
-				rollMode: rollMode,
-				flavor: label,
-			});
+			await roll.toMessage(
+				{
+					speaker: speaker,
+					flavor: label,
+				},
+				messageModeOptions(),
+			);
 			return roll;
 		}
 	}
@@ -130,19 +130,14 @@ export class usrItem extends Item {
 		let label = `${item.name} (Defend)`;
 
 		let difficulty = 3; // Default (Neutral/Out of combat)
-		if (game.combat) {
-			const combatant = game.combat.combatants.find(
-				(c) => c.actorId === actor.id,
-			);
-			const stance = combatant?.getFlag("usr", "action.stance");
-			if (stance === "aggressive") difficulty = 2;
-			else if (stance === "neutral") difficulty = 3;
-			else if (stance === "defensive") difficulty = 4;
+		const stance = getStance(actor);
+		if (stance === "aggressive") difficulty = 2;
+		else if (stance === "neutral") difficulty = 3;
+		else if (stance === "defensive") difficulty = 4;
 
-			if (stance) {
-				const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
-				label += ` [${stanceLabel} Stance]`;
-			}
+		if (stance) {
+			const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
+			label += ` [${stanceLabel} Stance]`;
 		}
 
 		// Add defense bonus of the weapon to the difficulty

@@ -10,7 +10,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 		super(
 			foundry.utils.mergeObject(
 				{
-					id: `trait-${key}-edit-sheet`,
+					id: `trait-${actor.uuid.replaceAll(".", "-")}-${key}-edit-sheet`,
 					window: {
 						title: `Edit ${game.i18n.localize(label)}`,
 					},
@@ -19,25 +19,46 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 			),
 		);
 
-		this.trait = foundry.utils.deepClone(trait || {});
-		// Ensure label is set for new traits
-		if (!this.trait.label) this.trait.label = label;
-		if (this.trait.value === undefined) this.trait.value = 1;
-		if (this.trait.xp === undefined) this.trait.xp = 0;
-		if (this.trait.roll === undefined) this.trait.roll = 0;
-		if (this.trait.modifier === undefined) this.trait.modifier = 0;
-		if (this.trait.spec === undefined) this.trait.spec = [];
-		if (this.trait.hasSpec === undefined) {
-			const isCore = !!actor.system.traits[key];
-			if (isCore) {
-				this.trait.hasSpec = ["mobility", "melee", "ranged"].includes(key);
-			} else {
-				this.trait.hasSpec = true;
-			}
-		}
-
 		this.key = key;
 		this.actor = actor;
+		this.label = label;
+	}
+
+	/**
+	 * Roll counters cleared in this editor but not yet saved.
+	 * Holds "trait" for the trait itself and spec titles for specializations.
+	 * @type {Set<string>}
+	 */
+	#clearedRolls = new Set();
+
+	/**
+	 * Whether the edited trait is a core trait (as opposed to a skill trait).
+	 * @type {boolean}
+	 */
+	get isCore() {
+		return !!this.actor.system.traits[this.key];
+	}
+
+	/**
+	 * Read the trait's current stored data from the actor, filling in defaults.
+	 * Always read fresh so rolls made while the editor is open are not overwritten.
+	 * @returns {object}
+	 */
+	getStoredTrait() {
+		const source = this.isCore
+			? this.actor.system.traits[this.key]
+			: this.actor.system.toObject().skillTraits?.[this.key];
+		const trait = foundry.utils.deepClone(source || {});
+		trait.label ||= this.label;
+		trait.value ??= 1;
+		trait.xp ??= 0;
+		trait.roll ??= 0;
+		trait.modifier ??= 0;
+		if (!Array.isArray(trait.spec)) trait.spec = [];
+		trait.hasSpec ??= this.isCore
+			? ["mobility", "melee", "ranged"].includes(this.key)
+			: true;
+		return trait;
 	}
 
 	static DEFAULT_OPTIONS = {
@@ -58,7 +79,6 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 			closeOnSubmit: false,
 		},
 		actions: {
-			addSpec: this.prototype._onAddSpec,
 			saveAndClose: this.prototype._onSaveAndClose,
 			clearRoll: this.prototype._onClearRoll,
 			clearSpecRoll: this.prototype._onClearSpecRoll,
@@ -66,23 +86,32 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	};
 
 	/**
-	 * Clear the main trait's roll counter.
+	 * Clear the main trait's roll counter. Applied when the form is saved.
+	 * @param {PointerEvent} event
+	 * @param {HTMLElement} target
 	 */
-	_onClearRoll() {
-		this.trait.roll = 0;
-		this.render();
+	_onClearRoll(event, target) {
+		this.#clearedRolls.add("trait");
+		this.#showRollCleared(target);
 	}
 
 	/**
-	 * Clear a specific specialization's roll counter.
+	 * Clear a specific specialization's roll counter. Applied when the form is saved.
+	 * @param {PointerEvent} event
+	 * @param {HTMLElement} target
 	 */
-	_onClearSpecRoll(event) {
-		const slug = event.currentTarget.dataset.slug;
-		const spec = this.trait.spec.find((s) => s.title === slug);
-		if (spec) {
-			spec.roll = 0;
-			this.render();
-		}
+	_onClearSpecRoll(event, target) {
+		this.#clearedRolls.add(target.dataset.slug);
+		this.#showRollCleared(target);
+	}
+
+	/**
+	 * Update the displayed roll counter without re-rendering, so unsaved edits are kept.
+	 * @param {HTMLElement} button
+	 */
+	#showRollCleared(button) {
+		const display = button.closest(".roll-display")?.querySelector(".roll-value");
+		if (display) display.textContent = "0";
 	}
 
 	static PARTS = {
@@ -95,14 +124,14 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	/** @override */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
+		const trait = this.getStoredTrait();
+		if (this.#clearedRolls.has("trait")) trait.roll = 0;
 		const specConfig = CONFIG.usr.specializations[this.key] || {};
 		const allSpecs = [];
 
 		// Prepare existing specs
 		const existingSpecs = new Map();
-		if (Array.isArray(this.trait.spec)) {
-			this.trait.spec.forEach((s) => existingSpecs.set(s.title, s));
-		}
+		trait.spec.forEach((s) => existingSpecs.set(s.title, s));
 
 		// Add all specs from config
 		for (const [slug, labelKey] of Object.entries(specConfig)) {
@@ -113,7 +142,7 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 				localizedTitle: game.i18n.localize(labelKey),
 				value: existing?.value ?? 0,
 				modifier: existing?.modifier ?? 0,
-				roll: existing?.roll ?? 0,
+				roll: this.#clearedRolls.has(slug) ? 0 : (existing?.roll ?? 0),
 				xp: existing?.xp ?? 0,
 				isLegacy: false,
 			});
@@ -127,14 +156,15 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 				title: title,
 				localizedTitle: title,
 				value: s.value,
-				roll: s.roll,
-				xp: s.xp,
+				modifier: s.modifier ?? 0,
+				roll: this.#clearedRolls.has(title) ? 0 : (s.roll ?? 0),
+				xp: s.xp ?? 0,
 				isLegacy: true,
 			});
 		}
 
 		return Object.assign(context, {
-			trait: this.trait,
+			trait,
 			key: this.key,
 			allSpecs,
 		});
@@ -144,28 +174,6 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	async _onRender(context, options) {
 		await super._onRender(context, options);
 		this.window.content?.classList.add("trait-sheet");
-	}
-
-	/**
-	 * Submit the current form state, add a specialization, and re-render.
-	 * @returns {Promise<void>}
-	 */
-	async _onAddSpec() {
-		await this.submit();
-
-		if (!Array.isArray(this.trait.spec)) {
-			this.trait.spec = [];
-		}
-
-		this.trait.spec.push({
-			title: "",
-			value: 0,
-			roll: 0,
-			xp: 0,
-		});
-
-		await this.updateActor();
-		await this.render({ force: true });
 	}
 
 	/**
@@ -186,51 +194,69 @@ export class TraitSheet extends HandlebarsApplicationMixin(ApplicationV2) {
 	 */
 	async _onSubmitForm(event, form, formData) {
 		const data = formData.object;
+		const toInt = (value, fallback = 0) => {
+			const n = Number.parseInt(value, 10);
+			return Number.isFinite(n) ? n : fallback;
+		};
 
-		this.trait.value = Number.parseInt(data.value ?? 0, 10);
-		this.trait.modifier = Number.parseInt(data.modifier ?? 0, 10);
-		this.trait.roll = Number.parseInt(data.roll ?? 0, 10);
-		this.trait.xp = Number.parseInt(data.xp ?? 0, 10);
+		// Start from the stored trait so roll counters gained while the editor
+		// was open are preserved; only fields shown in the form are overwritten.
+		const trait = this.getStoredTrait();
+		trait.value = Math.max(1, toInt(data.value, trait.value));
+		trait.modifier = toInt(data.modifier, trait.modifier);
+		trait.xp = Math.max(0, toInt(data.xp, trait.xp));
+		if (this.#clearedRolls.has("trait")) trait.roll = 0;
 
-		if (this.trait.hasSpec) {
-			const spec = [];
+		if (trait.hasSpec) {
+			const stored = new Map(trait.spec.map((s) => [s.title, s]));
 			const specConfig = CONFIG.usr.specializations[this.key] || {};
-			const slugs = new Set([
-				...Object.keys(specConfig),
-				...this.trait.spec.map((s) => s.title),
-			]);
+			const slugs = new Set([...Object.keys(specConfig), ...stored.keys()]);
+			const spec = [];
 
 			for (const slug of slugs) {
-				const val = Number.parseInt(data[`spec-${slug}-value`] ?? 0, 10);
-				const mod = Number.parseInt(data[`spec-${slug}-modifier`] ?? 0, 10);
-				const roll = Number.parseInt(data[`spec-${slug}-roll`] ?? 0, 10);
-				const xp = Number.parseInt(data[`spec-${slug}-xp`] ?? 0, 10);
+				const existing = stored.get(slug);
+				const valueField = data[`spec-${slug}-value`];
 
-				if (val > 0 || mod !== 0 || roll > 0 || xp > 0) {
-					spec.push({ title: slug, value: val, modifier: mod, roll, xp });
+				// Not in the form (e.g. gained by a roll while open): keep as stored.
+				if (valueField === undefined) {
+					if (existing) spec.push(existing);
+					continue;
 				}
+
+				// A level of 0 means the specialization is not learned.
+				const value = toInt(valueField);
+				if (value < 1) continue;
+
+				spec.push({
+					title: slug,
+					value,
+					modifier: toInt(data[`spec-${slug}-modifier`]),
+					roll: this.#clearedRolls.has(slug) ? 0 : (existing?.roll ?? 0),
+					xp: Math.max(0, toInt(data[`spec-${slug}-xp`])),
+				});
 			}
-			this.trait.spec = spec;
+			trait.spec = spec;
 		}
 
-		await this.updateActor();
+		await this.updateActor(trait);
+		this.#clearedRolls.clear();
 	}
 
 	/**
 	 * Persist the edited trait back to the actor.
+	 * @param {object} trait    The full trait data to store
 	 * @returns {Promise<Actor>}
 	 */
-	updateActor() {
-		const isCore = !!this.actor.system.traits[this.key];
-		if (isCore) {
+	updateActor(trait) {
+		if (this.isCore) {
 			const traits = foundry.utils.deepClone(this.actor.system.traits);
-			traits[this.key] = this.trait;
+			traits[this.key] = trait;
 			return this.actor.update({ "system.traits": traits });
 		} else {
 			const skillTraits = foundry.utils.deepClone(
 				this.actor.system.toObject().skillTraits,
 			);
-			skillTraits[this.key] = this.trait;
+			skillTraits[this.key] = trait;
 			return this.actor.update({ "system.skillTraits": skillTraits });
 		}
 	}
