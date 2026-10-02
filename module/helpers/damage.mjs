@@ -70,10 +70,9 @@ export async function addHealingPoints(actor) {
 function getArgs(dialog) {
 	const type = getDialogValue(dialog, "#wound") ?? "x";
 	const location = getDialogValue(dialog, "#location") ?? "none";
-	let amount = Number.parseInt(
-		getDialogValue(dialog, "#add-damage") ?? "0",
-		10,
-	);
+	// An empty field gives "", so fall back to 0 for anything that isn't a number.
+	let amount = Number.parseInt(getDialogValue(dialog, "#add-damage"), 10);
+	amount = Number.isFinite(amount) ? Math.max(0, amount) : 0;
 	const spendRed = dialog.element.querySelector("#spend-red")?.checked ?? false;
 	return { type, location, amount, spendRed };
 }
@@ -83,7 +82,8 @@ async function applyRedChipMitigation(actor, args) {
 		const redChips = actor.system.chips?.red ?? 0;
 		if (redChips > 0) {
 			await actor.update({ "system.chips.red": redChips - 1 });
-			args.amount = Math.floor(args.amount / 2);
+			// Negate half the damage, rounded down.
+			args.amount -= Math.floor(args.amount / 2);
 			ChatMessage.create({
 				speaker: ChatMessage.getSpeaker({ actor }),
 				content: "Spent a Red Chip to negate half the damage.",
@@ -115,6 +115,7 @@ export async function addDamage(actor) {
 				label: "Damage",
 				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					if (args.amount <= 0) return;
 					await applyRedChipMitigation(actor, args);
 					setDamage(args.amount, args.type, actor);
 					if (["m", "s", "d"].includes(args.type) && args.amount > 0) {
@@ -129,6 +130,7 @@ export async function addDamage(actor) {
 				default: true,
 				callback: async (_event, _button, dialog) => {
 					const args = getArgs(dialog);
+					if (args.amount <= 0) return;
 					await applyRedChipMitigation(actor, args);
 					resistDamage(args.amount, args.type, actor, args.location);
 				},
