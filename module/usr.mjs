@@ -14,6 +14,7 @@ import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { usr } from "./helpers/config.mjs";
 import { usrRoll, rollDamage, handleReroll } from "./helpers/roll.mjs";
 import { migrateWorld } from "./helpers/migration.mjs";
+import { getCombatant } from "./helpers/combat.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -218,9 +219,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 				defenseBonus: -1,
 			});
 
-			const combatant = game.combat?.combatants.find(
-				(c) => c.actorId === target.id,
-			);
+			const combatant = getCombatant(target);
 			const inCombat = !!game.combat?.active && !!combatant;
 
 			const templateData = {

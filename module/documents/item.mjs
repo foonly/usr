@@ -1,5 +1,6 @@
 // Import helper/utility classes and constants.
 import { usrRoll } from "../helpers/roll.mjs";
+import { getStance } from "../helpers/combat.mjs";
 
 /**
  * Extend the basic Item with some very simple modifications.
@@ -63,15 +64,9 @@ export class usrItem extends Item {
 			let label = `${item.name} (${item.type === "melee" ? "Melee" : "Ranged"} Attack)`;
 
 			let diceBonus = 0;
-			if (game.combat) {
-				const combatant = game.combat.combatants.find(
-					(c) => c.actorId === actor.id,
-				);
-				const stance = combatant?.getFlag("usr", "action.stance");
-				if (stance === "defensive") {
-					diceBonus = -1;
-					label += " [Defensive Stance]";
-				}
+			if (getStance(actor) === "defensive") {
+				diceBonus = -1;
+				label += " [Defensive Stance]";
 			}
 
 			return usrRoll({
@@ -130,19 +125,14 @@ export class usrItem extends Item {
 		let label = `${item.name} (Defend)`;
 
 		let difficulty = 3; // Default (Neutral/Out of combat)
-		if (game.combat) {
-			const combatant = game.combat.combatants.find(
-				(c) => c.actorId === actor.id,
-			);
-			const stance = combatant?.getFlag("usr", "action.stance");
-			if (stance === "aggressive") difficulty = 2;
-			else if (stance === "neutral") difficulty = 3;
-			else if (stance === "defensive") difficulty = 4;
+		const stance = getStance(actor);
+		if (stance === "aggressive") difficulty = 2;
+		else if (stance === "neutral") difficulty = 3;
+		else if (stance === "defensive") difficulty = 4;
 
-			if (stance) {
-				const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
-				label += ` [${stanceLabel} Stance]`;
-			}
+		if (stance) {
+			const stanceLabel = stance.charAt(0).toUpperCase() + stance.slice(1);
+			label += ` [${stanceLabel} Stance]`;
 		}
 
 		// Add defense bonus of the weapon to the difficulty

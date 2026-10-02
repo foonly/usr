@@ -13,6 +13,7 @@ import {
 	useChip,
 } from "../helpers/dialog.mjs";
 import { usr } from "../helpers/config.mjs";
+import { getStance } from "../helpers/combat.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheet } = foundry.applications.sheets;
@@ -349,21 +350,24 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		context.equippedArmor = equippedArmor;
 
 		// Prepare Unarmed Attack
-		const fortitude =
-			context.system.traits.fortitude.value +
-			(context.system.traits.fortitude.modifier ?? 0);
-		const meleeTrait = context.system.traits.melee;
-		let spec = "";
+		context.unarmed = { ...this._getUnarmedWeapon(), isUnarmed: true };
+	}
+
+	/**
+	 * Build the plain weapon data used for unarmed attacks and defense.
+	 * @returns {object}
+	 */
+	_getUnarmedWeapon() {
+		const traits = this.actor.system.traits;
+		const fortitude = traits.fortitude.value + (traits.fortitude.modifier ?? 0);
 
 		// Check for Unarmed specialization
-		if (meleeTrait?.spec) {
-			const unarmedSpec = meleeTrait.spec.find(
-				(s) => s.title.toLowerCase() === "unarmed",
-			);
-			if (unarmedSpec) spec = unarmedSpec.title;
-		}
+		const unarmedSpec = traits.melee?.spec?.find(
+			(s) => s.title.toLowerCase() === "unarmed",
+		);
 
-		context.unarmed = {
+		return {
+			id: "unarmed",
 			name: game.i18n.localize("USR.Unarmed"),
 			img: "icons/skills/melee/unarmed-punch-fist.webp",
 			type: "melee",
@@ -372,9 +376,8 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				lethality: "stun",
 				defenseBonus: -1,
 				reach: 0,
-				specialization: spec,
+				specialization: unarmedSpec?.title ?? "",
 			},
-			isUnarmed: true,
 		};
 	}
 
@@ -616,60 +619,38 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 		) {
 			const itemId = element.closest(".item")?.dataset.itemId;
 			if (itemId === "unarmed") {
-				const coreTraits = this.actor.system.traits;
-				const skillTraits = this.actor.system.skillTraits;
-				const fortitude =
-					coreTraits.fortitude.value + (coreTraits.fortitude.modifier ?? 0);
-				const meleeTrait = coreTraits.melee;
-				let spec = "";
-
-				// Check for Unarmed specialization
-				if (meleeTrait?.spec) {
-					const unarmedSpec = meleeTrait.spec.find(
-						(s) => s.title.toLowerCase() === "unarmed",
-					);
-					if (unarmedSpec) spec = unarmedSpec.title;
-				}
-
-				const unarmedData = {
-					name: game.i18n.localize("USR.Unarmed"),
-					type: "melee",
-					system: {
-						damage: Math.round(fortitude * 0.75),
-						lethality: "stun",
-						defenseBonus: -1,
-						reach: 0,
-						specialization: spec,
-					},
-					id: "unarmed",
-				};
+				const unarmedData = this._getUnarmedWeapon();
+				const spec = unarmedData.system.specialization;
+				const stance = getStance(this.actor);
 
 				if (dataset.rollType === "attack") {
+					// Same defensive stance penalty as weapon attacks (see usrItem#roll)
+					let flavor = `${unarmedData.name} Attack`;
+					let diceBonus = 0;
+					if (stance === "defensive") {
+						diceBonus = -1;
+						flavor += " [Defensive Stance]";
+					}
 					return usrRoll({
 						actor: this.actor,
 						trait: "melee",
 						spec: spec,
-						flavor: `${unarmedData.name} Attack`,
+						flavor,
 						difficulty: 4,
+						diceBonus,
 						item: unarmedData,
 					});
 				} else if (dataset.rollType === "defend") {
 					let difficulty = 3; // Default (Neutral/Out of combat)
 					let flavor = `${unarmedData.name} (Defend)`;
-					if (game.combat) {
-						const combatant = game.combat.combatants.find(
-							(c) => c.actorId === this.actor.id,
-						);
-						const stance = combatant?.getFlag("usr", "action.stance");
-						if (stance === "aggressive") difficulty = 2;
-						else if (stance === "neutral") difficulty = 3;
-						else if (stance === "defensive") difficulty = 4;
+					if (stance === "aggressive") difficulty = 2;
+					else if (stance === "neutral") difficulty = 3;
+					else if (stance === "defensive") difficulty = 4;
 
-						if (stance) {
-							const stanceLabel =
-								stance.charAt(0).toUpperCase() + stance.slice(1);
-							flavor += ` [${stanceLabel} Stance]`;
-						}
+					if (stance) {
+						const stanceLabel =
+							stance.charAt(0).toUpperCase() + stance.slice(1);
+						flavor += ` [${stanceLabel} Stance]`;
 					}
 
 					return usrRoll({

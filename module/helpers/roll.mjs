@@ -1,4 +1,5 @@
 import { usr } from "./config.mjs";
+import { getCombatant } from "./combat.mjs";
 
 const { DialogV2 } = foundry.applications.api;
 
@@ -769,9 +770,7 @@ export async function createCombatInteraction(
 		defenseBonus: -1,
 	});
 
-	const combatant = game.combat?.combatants.find(
-		(c) => c.actorId === target.id,
-	);
+	const combatant = getCombatant(target);
 	const inCombat = !!game.combat?.active && !!combatant;
 
 	const data = {
