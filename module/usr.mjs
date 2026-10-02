@@ -564,7 +564,10 @@ Hooks.on("updateCombatant", async (combatant, changed, options, userId) => {
 	const phase = combat.getFlag("usr", "phase") || 1;
 
 	// Phase 1 -> Phase 2 transition when all non-defeated combatants have defined their actions
-	if (phase === 1 && foundry.utils.hasProperty(changed, "flags.usr.action")) {
+	if (
+		phase === 1 &&
+		foundry.utils.hasProperty(changed, "flags.usr.action.stance")
+	) {
 		const activeCombatants = combat.combatants.filter((c) => !c.isDefeated);
 		if (activeCombatants.length > 0) {
 			const allDefined = activeCombatants.every((c) => {

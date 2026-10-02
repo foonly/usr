@@ -61,6 +61,18 @@ export class usrCombat extends Combat {
 	 * Transition to the next phase of combat.
 	 */
 	async nextPhase() {
+		// Combatant updates made here re-trigger the automatic transition hooks
+		// before the phase flag is written, so guard against re-entry.
+		if (this._usrPhaseTransition) return;
+		this._usrPhaseTransition = true;
+		try {
+			return await this.#advancePhase();
+		} finally {
+			this._usrPhaseTransition = false;
+		}
+	}
+
+	async #advancePhase() {
 		let currentPhase = this.getFlag("usr", "phase");
 		if (currentPhase === undefined) {
 			await this.setFlag("usr", "phase", 1);
