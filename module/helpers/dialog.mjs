@@ -291,8 +291,20 @@ export async function editKnowledge(actor, index = -1) {
 						name = categories[selectValue];
 					}
 					const level = Number.parseInt(getDialogValue(dialog, "#level"), 10);
+					// Only GMs can approve. A player's new or changed entry needs approval.
 					const approvedElement = dialog.element.querySelector("#approved");
-					const isApproved = approvedElement ? approvedElement.checked : true;
+					let isApproved;
+					if (game.user.isGM) {
+						isApproved = approvedElement ? approvedElement.checked : true;
+					} else if (index === -1) {
+						isApproved = false;
+					} else {
+						const existing = knowledge[index];
+						const changed =
+							existing.name !== name ||
+							Number.parseInt(existing.level, 10) !== level;
+						isApproved = changed ? false : existing.approved !== false;
+					}
 
 					if (name.length) {
 						if (index === -1) {
