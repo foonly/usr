@@ -10,6 +10,8 @@ export async function useChip(data) {
 	const { actor, type } = data;
 
 	if (type === "red") {
+		if (!(actor.system.chips.red > 0)) return null;
+
 		const bleedingLevels = ["none", "low", "medium", "high"];
 		const currentBleeding = actor.system.bleeding || "none";
 		const canAdrenaline = currentBleeding !== "none";
@@ -36,12 +38,13 @@ export async function useChip(data) {
 			},
 		];
 
-		const action = await new DialogV2({
+		const action = await DialogV2.wait({
 			window: { title: "Use Red Fate Chip" },
 			content: "<p>Select how you want to use your Red Chip:</p>",
 			buttons,
 			classes: ["usr", "dialog"],
-		}).render({ force: true });
+			rejectClose: false,
+		});
 
 		if (!action) return null;
 
@@ -57,13 +60,10 @@ export async function useChip(data) {
 		}
 
 		// For negate or generic, we just subtract the chip and return the label
-		if (actor.system.chips.red > 0) {
-			await actor.update({ "system.chips.red": actor.system.chips.red - 1 });
-			return action === "negate"
-				? "Damage Negation (Halve Incoming Damage)"
-				: "Red Fate Chip";
-		}
-		return null;
+		await actor.update({ "system.chips.red": actor.system.chips.red - 1 });
+		return action === "negate"
+			? "Damage Negation (Halve Incoming Damage)"
+			: "Red Fate Chip";
 	}
 
 	const confirmation = await DialogV2.confirm({
@@ -349,66 +349,71 @@ export async function editContact(actor, index = -1) {
 		},
 	);
 
+	const buttons = [
+		{
+			action: "save",
+			icon: "fa-solid fa-address-book",
+			label: game.i18n.localize("USR.Save"),
+			default: true,
+			callback: (_event, _button, dialog) => {
+				const name = getDialogValue(dialog, "#contact-name");
+				const type = getDialogValue(dialog, "#contact-type");
+				let level = Number.parseInt(
+					getDialogValue(dialog, "#contact-level"),
+					10,
+				);
+				const shortDescription = getDialogValue(dialog, "#contact-short");
+				const details = getDialogValue(dialog, "#contact-details");
+
+				// Group contacts can only be at level 0 or 1.
+				if (type === "group" && level > 1) {
+					level = 1;
+				}
+
+				if (name.length) {
+					if (index === -1) {
+						contacts.push({
+							name,
+							type,
+							level,
+							shortDescription,
+							details,
+						});
+					} else {
+						contacts[index] = {
+							name,
+							type,
+							level,
+							shortDescription,
+							details,
+						};
+					}
+					actor.update({ "system.contacts": contacts });
+				}
+			},
+		},
+	];
+
+	// Only existing contacts can be deleted.
+	if (index > -1) {
+		buttons.push({
+			action: "delete",
+			icon: "fa-solid fa-trash",
+			label: game.i18n.localize("USR.Delete"),
+			callback: () => {
+				contacts.splice(index, 1);
+				actor.update({ "system.contacts": contacts });
+			},
+		});
+	}
+
 	return new DialogV2({
 		classes: ["usr", "dialog", "contact"],
 		window: {
 			title: game.i18n.localize("USR.Contact"),
 		},
 		content,
-		buttons: [
-			{
-				action: "save",
-				icon: "fa-solid fa-address-book",
-				label: game.i18n.localize("USR.Save"),
-				default: true,
-				callback: (_event, _button, dialog) => {
-					const name = getDialogValue(dialog, "#contact-name");
-					const type = getDialogValue(dialog, "#contact-type");
-					let level = Number.parseInt(
-						getDialogValue(dialog, "#contact-level"),
-						10,
-					);
-					const shortDescription = getDialogValue(dialog, "#contact-short");
-					const details = getDialogValue(dialog, "#contact-details");
-
-					// Group contacts can only be at level 0 or 1.
-					if (type === "group" && level > 1) {
-						level = 1;
-					}
-
-					if (name.length) {
-						if (index === -1) {
-							contacts.push({
-								name,
-								type,
-								level,
-								shortDescription,
-								details,
-							});
-						} else {
-							contacts[index] = {
-								name,
-								type,
-								level,
-								shortDescription,
-								details,
-							};
-						}
-						actor.update({ "system.contacts": contacts });
-					}
-				},
-			},
-			{
-				action: "delete",
-				icon: "fa-solid fa-trash",
-				label: game.i18n.localize("USR.Delete"),
-				condition: index > -1,
-				callback: () => {
-					contacts.splice(index, 1);
-					actor.update({ "system.contacts": contacts });
-				},
-			},
-		],
+		buttons,
 	}).render({ force: true });
 }
 
