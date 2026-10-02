@@ -715,7 +715,12 @@ Hooks.once("ready", async function () {
 	});
 
 	// Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
-	Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
+	// The hook must return false synchronously to stop core creating its own macro.
+	Hooks.on("hotbarDrop", (bar, data, slot) => {
+		if (data.type !== "Item") return;
+		createItemMacro(data, slot);
+		return false;
+	});
 });
 
 /* -------------------------------------------- */
@@ -727,11 +732,10 @@ Hooks.once("ready", async function () {
  * Get an existing item macro if one exists, otherwise create a new one.
  * @param {Object} data     The dropped data
  * @param {number} slot     The hotbar slot to use
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 async function createItemMacro(data, slot) {
 	// First, determine if this is a valid owned item.
-	if (data.type !== "Item") return;
 	if (!data.uuid.includes("Actor.") && !data.uuid.includes("Token.")) {
 		return ui.notifications.warn(
 			"You can only create macro buttons for owned Items",
@@ -754,8 +758,7 @@ async function createItemMacro(data, slot) {
 			flags: { "usr.itemMacro": true },
 		});
 	}
-	game.user.assignHotbarMacro(macro, slot);
-	return false;
+	await game.user.assignHotbarMacro(macro, slot);
 }
 
 /**
