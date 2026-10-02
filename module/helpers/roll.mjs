@@ -333,23 +333,20 @@ export async function usrRoll(data) {
 				const target = game.user.targets.first();
 
 				// Melee attack flow
-				if (item.type === "melee") {
-					if (target) {
-						return await createCombatInteraction(
-							data.actor,
-							target.actor,
-							item,
-							result,
-							flavor,
-						);
-					} else if (game.combat?.active) {
-						ui.notifications.warn("Please select a target for melee attacks.");
-						return { roll, result };
-					}
+				if (item.type === "melee" && target) {
+					await createCombatInteraction(
+						data.actor,
+						target.actor,
+						item,
+						result,
+						flavor,
+					);
+				} else if (item.type === "melee" && game.combat?.active) {
+					ui.notifications.warn("Please select a target for melee attacks.");
 				}
 
 				// Ranged or out-of-combat untargeted: resolve immediately if hit
-				if (roundsFired > 1) {
+				else if (roundsFired > 1) {
 					// Burst or Auto fire mode
 					const targetActor = game.user.targets.first()?.actor || null;
 					const target = game.user.targets.first();
