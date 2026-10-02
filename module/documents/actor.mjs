@@ -114,7 +114,7 @@ export class usrActor extends Actor {
 		let encumbranceMobility = 0;
 		let encumbranceGeneral = 0;
 
-		if (equippedEncumbrance > baseCapacity * 5) {
+		if (equippedEncumbrance > baseCapacity * 4) {
 			encumbranceMobility = -3;
 			encumbranceGeneral = -1;
 		} else if (equippedEncumbrance > baseCapacity * 3) {
