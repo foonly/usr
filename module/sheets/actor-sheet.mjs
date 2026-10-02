@@ -599,17 +599,32 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 	 * @param {Event} event The originating click event.
 	 * @private
 	 */
-	_onRoll(event) {
+	async _onRoll(event) {
 		event.preventDefault();
 		const element = event.currentTarget;
 
-		// Cooldown to prevent double-click / rapid double trigger issues (500ms cooldown)
-		const now = Date.now();
-		if (this._lastRollTime && now - this._lastRollTime < 500) {
-			return;
+		// Ignore further clicks on the same control until its roll has finished,
+		// so a double-click can't roll twice. Other controls stay usable.
+		if (this.#rollingElements.has(element)) return;
+		this.#rollingElements.add(element);
+		try {
+			return await this.#roll(element);
+		} finally {
+			this.#rollingElements.delete(element);
 		}
-		this._lastRollTime = now;
+	}
 
+	/**
+	 * Controls whose roll is currently in progress.
+	 * @type {WeakSet<HTMLElement>}
+	 */
+	#rollingElements = new WeakSet();
+
+	/**
+	 * Perform the roll for a clicked rollable control.
+	 * @param {HTMLElement} element
+	 */
+	async #roll(element) {
 		const dataset = element.dataset;
 
 		if (
@@ -673,7 +688,7 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				itemId = element.closest(".item")?.dataset.itemId;
 			}
 			const item = itemId ? this.actor.items.get(itemId) : null;
-			usrRoll({
+			await usrRoll({
 				actor: this.actor,
 				item: item,
 				difficulty: Number.parseInt(dataset.rollUsr, 10),

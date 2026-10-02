@@ -18,7 +18,8 @@
 		overflow: hidden;
 	}
 
-	.rollable {
+	.rollable,
+	.roll-chip {
 		&:hover,
 		&:focus {
 			color: #000;

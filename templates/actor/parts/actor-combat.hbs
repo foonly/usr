@@ -163,6 +163,7 @@
 						<div class="range-grid">
 							{{#each item.rangeTables.normal}}
 							<button
+								type="button"
 								class="range-roll rollable {{#if (eq ../system.magazine 0)}}empty-mag{{/if}}"
 								data-roll-usr="{{dice}}"
 								data-label="{{../name}} ({{localize label}})"
@@ -182,6 +183,7 @@
 						<div class="range-grid">
 							{{#each item.rangeTables.aimed}}
 							<button
+								type="button"
 								class="range-roll rollable {{#if (eq ../system.magazine 0)}}empty-mag{{/if}}"
 								data-roll-usr="{{dice}}"
 								data-label="{{../name}} ({{localize label}} - Aimed)"
@@ -286,11 +288,11 @@
 		<section class="combat-card">
 			<h4 class="subsection-header">Actions</h4>
 			<div class="combat-actions">
-				<button class="add-heal">Heal (HP: {{system.health.hp}})</button>
-				<button class="remove-stun">Remove Stun</button>
-				<button class="add-damage">Take Damage</button>
+				<button type="button" class="add-heal">Heal (HP: {{system.health.hp}})</button>
+				<button type="button" class="remove-stun">Remove Stun</button>
+				<button type="button" class="add-damage">Take Damage</button>
 				{{#if (ne system.bleeding "none")}}
-				<button class="apply-bleeding">
+				<button type="button" class="apply-bleeding">
 					<i class="fa-solid fa-droplet"></i> Apply Bleeding
 				</button>
 				{{/if}}
