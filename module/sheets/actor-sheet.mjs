@@ -404,6 +404,11 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 			item?.sheet.render({ force: true });
 		});
 
+		// Everything below changes the actor, so only owners of an editable sheet get it.
+		if (!this.isEditable) return;
+
+		on(".rollable", this._onRoll.bind(this));
+
 		on(".edit-asset", (event) => {
 			event.preventDefault();
 			const element = event.currentTarget;
@@ -492,10 +497,6 @@ export class usrActorSheet extends HandlebarsApplicationMixin(ActorSheet) {
 				}
 			});
 		}
-
-		on(".rollable", this._onRoll.bind(this));
-
-		if (!this.isEditable) return;
 
 		on(".trait-edit", (event) => {
 			const key = event.currentTarget.dataset.trait;
