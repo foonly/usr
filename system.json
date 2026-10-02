@@ -4,7 +4,7 @@
 	"description": "The Universal Simple Role-Playing System for FoundryVTT!",
 	"version": "1.9.0",
 	"compatibility": {
-		"minimum": 12,
+		"minimum": 13,
 		"verified": 14
 	},
 	"authors": [

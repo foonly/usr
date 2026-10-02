@@ -27,7 +27,7 @@ The project follows the standard Foundry VTT system structure, utilizing modern 
 
 ### Key Technologies
 
-- **Foundry VTT API**: Specifically compatible with v12 and v14.
+- **Foundry VTT API**: Specifically compatible with v13 and v14.
 - **DataModels**: Used for structured data validation and default values.
 - **Handlebars**: Templating engine for UI.
 - **CSS**: Modern CSS with variables, nesting and imports.
