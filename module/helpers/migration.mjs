@@ -36,20 +36,22 @@ export async function migrateWorld() {
 	);
 	console.log(`USR | Starting migration to ${MIGRATION_VERSION}`);
 
-	const options = { diff: false, recursive: false, render: false };
+	// Foundry writes into the operation object (parent, pack, updates), so each
+	// call needs a fresh one.
+	const options = () => ({ diff: false, recursive: false, render: false });
 	let failures = 0;
 
 	// World Actors and the Items they own
 	for (const actor of game.actors) {
 		try {
 			const source = actor.toObject();
-			await actor.update({ system: source.system }, options);
+			await actor.update({ system: source.system }, options());
 			const itemUpdates = source.items.map((i) => ({
 				_id: i._id,
 				system: i.system,
 			}));
 			if (itemUpdates.length > 0) {
-				await actor.updateEmbeddedDocuments("Item", itemUpdates, options);
+				await actor.updateEmbeddedDocuments("Item", itemUpdates, options());
 			}
 		} catch (err) {
 			failures++;
@@ -60,7 +62,7 @@ export async function migrateWorld() {
 	// World Items
 	for (const item of game.items) {
 		try {
-			await item.update({ system: item.toObject().system }, options);
+			await item.update({ system: item.toObject().system }, options());
 		} catch (err) {
 			failures++;
 			console.error(`USR | Failed migration for Item ${item.name}:`, err);
