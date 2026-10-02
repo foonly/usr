@@ -6,6 +6,22 @@ import { usr } from "../helpers/config.mjs";
  */
 export class usrActor extends Actor {
 	/** @override */
+	async _preCreate(data, options, user) {
+		const allowed = await super._preCreate(data, options, user);
+		if (allowed === false) return false;
+
+		// Start with a full Blood Pool. Its maximum depends on Fortitude, so it
+		// can't be a schema default.
+		if (foundry.utils.getProperty(data, "system.blood.value") === undefined) {
+			const fortitude = this.system.traits?.fortitude;
+			if (fortitude) {
+				const maxBlood = 4 + fortitude.value + (fortitude.modifier ?? 0);
+				this.updateSource({ "system.blood.value": maxBlood });
+			}
+		}
+	}
+
+	/** @override */
 	prepareBaseData() {
 		super.prepareBaseData();
 	}

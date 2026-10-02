@@ -35,14 +35,30 @@ export async function addHealingPoints(actor) {
 				default: true,
 				callback: (_event, _button, dialog) => {
 					let total = 0;
-					const health = actor.system.health;
-					health.hp =
-						(health.hp ?? 0) +
-						Number.parseInt(getDialogValue(dialog, "#add-hp") ?? "0", 10);
+					const health = foundry.utils.deepClone(actor.system.health);
+					const added = Number.parseInt(getDialogValue(dialog, "#add-hp"), 10);
+					health.hp = (health.hp ?? 0) + (Number.isFinite(added) ? added : 0);
+
+					// Wounds can't be healed while the Blood Pool isn't full; HP is kept.
+					const blood = actor.system.blood;
+					const canHealWounds = blood.value >= blood.max;
+					const hasWounds = Object.entries(usr.wounds).some(
+						([key, wound]) => wound.hp > 0 && health[key] > 0,
+					);
+					if (!canHealWounds && hasWounds) {
+						ui.notifications.info(
+							"The Blood Pool must be full before Healing Points can clear wounds.",
+						);
+					}
+
 					if (health.hp > 0) {
 						Object.keys(usr.wounds).forEach((key) => {
 							const wound = usr.wounds[key];
 							if (wound.hp > 0) {
+								if (!canHealWounds) {
+									total += health[key];
+									return;
+								}
 								let nr = health[key];
 								if (nr > 0) {
 									let healNr = Math.floor(health.hp / wound.hp);
